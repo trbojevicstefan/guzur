@@ -574,7 +574,8 @@ export const deleteTempImage = async (req: Request, res: Response) => {
     const fileName = helper.normalizeParam(req.params.fileName) as string
     const imageFile = path.join(env.CDN_TEMP_PROPERTIES, fileName)
     if (!(await helper.pathExists(imageFile))) {
-      throw new Error(`[property.deleteTempImage] temp image ${imageFile} not found`)
+      res.sendStatus(204)
+      return
     }
 
     await asyncFs.unlink(imageFile)

@@ -179,10 +179,7 @@ export const create = async (req: Request, res: Response) => {
       await asyncFs.rename(_image, newPath)
       property.image = filename
     } else {
-      await Property.deleteOne({ _id: property._id })
-      const err = 'Image file not found'
-      logger.error(i18n.t('ERROR'), err)
-      res.status(400).send(i18n.t('ERROR') + err)
+      logger.warn(`[property.create] main image not found in temp: ${_image}`)
     }
 
     // images
@@ -201,10 +198,7 @@ export const create = async (req: Request, res: Response) => {
           await asyncFs.rename(_img, newPath)
           property.images.push(filename)
         } else {
-          await Property.deleteOne({ _id: property._id })
-          const err = 'Image file not found'
-          logger.error(i18n.t('ERROR'), err)
-          res.status(400).send(i18n.t('ERROR') + err)
+          logger.warn(`[property.create] additional image not found in temp: ${_img}`)
         }
         i += 1
       }

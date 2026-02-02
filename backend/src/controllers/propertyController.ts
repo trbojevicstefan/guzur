@@ -367,9 +367,11 @@ export const update = async (req: Request, res: Response) => {
       }
 
       if (image && image !== property.image) {
-        const oldImage = path.join(env.CDN_PROPERTIES, property.image)
-        if (await helper.pathExists(oldImage)) {
-          await asyncFs.unlink(oldImage)
+        if (property.image) {
+          const oldImage = path.join(env.CDN_PROPERTIES, property.image)
+          if (await helper.pathExists(oldImage)) {
+            await asyncFs.unlink(oldImage)
+          }
         }
 
         const filename = `${property._id}_${Date.now()}${path.extname(image)}`

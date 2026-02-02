@@ -1,0 +1,20 @@
+.create-development {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0 120px;
+}
+
+.development-form {
+  width: 560px;
+  padding: 24px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
+}
+
+.development-form-title {
+  text-align: center;
+  color: var(--text-strong);
+}

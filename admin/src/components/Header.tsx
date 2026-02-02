@@ -23,15 +23,18 @@ import {
   Language as LanguageIcon,
   Settings as SettingsIcon,
   Dashboard as DashboardIcon,
-  CorporateFare as AgenciesIcon,
   LocationOn as LocationsIcon,
   Home as PropertiesIcon,
+  ListAlt as LeadsIcon,
   People as UsersIcon,
   InfoTwoTone as AboutIcon,
   DescriptionTwoTone as TosIcon,
   ExitToApp as SignoutIcon,
   Flag as CountriesIcon,
   CalendarMonth as SchedulerIcon,
+  Apartment as DevelopmentsIcon,
+  RequestQuote as RfqsIcon,
+  Business as OrganizationsIcon,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import * as movininTypes from ':movinin-types'
@@ -270,7 +273,15 @@ const Header = ({
 
   return (
     <div style={hidden ? { display: 'none' } : classes.grow} className="header">
-      <AppBar position="fixed" sx={{ bgcolor: '#121212' }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          bgcolor: 'rgba(255, 255, 255, 0.85)',
+          color: '#111',
+          backdropFilter: 'blur(24px)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.08)',
+        }}
+      >
         <Toolbar className="toolbar">
           {isLoaded && isSignedIn && (
             <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="open drawer" onClick={handleSideMenuOpen}>
@@ -297,15 +308,6 @@ const Header = ({
                 >
                   <ListItemIcon><SchedulerIcon /></ListItemIcon>
                   <ListItemText primary={strings.SCHEDULER} />
-                </ListItem>
-                <ListItem
-                  onClick={() => {
-                    navigate('/agencies')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><AgenciesIcon /></ListItemIcon>
-                  <ListItemText primary={strings.AGENCIES} />
                 </ListItem>
                 <ListItem
                   onClick={() => {
@@ -336,12 +338,75 @@ const Header = ({
                 </ListItem>
                 <ListItem
                   onClick={() => {
+                    navigate('/brokers')
+                    handleSideMenuClose()
+                  }}
+                >
+                  <ListItemIcon><UsersIcon /></ListItemIcon>
+                  <ListItemText primary={strings.AGENCIES} />
+                </ListItem>
+                <ListItem
+                  onClick={() => {
+                    navigate('/organizations')
+                    handleSideMenuClose()
+                  }}
+                >
+                  <ListItemIcon><OrganizationsIcon /></ListItemIcon>
+                  <ListItemText primary={strings.ORGANIZATIONS} />
+                </ListItem>
+                <ListItem
+                  onClick={() => {
+                    navigate('/developments')
+                    handleSideMenuClose()
+                  }}
+                >
+                  <ListItemIcon><DevelopmentsIcon /></ListItemIcon>
+                  <ListItemText primary={strings.DEVELOPMENTS} />
+                </ListItem>
+                <ListItem
+                  onClick={() => {
+                    navigate('/developers')
+                    handleSideMenuClose()
+                  }}
+                >
+                  <ListItemIcon><UsersIcon /></ListItemIcon>
+                  <ListItemText primary={strings.DEVELOPERS} />
+                </ListItem>
+                <ListItem
+                  onClick={() => {
+                    navigate('/leads')
+                    handleSideMenuClose()
+                  }}
+                >
+                  <ListItemIcon><LeadsIcon /></ListItemIcon>
+                  <ListItemText primary={strings.LEADS} />
+                </ListItem>
+                <ListItem
+                  onClick={() => {
+                    navigate('/rfqs')
+                    handleSideMenuClose()
+                  }}
+                >
+                  <ListItemIcon><RfqsIcon /></ListItemIcon>
+                  <ListItemText primary={strings.RFQS} />
+                </ListItem>
+                <ListItem
+                  onClick={() => {
                     navigate('/users')
                     handleSideMenuClose()
                   }}
                 >
                   <ListItemIcon><UsersIcon /></ListItemIcon>
                   <ListItemText primary={strings.USERS} />
+                </ListItem>
+                <ListItem
+                  onClick={() => {
+                    navigate('/owners')
+                    handleSideMenuClose()
+                  }}
+                >
+                  <ListItemIcon><UsersIcon /></ListItemIcon>
+                  <ListItemText primary={strings.OWNERS} />
                 </ListItem>
                 <ListItem
                   onClick={() => {

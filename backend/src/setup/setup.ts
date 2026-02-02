@@ -29,6 +29,7 @@ try {
       type: movininTypes.UserType.Admin,
       active: true,
       verified: true,
+      approved: true,
     })
     await newAdmin.save()
     logger.info('Admin user created successfully')

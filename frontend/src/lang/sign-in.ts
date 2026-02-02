@@ -1,4 +1,4 @@
-import LocalizedStrings from 'localized-strings'
+﻿import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/utils/langHelper'
 
 const strings = new LocalizedStrings({
@@ -8,8 +8,17 @@ const strings = new LocalizedStrings({
     SIGN_UP: "S'inscrire",
     ERROR_IN_SIGN_IN: 'E-mail ou mot de passe incorrect.',
     IS_BLACKLISTED: 'Votre compte est suspendu.',
-    RESET_PASSWORD: 'Mot de passe oublié ?',
-    STAY_CONNECTED: 'Rester connecté',
+    RESET_PASSWORD: 'Mot de passe oubliÃ© ?',
+    STAY_CONNECTED: 'Rester connectÃ©',
+  },
+  ar: {
+    SIGN_IN_HEADING: 'تسجيل الدخول',
+    SIGN_IN: 'تسجيل الدخول',
+    SIGN_UP: 'إنشاء حساب',
+    ERROR_IN_SIGN_IN: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+    IS_BLACKLISTED: 'تم تعليق حسابك.',
+    RESET_PASSWORD: 'نسيت كلمة المرور؟',
+    STAY_CONNECTED: 'البقاء متصلاً',
   },
   en: {
     SIGN_IN_HEADING: 'Sign in',
@@ -24,3 +33,4 @@ const strings = new LocalizedStrings({
 
 langHelper.setLanguage(strings)
 export { strings }
+

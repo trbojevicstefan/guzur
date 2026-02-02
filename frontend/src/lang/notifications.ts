@@ -1,4 +1,4 @@
-import LocalizedStrings from 'localized-strings'
+﻿import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/utils/langHelper'
 
 const strings = new LocalizedStrings({
@@ -10,8 +10,19 @@ const strings = new LocalizedStrings({
     MARK_ALL_AS_READ: 'Tout marquer comme lu',
     MARK_ALL_AS_UNREAD: 'Tout marquer comme non lu',
     DELETE_ALL: 'Tout supprimer',
-    DELETE_NOTIFICATION: 'Êtes-vous sûr de vouloir supprimer cette notification ?',
-    DELETE_NOTIFICATIONS: 'Êtes-vous sûr de vouloir supprimer ces notifications ?',
+    DELETE_NOTIFICATION: 'ÃŠtes-vous sÃ»r de vouloir supprimer cette notification ?',
+    DELETE_NOTIFICATIONS: 'ÃŠtes-vous sÃ»r de vouloir supprimer ces notifications ?',
+  },
+  ar: {
+    EMPTY_LIST: 'لا توجد إشعارات',
+    VIEW: 'عرض',
+    MARK_AS_READ: 'تحديد كمقروء',
+    MARK_AS_UNREAD: 'تحديد كغير مقروء',
+    MARK_ALL_AS_READ: 'تحديد الكل كمقروء',
+    MARK_ALL_AS_UNREAD: 'تحديد الكل كغير مقروء',
+    DELETE_ALL: 'حذف الكل',
+    DELETE_NOTIFICATION: 'هل أنت متأكد أنك تريد حذف هذا الإشعار؟',
+    DELETE_NOTIFICATIONS: 'هل أنت متأكد أنك تريد حذف هذه الإشعارات؟',
   },
   en: {
     EMPTY_LIST: 'No notifications',
@@ -28,3 +39,4 @@ const strings = new LocalizedStrings({
 
 langHelper.setLanguage(strings)
 export { strings }
+

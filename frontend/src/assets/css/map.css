@@ -9,9 +9,47 @@
   width: 100%;
 }
 
+.map-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  gap: 6px;
+  z-index: 500;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 4px;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.map-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+}
+
+.map-toggle-btn.active {
+  background: #FF385C;
+  color: #fff;
+}
+
 .marker .name {
   text-align: center;
   margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.marker .meta {
+  text-align: center;
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 6px;
 }
 
 .marker .action {
@@ -24,9 +62,9 @@
 
 .marker .action-btn {
   cursor: pointer;
-  background: #2981CA;
+  background: #FF385C;
   color: #fff;
-  border: #3777A2 1px solid;
+  border: #FF385C 1px solid;
   border-radius: 4px;
   padding: 4px 10px;
   margin-bottom: 5px;

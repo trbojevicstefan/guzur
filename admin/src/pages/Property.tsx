@@ -43,6 +43,9 @@ const Property = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [openInfoDialog, setOpenInfoDialog] = useState(false)
   const [language, setLanguage] = useState(env.DEFAULT_LANGUAGE)
+  const descriptionHtml = property?.useAiDescription && property.aiDescription
+    ? property.aiDescription
+    : property?.description
 
   const edit = helper.admin(user) || (user?._id === property?.agency._id)
 
@@ -157,8 +160,24 @@ const Property = () => {
 
               {/* Property description */}
               <div className="description">
-                <div dangerouslySetInnerHTML={{ __html: property.description }} />
+                <div className="description-label">
+                  {property.useAiDescription ? strings.AI_DESCRIPTION : strings.DESCRIPTION}
+                </div>
+                <div dangerouslySetInnerHTML={{ __html: descriptionHtml || '' }} />
               </div>
+
+              {property.aiDescription && (
+                <div className="description secondary">
+                  <div className="description-label">
+                    {property.useAiDescription ? strings.PUBLISHER_DESCRIPTION : strings.AI_DESCRIPTION}
+                  </div>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: property.useAiDescription ? property.description : property.aiDescription,
+                    }}
+                  />
+                </div>
+              )}
 
               <div className="footer">
                 <AgencyBadge agency={property.agency} />

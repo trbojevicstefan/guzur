@@ -1,9 +1,12 @@
 div.status-filter {
-  background: #fafafa;
+  background: var(--surface-glass);
   margin: 10px 10px 0 0;
-  border: 1px solid #dadada;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   font-size: 13px;
   text-align: center;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 div.status-filter ul.status-list {
@@ -41,5 +44,5 @@ div.status-filter div.filter-actions {
 div.status-filter div.filter-actions span.uncheckall {
   text-decoration: underline;
   cursor: pointer;
-  color: #0064c8;
+  color: var(--accent);
 }

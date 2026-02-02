@@ -60,10 +60,10 @@ export const isDate = (value?: any): boolean => {
  * @returns {string}
  */
 export const joinURL = (part1?: string, part2?: string) => {
-  if (!part1 || !part2) {
+  if (!part1 || !part2 || part1 === 'undefined' || part2 === 'undefined' || part1 === 'null' || part2 === 'null') {
     const msg = '[joinURL] part undefined'
-    console.log(msg)
-    throw new Error(msg)
+    console.warn(msg, { part1, part2 })
+    return ''
   }
 
   if (part1.charAt(part1.length - 1) === '/') {
@@ -300,6 +300,17 @@ export const getAllRentalTerms = () =>
     movininTypes.RentalTerm.Weekly,
     movininTypes.RentalTerm.Daily,
     movininTypes.RentalTerm.Yearly,
+  ]
+
+/**
+ * Get all ListingTypes for filtering.
+ *
+ * @returns {movininTypes.ListingType[]}
+ */
+export const getAllListingTypes = () =>
+  [
+    movininTypes.ListingType.Rent,
+    movininTypes.ListingType.Sale,
   ]
 
 /**

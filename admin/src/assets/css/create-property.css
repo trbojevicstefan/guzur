@@ -17,7 +17,15 @@ div.create-property {
 .property-form-title {
   text-align: center;
   text-transform: capitalize;
-  color: #121212;
+  color: var(--text-strong);
+}
+
+.property-form {
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 .checkbox-fc {
@@ -31,7 +39,7 @@ div.create-property {
 }
 
 .label {
-  color: rgb(0 0 0 / 60%);
+  color: var(--text-muted);
   font-weight: 400;
   font-size: 12px;
   display: block;
@@ -44,7 +52,9 @@ div.create-property {
 }
 
 .editor-field .editor {
-  border: 1px solid #F1F1F1;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
   height: 300px;
   overflow: auto;
 }

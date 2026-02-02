@@ -56,7 +56,10 @@ div.users {
     left: 0;
     width: 300px;
     padding: 20px 0 0 12px;
-    background: #fefefe;
+    background: var(--surface-glass);
+    border-right: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   div.users div.col-1 .user-type-filter {

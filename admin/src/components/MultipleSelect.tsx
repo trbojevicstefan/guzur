@@ -169,6 +169,7 @@ const MultipleSelect = ({
 
           if (type === movininTypes.RecordType.Agency && !multiple && values.length === 1 && values[0]) {
             const option = values[0]
+            const hasImage = !!option?.image
 
             return (
               <TextField
@@ -181,14 +182,18 @@ const MultipleSelect = ({
                     ...params.InputProps,
                     startAdornment: (
                       <>
-                        <InputAdornment position="start">
-                          <div className="agency-ia">
+                      <InputAdornment position="start">
+                        <div className="agency-ia">
+                          {hasImage ? (
                             <img src={movininHelper.joinURL(env.CDN_USERS, option.image)} alt={option.name} />
-                          </div>
-                        </InputAdornment>
-                        {params.InputProps.startAdornment}
-                      </>
-                    ),
+                          ) : (
+                            <AccountCircle className="avatar-small suo" color="disabled" />
+                          )}
+                        </div>
+                      </InputAdornment>
+                      {params.InputProps.startAdornment}
+                    </>
+                  ),
                   }
                 }}
               />
@@ -221,6 +226,7 @@ const MultipleSelect = ({
 
           if (type === movininTypes.RecordType.Property && !multiple && values.length === 1 && values[0]) {
             const option = values[0]
+            const hasImage = !!option?.image
 
             return (
               <TextField
@@ -233,7 +239,8 @@ const MultipleSelect = ({
                     ...params.InputProps,
                     startAdornment: (
                       <>
-                        <InputAdornment position="start">
+                      <InputAdornment position="start">
+                        {hasImage ? (
                           <img
                             src={movininHelper.joinURL(env.CDN_PROPERTIES, option.image)}
                             alt={option.name}
@@ -241,10 +248,13 @@ const MultipleSelect = ({
                               height: env.SELECTED_PROPERTY_OPTION_IMAGE_HEIGHT,
                             }}
                           />
-                        </InputAdornment>
-                        {params.InputProps.startAdornment}
-                      </>
-                    ),
+                        ) : (
+                          <AccountCircle className="avatar-small suo" color="disabled" />
+                        )}
+                      </InputAdornment>
+                      {params.InputProps.startAdornment}
+                    </>
+                  ),
                   }
                 }}
               />
@@ -284,16 +294,21 @@ const MultipleSelect = ({
                 <span className="option-name">{option.name}</span>
               </li>
             )
-          } if (type === movininTypes.RecordType.Agency) {
-            return (
-              <li {...props} key={option._id} className={`${props.className} ms-option`}>
-                <span className="option-image agency-ia">
-                  <img src={movininHelper.joinURL(env.CDN_USERS, option.image)} alt={option.name} />
-                </span>
-                <span className="option-name">{option.name}</span>
-              </li>
-            )
-          } if (type === movininTypes.RecordType.Location) {
+            } if (type === movininTypes.RecordType.Agency) {
+              const hasImage = !!option?.image
+              return (
+                <li {...props} key={option._id} className={`${props.className} ms-option`}>
+                  <span className="option-image agency-ia">
+                    {hasImage ? (
+                      <img src={movininHelper.joinURL(env.CDN_USERS, option.image)} alt={option.name} />
+                    ) : (
+                      <AccountCircle className="avatar-medium" color="disabled" />
+                    )}
+                  </span>
+                  <span className="option-name">{option.name}</span>
+                </li>
+              )
+            } if (type === movininTypes.RecordType.Location) {
             return (
               <li {...props} key={option._id} className={`${props.className} ms-option`}>
                 <span className="option-image">
@@ -302,21 +317,26 @@ const MultipleSelect = ({
                 <span className="option-name">{option.name}</span>
               </li>
             )
-          } if (type === movininTypes.RecordType.Property) {
-            return (
-              <li {...props} key={option._id} className={`${props.className} ms-option`}>
-                <span className="option-image property-ia">
-                  <img
-                    src={movininHelper.joinURL(env.CDN_PROPERTIES, option.image)}
-                    alt={option.name}
-                    style={{
-                      height: env.PROPERTY_OPTION_IMAGE_HEIGHT,
-                    }}
-                  />
-                </span>
-                <span className="property-option-name">{option.name}</span>
-              </li>
-            )
+            } if (type === movininTypes.RecordType.Property) {
+              const hasImage = !!option?.image
+              return (
+                <li {...props} key={option._id} className={`${props.className} ms-option`}>
+                  <span className="option-image property-ia">
+                    {hasImage ? (
+                      <img
+                        src={movininHelper.joinURL(env.CDN_PROPERTIES, option.image)}
+                        alt={option.name}
+                        style={{
+                          height: env.PROPERTY_OPTION_IMAGE_HEIGHT,
+                        }}
+                      />
+                    ) : (
+                      <AccountCircle className="avatar-medium" color="disabled" />
+                    )}
+                  </span>
+                  <span className="property-option-name">{option.name}</span>
+                </li>
+              )
           }
 
           return (

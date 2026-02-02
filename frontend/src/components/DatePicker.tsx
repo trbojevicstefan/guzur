@@ -15,6 +15,8 @@ interface DatePickerProps {
   language?: string
   variant?: TextFieldVariants
   readOnly?: boolean
+  error?: boolean
+  helperText?: string
   onChange?: (value: Date | null) => void
   onError?: (error: DateValidationError, value: Date | null) => void
 }
@@ -28,6 +30,8 @@ const DatePicker = ({
   language,
   variant,
   readOnly,
+  error,
+  helperText,
   onChange,
   onError
 }: DatePickerProps) => {
@@ -77,6 +81,8 @@ const DatePicker = ({
           textField: {
             variant: variant || 'standard',
             required,
+            error,
+            helperText,
           },
           actionBar: {
             actions: ['accept', 'cancel', 'clear'],

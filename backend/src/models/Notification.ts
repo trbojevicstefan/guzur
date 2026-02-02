@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose'
 import * as env from '../config/env.config'
+import * as movininTypes from ':movinin-types'
 
 const notificationSchema = new Schema<env.Notification>(
   {
@@ -16,6 +17,17 @@ const notificationSchema = new Schema<env.Notification>(
     booking: {
       type: Schema.Types.ObjectId,
       ref: 'Booking',
+    },
+    link: {
+      type: String,
+    },
+    type: {
+      type: String,
+      enum: [
+        movininTypes.NotificationType.General,
+        movininTypes.NotificationType.Message,
+      ],
+      default: movininTypes.NotificationType.General,
     },
     isRead: {
       type: Boolean,

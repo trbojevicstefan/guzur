@@ -98,7 +98,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 export const checkCheckoutSession = async (req: Request, res: Response) => {
   try {
     const stripeAPI = (await import('../payment/stripe.js')).default
-    const { sessionId } = req.params
+    const sessionId = helper.normalizeParam(req.params.sessionId) as string
 
     //
     // 1. Retrieve Checkout Sesssion and Booking

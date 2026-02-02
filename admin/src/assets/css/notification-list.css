@@ -24,8 +24,10 @@ div.notifications div.header-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #fff;
-  border-bottom: 1px solid #ddd;
+  background: var(--surface-glass);
+  border-bottom: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
   padding: 5px 0;
 }
 
@@ -46,8 +48,10 @@ div.notifications div.footer {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--surface-border);
   padding: 5px 10px 5px 0;
+  background: var(--surface-glass);
+  backdrop-filter: blur(24px);
 }
 
 div.notifications div.footer div.row-count {
@@ -94,16 +98,18 @@ div.notifications div.notifications-list div.notification-container div.notifica
 }
 
 div.notifications div.notifications-list div.notification-container div.notification {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  color: #333;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  color: var(--text-strong);
   margin-bottom: 10px;
   min-height: 75px;
   word-break: break-word;
   padding: 10px;
   font-size: 15px;
   width: 100%;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 div.notifications div.notifications-list div.notification-container .unread {
@@ -111,7 +117,7 @@ div.notifications div.notifications-list div.notification-container .unread {
 }
 
 div.notifications div.notifications-list div.notification-container div.notification div.date {
-  color: #878787;
+  color: var(--text-muted);
   margin-bottom: 5px;
 }
 

@@ -19,6 +19,7 @@ import { strings } from '@/lang/settings'
 import * as UserService from '@/services/UserService'
 import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
+import LocationSelectList from '@/components/LocationSelectList'
 import * as helper from '@/utils/helper'
 import { useUserContext, UserContextType } from '@/context/UserContext'
 
@@ -33,6 +34,7 @@ const Settings = () => {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [location, setLocation] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState<movininTypes.Location | undefined>()
   const [bio, setBio] = useState('')
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -63,8 +65,10 @@ const Settings = () => {
     }
   }
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
+  const handleLocationSelect = (values: movininTypes.Option[]) => {
+    const value = values[0] as movininTypes.Location | undefined
+    setSelectedLocation(value)
+    setLocation(value?.name || '')
   }
 
   const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,6 +155,7 @@ const Settings = () => {
       setFullName(_user.fullName)
       setPhone(_user.phone || '')
       setLocation(_user.location || '')
+      setSelectedLocation(_user.location ? { _id: _user.location, name: _user.location } : undefined)
       setBio(_user.bio || '')
       setEnableEmailNotifications(_user.enableEmailNotifications || false)
       setVisible(true)
@@ -190,8 +195,11 @@ const Settings = () => {
                 <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
               </FormControl>
               <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
+                <LocationSelectList
+                  label={commonStrings.LOCATION}
+                  value={selectedLocation}
+                  onChange={handleLocationSelect}
+                />
               </FormControl>
               <FormControl fullWidth margin="dense">
                 <InputLabel>{commonStrings.BIO}</InputLabel>

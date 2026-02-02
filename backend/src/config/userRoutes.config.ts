@@ -6,6 +6,7 @@ const routes = {
   resend: '/api/resend/:type/:email/:reset',
   signup: '/api/sign-up',
   adminSignup: '/api/admin-sign-up',
+  roleSignup: '/api/sign-up/:role',
   confirmEmail: '/api/confirm-email/:email/:token',
   resendLink: '/api/resend-link',
   validateEmail: '/api/validate-email',
@@ -19,6 +20,7 @@ const routes = {
   update: '/api/update-user',
   updateLanguage: '/api/update-language',
   updateEmailNotifications: '/api/update-email-notifications',
+  completeOnboarding: '/api/complete-onboarding',
   changePassword: '/api/change-password',
   createAvatar: '/api/create-avatar',
   updateAvatar: '/api/update-avatar/:userId',
@@ -31,6 +33,7 @@ const routes = {
   verifyRecaptcha: '/api/verify-recaptcha/:token/:ip',
   sendEmail: '/api/send-email',
   hasPassword: '/api/has-password/:id',
+  getFrontendDeveloper: '/api/frontend-developer/:id',
 }
 
 export default routes

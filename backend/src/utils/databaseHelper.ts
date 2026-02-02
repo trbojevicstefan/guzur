@@ -11,6 +11,8 @@ import Token, { TOKEN_EXPIRE_AT_INDEX_NAME } from '../models/Token'
 import User, { USER_EXPIRE_AT_INDEX_NAME } from '../models/User'
 import Country from '../models/Country'
 import Property from '../models/Property'
+import Development from '../models/Development'
+import Lead from '../models/Lead'
 import * as databaseTTLHelper from './databaseTTLHelper'
 import * as databaseLangHelper from './databaseLangHelper'
 
@@ -184,6 +186,8 @@ const defineModels = <T extends readonly unknown[]>(models: T) => models
 export const models = defineModels([
   Booking,
   Country,
+  Development,
+  Lead,
   Location,
   LocationValue,
   Notification,

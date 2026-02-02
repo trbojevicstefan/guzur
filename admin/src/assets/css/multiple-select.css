@@ -5,7 +5,7 @@ li.ms-option {
 }
 
 li.ms-option:hover {
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
 }
 
@@ -18,7 +18,7 @@ li.ms-option:hover {
 }
 
 .option-name {
-  color: #333;
+  color: var(--text-strong);
   display: inline-block;
   font-size: 0.9em;
   line-height: 1em;
@@ -28,7 +28,7 @@ li.ms-option:hover {
 }
 
 .property-option-name {
-  color: #333;
+  color: var(--text-strong);
   display: inline-block;
   font-size: 1em;
   font-weight: 600;

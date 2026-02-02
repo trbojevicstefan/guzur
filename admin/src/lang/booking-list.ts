@@ -4,7 +4,7 @@ import * as langHelper from '@/utils/langHelper'
 const strings = new LocalizedStrings({
   fr: {
     PROPERTY: 'Propriété',
-    AGENCY: 'Agency',
+    AGENCY: 'Broker',
     RENTER: 'Locataire',
     PRICE: 'Prix',
     STATUS: 'Statut',
@@ -20,7 +20,7 @@ const strings = new LocalizedStrings({
   },
   en: {
     PROPERTY: 'Property',
-    AGENCY: 'Agency',
+    AGENCY: 'Broker',
     RENTER: 'Renter',
     PRICE: 'Price',
     STATUS: 'Status',

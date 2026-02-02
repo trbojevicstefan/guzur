@@ -1,0 +1,31 @@
+.organizations {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 20px;
+  padding: 24px;
+}
+
+.organizations-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.organizations-filter {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 6px 10px;
+  box-shadow: 0 14px 32px rgba(17, 17, 17, 0.06);
+}
+
+.organizations-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .organizations {
+    grid-template-columns: 1fr;
+  }
+}

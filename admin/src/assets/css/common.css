@@ -1,11 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Sora:wght@400;500;600;700&display=swap');
+
 :root {
   --toastify-color-progress-info: #fff !important;
   --toastify-color-progress-bgo: .6 !important;
   --toastify-icon-color-info: #fff !important;
+
+  --bg-base: #fafafa;
+  --accent: #ff385c;
+  --text-strong: #111111;
+  --text-muted: #6b7280;
+
+  --surface-glass: rgba(255, 255, 255, 0.8);
+  --surface-border: rgba(255, 255, 255, 0.2);
+  --shadow-ambient: 0 20px 50px rgba(0, 0, 0, 0.05);
+
+  --radius-xl: 2rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 999px;
+
+  --font-body: 'Sora', 'Segoe UI', sans-serif;
+  --font-heading: 'Playfair Display', 'Times New Roman', serif;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-strong);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+.glass-surface {
+  background: var(--surface-glass);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+}
+
+.glass-card {
+  background: var(--surface-glass);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
+}
+
+/* DataGrid / MUI table polish */
+.MuiDataGrid-root {
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
+}
+
+.MuiDataGrid-columnHeaders {
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+}
+
+.MuiDataGrid-row:nth-of-type(even) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.MuiDataGrid-row:hover {
+  background: rgba(255, 56, 92, 0.06);
+}
+
+.MuiDataGrid-cell {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.MuiDataGrid-footerContainer {
+  background: rgba(255, 255, 255, 0.7);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.MuiDataGrid-panel .MuiPaper-root,
+.MuiDataGrid-panel .MuiPopover-paper {
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 #nprogress .bar {
-  background: #1a1a1a !important;
+  background: var(--accent) !important;
 }
 
 .grecaptcha-badge {
@@ -18,14 +106,18 @@
 }
 
 .btn-primary {
-  background-color: #121212 !important;
+  background-color: var(--accent) !important;
   color: #fff !important;
-  opacity: 0.9;
+  opacity: 0.95;
+  border-radius: var(--radius-pill) !important;
+  text-transform: none !important;
 }
 
 .btn-secondary {
   background-color: #999 !important;
   color: #fff !important;
+  border-radius: var(--radius-pill) !important;
+  text-transform: none !important;
 }
 
 .btn-primary:hover,
@@ -44,7 +136,7 @@
 
 .btn-lnk {
   background-color: transparent !important;
-  color: #1a1a1a !important;
+  color: var(--accent) !important;
   font-weight: 400 !important;
   text-decoration: underline !important;
   font-size: 16px !important;

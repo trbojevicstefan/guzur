@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  IconButton,
   Button,
   Dialog,
   DialogTitle,
@@ -198,34 +197,54 @@ const AgencyList = ({
             const edit = admin || user?._id === agency._id
             const canDelete = admin
 
+            const avatarUrl = agency.avatar && env.CDN_USERS
+              ? movininHelper.joinURL(env.CDN_USERS, agency.avatar)
+              : ''
+            const initials = (agency.fullName || '').split(' ').map((word) => word[0]).join('').substring(0, 2).toUpperCase()
+
             return (
               <article key={agency._id}>
                 <div className="agency-item">
                   <div className="agency-item-avatar">
-                    <img src={movininHelper.joinURL(env.CDN_USERS, agency.avatar)} alt={agency.fullName} />
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={agency.fullName} />
+                    ) : (
+                      <span className="agency-item-initials">{initials || '?'}</span>
+                    )}
                   </div>
                   <span className="agency-item-title">{agency.fullName}</span>
                 </div>
                 <div className="agency-actions">
-                  {canDelete && (
-                    <Tooltip title={commonStrings.DELETE}>
-                      <IconButton data-id={agency._id} data-index={index} onClick={handleDelete}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  )}
+                  <Button
+                    size="small"
+                    startIcon={<ViewIcon />}
+                    className="agency-action-btn"
+                    onClick={() => navigate(`/broker?c=${agency._id}`)}
+                  >
+                    {strings.VIEW_AGENCY}
+                  </Button>
                   {edit && (
-                    <Tooltip title={commonStrings.UPDATE}>
-                      <IconButton onClick={() => navigate(`/update-agency?c=${agency._id}`)}>
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
+                    <Button
+                      size="small"
+                      startIcon={<EditIcon />}
+                      className="agency-action-btn"
+                      onClick={() => navigate(`/update-broker?c=${agency._id}`)}
+                    >
+                      {commonStrings.UPDATE}
+                    </Button>
                   )}
-                  <Tooltip title={strings.VIEW_AGENCY}>
-                    <IconButton onClick={() => navigate(`/agency?c=${agency._id}`)}>
-                      <ViewIcon />
-                    </IconButton>
-                  </Tooltip>
+                  {canDelete && (
+                    <Button
+                      size="small"
+                      startIcon={<DeleteIcon />}
+                      className="agency-action-btn"
+                      onClick={(e) => handleDelete(e)}
+                      data-id={agency._id}
+                      data-index={index}
+                    >
+                      {commonStrings.DELETE}
+                    </Button>
+                  )}
                 </div>
               </article>
             )

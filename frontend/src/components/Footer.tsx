@@ -38,7 +38,8 @@ const Footer = () => {
         <div className="main-section">
           <div className="title">{strings.RENT}</div>
           <ul className="links">
-            <li onClick={() => navigate('/agencies')}>{strings.AGENCIES}</li>
+            <li onClick={() => navigate('/brokers')}>{strings.BROKERS}</li>
+            <li onClick={() => navigate('/developers')}>{strings.DEVELOPERS}</li>
             <li onClick={() => navigate('/destinations')}>{strings.LOCATIONS}</li>
           </ul>
         </div>

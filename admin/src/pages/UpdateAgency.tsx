@@ -25,6 +25,7 @@ import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import NoMatch from './NoMatch'
 import Avatar from '@/components/Avatar'
+import LocationSelectList from '@/components/LocationSelectList'
 
 import '@/assets/css/update-agency.css'
 
@@ -36,6 +37,7 @@ const UpdateAgency = () => {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [location, setLocation] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState<movininTypes.Location | undefined>()
   const [bio, setBio] = useState('')
   const [error, setError] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -117,8 +119,10 @@ const UpdateAgency = () => {
     validatePhone(e.target.value)
   }
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
+  const handleLocationSelect = (values: movininTypes.Option[]) => {
+    const value = values[0] as movininTypes.Location | undefined
+    setSelectedLocation(value)
+    setLocation(value?.name || '')
   }
 
   const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -186,6 +190,7 @@ const UpdateAgency = () => {
               setFullName(_agency.fullName || '')
               setPhone(_agency.phone || '')
               setLocation(_agency.location || '')
+              setSelectedLocation(_agency.location ? { _id: _agency.location, name: _agency.location } : undefined)
               setBio(_agency.bio || '')
               setPayLater(_agency.payLater || false)
               setBlacklisted(!!_agency.blacklisted)
@@ -340,10 +345,13 @@ const UpdateAgency = () => {
                 <Input id="phone" type="text" onChange={handlePhoneChange} onBlur={handlePhoneBlur} autoComplete="off" value={phone} error={!phoneValid} />
                 <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
               </FormControl>
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
-              </FormControl>
+            <FormControl fullWidth margin="dense">
+              <LocationSelectList
+                label={commonStrings.LOCATION}
+                value={selectedLocation}
+                onChange={handleLocationSelect}
+              />
+            </FormControl>
               <FormControl fullWidth margin="dense">
                 <InputLabel>{commonStrings.BIO}</InputLabel>
                 <Input id="bio" type="text" onChange={handleBioChange} autoComplete="off" value={bio} />
@@ -365,7 +373,7 @@ const UpdateAgency = () => {
                 <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
                   {commonStrings.SAVE}
                 </Button>
-                <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" onClick={() => navigate('/agencies')}>
+                <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" onClick={() => navigate('/brokers')}>
                   {commonStrings.CANCEL}
                 </Button>
               </div>

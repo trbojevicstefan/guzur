@@ -1,4 +1,4 @@
-import LocalizedStrings from 'localized-strings'
+﻿import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/utils/langHelper'
 
 const strings = new LocalizedStrings({
@@ -11,6 +11,17 @@ const strings = new LocalizedStrings({
     WEEK: 'semaine',
     DAY: 'jour',
     YEAR: 'an',
+  },
+  ar: {
+
+    MONTHLY: 'Monthly',
+    WEEKLY: 'Weekly',
+    DAILY: 'Daily',
+    YEARLY: 'Yearly',
+    MONTH: 'month',
+    WEEK: 'week',
+    DAY: 'day',
+    YEAR: 'year',
   },
   en: {
     MONTHLY: 'Monthly',
@@ -26,3 +37,4 @@ const strings = new LocalizedStrings({
 
 langHelper.setLanguage(strings)
 export { strings }
+

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@mui/material'
 import * as movininTypes from ':movinin-types'
 import Layout from '@/components/Layout'
@@ -14,6 +14,7 @@ import '@/assets/css/users.css'
 
 const Users = () => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   const [user, setUser] = useState<movininTypes.User>()
   const [admin, setAdmin] = useState(false)
@@ -30,9 +31,18 @@ const Users = () => {
 
   const onLoad = (_user?: movininTypes.User) => {
     const _admin = helper.admin(_user)
+    const queryTypes = (searchParams.get('types') || searchParams.get('type') || '')
+      .split(',')
+      .map((value) => value.trim().toUpperCase())
+      .filter(Boolean)
+    const queryTypeList = queryTypes.length > 0
+      ? helper.expandUserTypes(queryTypes as movininTypes.UserType[])
+      : []
     const _types = _admin
-      ? helper.getUserTypes().map((userType) => userType.value)
-      : [movininTypes.UserType.Agency, movininTypes.UserType.User]
+      ? (queryTypeList.length > 0
+        ? queryTypeList
+        : helper.expandUserTypes(helper.getUserTypes().map((userType) => userType.value)))
+      : helper.expandUserTypes([movininTypes.UserType.Broker, movininTypes.UserType.User])
 
     setUser(_user)
     setAdmin(_admin)

@@ -117,11 +117,17 @@ const AgencyFilter = ({
                   role="button"
                   tabIndex={0}
                 >
-                  <img
-                    src={movininHelper.joinURL(env.CDN_USERS, agency.avatar)}
-                    alt={agency.fullName}
-                    title={agency.fullName}
-                  />
+                  {agency.avatar && env.CDN_USERS ? (
+                    <img
+                      src={movininHelper.joinURL(env.CDN_USERS, agency.avatar)}
+                      alt={agency.fullName}
+                      title={agency.fullName}
+                    />
+                  ) : (
+                    <span className="agency-initials" title={agency.fullName}>
+                      {(agency.fullName || '').split(' ').map((word) => word[0]).join('').substring(0, 2).toUpperCase() || '?'}
+                    </span>
+                  )}
                 </span>
               </li>
             ))}

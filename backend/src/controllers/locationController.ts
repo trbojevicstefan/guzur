@@ -147,7 +147,7 @@ export const create = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const update = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     const location = await Location
@@ -207,7 +207,7 @@ export const update = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const deleteLocation = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     const location = await Location.findById(id)
@@ -244,7 +244,7 @@ export const deleteLocation = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const getLocation = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     const location = await Location
@@ -269,11 +269,11 @@ export const getLocation = async (req: Request, res: Response) => {
       .lean()
 
     if (location) {
-      const { language } = req.params
+      const language = helper.normalizeParam(req.params.language) as string
       const name = (location.values as env.LocationValue[]).filter((value) => value.language === language)[0].value
 
       if (location.country) {
-        const countryName = ((location.country as env.CountryInfo).values as env.LocationValue[]).filter((value) => value.language === req.params.language)[0].value
+        const countryName = ((location.country as env.CountryInfo).values as env.LocationValue[]).filter((value) => value.language === language)[0].value
         location.country.name = countryName
       }
       let parentLocation: env.LocationInfo | undefined
@@ -304,9 +304,9 @@ export const getLocation = async (req: Request, res: Response) => {
  */
 export const getLocations = async (req: Request, res: Response) => {
   try {
-    const page = Number.parseInt(req.params.page, 10)
-    const size = Number.parseInt(req.params.size, 10)
-    const { language } = req.params
+    const page = Number.parseInt(helper.normalizeParam(req.params.page) ?? '0', 10)
+    const size = Number.parseInt(helper.normalizeParam(req.params.size) ?? '0', 10)
+    const language = helper.normalizeParam(req.params.language) as string
     const keyword = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
 
@@ -449,6 +449,75 @@ export const getLocationsWithPosition = async (req: Request, res: Response) => {
 }
 
 /**
+ * Get Locations for frontend browsing (top-level or by parent).
+ *
+ * @export
+ * @async
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {unknown}
+ */
+export const getFrontendLocations = async (req: Request, res: Response) => {
+  try {
+    const { language } = req.params
+    const parent = req.query.parent as string | undefined
+    const keyword = escapeStringRegexp(String(req.query.s || ''))
+    const options = 'i'
+
+    if (language.length !== 2) {
+      throw new Error('Invalid language code')
+    }
+
+    const $match: mongoose.QueryFilter<env.Location> = {}
+
+    if (parent) {
+      if (!helper.isValidObjectId(parent)) {
+        throw new Error('params.parent is not valid')
+      }
+      $match.parentLocation = new mongoose.Types.ObjectId(parent)
+    } else {
+      $match.$or = [
+        { parentLocation: { $exists: false } },
+        { parentLocation: null },
+      ]
+    }
+
+    const locations = await Location.aggregate(
+      [
+        { $match },
+        {
+          $lookup: {
+            from: 'LocationValue',
+            let: { values: '$values' },
+            pipeline: [
+              {
+                $match: {
+                  $and: [
+                    { $expr: { $in: ['$_id', '$$values'] } },
+                    { $expr: { $eq: ['$language', language] } },
+                    { $expr: { $regexMatch: { input: '$value', regex: keyword, options } } },
+                  ],
+                },
+              },
+            ],
+            as: 'value',
+          },
+        },
+        { $unwind: { path: '$value', preserveNullAndEmptyArrays: false } },
+        { $addFields: { name: '$value.value' } },
+        { $sort: { name: 1, _id: 1 } },
+      ],
+      { collation: { locale: env.DEFAULT_LANGUAGE, strength: 2 } },
+    )
+
+    res.json(locations)
+  } catch (err) {
+    logger.error(`[location.getFrontendLocations] ${i18n.t('DB_ERROR')} ${req.query.s}`, err)
+    res.status(400).send(i18n.t('DB_ERROR') + err)
+  }
+}
+
+/**
  * Check if a Location is used by a Property.
  *
  * @export
@@ -458,7 +527,7 @@ export const getLocationsWithPosition = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const checkLocation = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     const _id = new mongoose.Types.ObjectId(id)
@@ -494,7 +563,8 @@ export const checkLocation = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const getLocationId = async (req: Request, res: Response) => {
-  const { name, language } = req.params
+  const name = helper.normalizeParam(req.params.name) as string
+  const language = helper.normalizeParam(req.params.language) as string
 
   try {
     if (language.length !== 2) {
@@ -599,7 +669,7 @@ export const updateImage = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const deleteImage = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     if (!helper.isValidObjectId(id)) {
@@ -638,7 +708,7 @@ export const deleteImage = async (req: Request, res: Response) => {
  * @returns {*}
  */
 export const deleteTempImage = async (req: Request, res: Response) => {
-  const { image } = req.params
+  const image = helper.normalizeParam(req.params.image) as string
 
   try {
     const imageFile = path.join(env.CDN_TEMP_LOCATIONS, image)

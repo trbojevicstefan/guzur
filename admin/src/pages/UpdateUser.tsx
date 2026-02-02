@@ -32,6 +32,7 @@ import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
 import DatePicker from '@/components/DatePicker'
+import LocationSelectList from '@/components/LocationSelectList'
 
 import '@/assets/css/update-user.css'
 
@@ -47,6 +48,7 @@ const UpdateUser = () => {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [location, setLocation] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState<movininTypes.Location | undefined>()
   const [bio, setBio] = useState('')
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -59,6 +61,7 @@ const UpdateUser = () => {
   const [phoneValid, setPhoneValid] = useState(true)
   const [payLater, setPayLater] = useState(true)
   const [blacklisted, setBlacklisted] = useState(false)
+  const [approved, setApproved] = useState(false)
 
   const validateFullName = async (_fullName: string, strict = true) => {
     const __fullName = _fullName || fullName
@@ -88,10 +91,11 @@ const UpdateUser = () => {
 
   const handleUserTypeChange = async (e: SelectChangeEvent<string>) => {
     const _type = e.target.value
+    const isBroker = _type === movininTypes.RecordType.Broker || _type === movininTypes.RecordType.Agency
 
-    setType(e.target.value)
+    setType(_type)
 
-    if (_type === movininTypes.RecordType.Agency) {
+    if (isBroker) {
       await validateFullName(fullName)
     } else {
       setFullNameError(false)
@@ -107,7 +111,7 @@ const UpdateUser = () => {
   }
 
   const handleFullNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    if (type === movininTypes.RecordType.Agency) {
+    if (type === movininTypes.RecordType.Broker || type === movininTypes.RecordType.Agency) {
       await validateFullName(e.target.value)
     } else {
       setFullNameError(false)
@@ -151,8 +155,10 @@ const UpdateUser = () => {
     return true
   }
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
+  const handleLocationSelect = (values: movininTypes.Option[]) => {
+    const value = values[0] as movininTypes.Location | undefined
+    setSelectedLocation(value)
+    setLocation(value?.name || '')
   }
 
   const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,7 +184,7 @@ const UpdateUser = () => {
     setUser(_user)
     setAvatar(_avatar)
 
-    if (_avatar !== null && type === movininTypes.RecordType.Agency) {
+    if (_avatar !== null && (type === movininTypes.RecordType.Broker || type === movininTypes.RecordType.Agency)) {
       setAvatarError(false)
     }
   }
@@ -222,10 +228,12 @@ const UpdateUser = () => {
               setFullName(_user.fullName || '')
               setPhone(_user.phone || '')
               setLocation(_user.location || '')
+              setSelectedLocation(_user.location ? { _id: _user.location, name: _user.location } : undefined)
               setBio(_user.bio || '')
               setBirthDate(_user && _user.birthDate ? new Date(_user.birthDate) : undefined)
               setPayLater(_user.payLater || false)
               setBlacklisted(!!_user.blacklisted)
+              setApproved(!!_user.approved)
               setVisible(true)
               setLoading(false)
             } else {
@@ -257,7 +265,7 @@ const UpdateUser = () => {
         return
       }
 
-      if (type === movininTypes.RecordType.Agency) {
+      if (type === movininTypes.RecordType.Broker || type === movininTypes.RecordType.Agency) {
         const fullNameValid = await validateFullName(fullName, false)
 
         if (!fullNameValid) {
@@ -277,7 +285,7 @@ const UpdateUser = () => {
         return
       }
 
-      if (type === movininTypes.RecordType.Agency && !avatar) {
+      if ((type === movininTypes.RecordType.Broker || type === movininTypes.RecordType.Agency) && !avatar) {
         setAvatarError(true)
         setError(false)
         return
@@ -295,9 +303,10 @@ const UpdateUser = () => {
         avatar,
         birthDate,
         blacklisted,
+        approved,
       }
 
-      if (type === movininTypes.RecordType.Agency) {
+      if (type === movininTypes.RecordType.Broker || type === movininTypes.RecordType.Agency) {
         data.payLater = payLater
       }
 
@@ -319,10 +328,10 @@ const UpdateUser = () => {
     }
   }
 
-  const agency = type === movininTypes.RecordType.Agency
+  const agency = type === movininTypes.RecordType.Broker || type === movininTypes.RecordType.Agency
   const renter = type === movininTypes.RecordType.User
   const activate = admin
-    || (loggedUser && user && loggedUser.type === movininTypes.RecordType.Agency && user.type === movininTypes.RecordType.User && user.agency as string === loggedUser._id)
+    || (loggedUser && user && [movininTypes.RecordType.Broker, movininTypes.RecordType.Agency].includes(loggedUser.type as movininTypes.RecordType) && user.type === movininTypes.RecordType.User && user.agency as string === loggedUser._id)
 
   return (
     <Layout onLoad={onLoad} strict>
@@ -345,7 +354,7 @@ const UpdateUser = () => {
                 onChange={onAvatarChange}
                 color="disabled"
                 className="avatar-ctn"
-                hideDelete={type === movininTypes.RecordType.Agency}
+                hideDelete={type === movininTypes.RecordType.Broker || type === movininTypes.RecordType.Agency}
               />
 
               {agency && (
@@ -360,7 +369,9 @@ const UpdateUser = () => {
                   <InputLabel className="required">{commonStrings.TYPE}</InputLabel>
                   <Select label={commonStrings.TYPE} value={type} onChange={handleUserTypeChange} variant="standard" required fullWidth>
                     <MenuItem value={movininTypes.RecordType.Admin}>{helper.getUserType(movininTypes.UserType.Admin)}</MenuItem>
-                    <MenuItem value={movininTypes.RecordType.Agency}>{helper.getUserType(movininTypes.UserType.Agency)}</MenuItem>
+                    <MenuItem value={movininTypes.RecordType.Broker}>{helper.getUserType(movininTypes.UserType.Broker)}</MenuItem>
+                    <MenuItem value={movininTypes.RecordType.Developer}>{helper.getUserType(movininTypes.UserType.Developer)}</MenuItem>
+                    <MenuItem value={movininTypes.RecordType.Owner}>{helper.getUserType(movininTypes.UserType.Owner)}</MenuItem>
                     <MenuItem value={movininTypes.RecordType.User}>{helper.getUserType(movininTypes.UserType.User)}</MenuItem>
                   </Select>
                 </FormControl>
@@ -392,6 +403,23 @@ const UpdateUser = () => {
                   title={commonStrings.BLACKLISTED_TOOLTIP}
                 />
               </FormControl>
+
+              {admin && (
+                <FormControl fullWidth margin="dense">
+                  <FormControlLabel
+                    control={(
+                      <Switch
+                        checked={approved}
+                        onChange={(e) => {
+                          setApproved(e.target.checked)
+                        }}
+                        color="primary"
+                      />
+                    )}
+                    label={commonStrings.APPROVED}
+                  />
+                </FormControl>
+              )}
 
               {renter && (
                 <FormControl fullWidth margin="dense">
@@ -442,8 +470,11 @@ const UpdateUser = () => {
               </FormControl>
 
               <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
+                <LocationSelectList
+                  label={commonStrings.LOCATION}
+                  value={selectedLocation}
+                  onChange={handleLocationSelect}
+                />
               </FormControl>
 
               <FormControl fullWidth margin="dense">

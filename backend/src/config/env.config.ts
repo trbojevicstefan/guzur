@@ -48,7 +48,7 @@ export const expireAt = 'expireAt'
  *
  * @type {string}
  */
-export const WEBSITE_NAME = __env__('MI_WEBSITE_NAME', false, "Movin' In")
+export const WEBSITE_NAME = __env__('MI_WEBSITE_NAME', false, 'Guzur')
 
 /**
  * Indicate whether we are in CI environment or not.
@@ -406,6 +406,20 @@ export const ADMIN_EMAIL = __env__('MI_ADMIN_EMAIL', false)
 export const RECAPTCHA_SECRET = __env__('MI_RECAPTCHA_SECRET', false)
 
 /**
+ * OpenAI API key for SEO generation.
+ *
+ * @type {string}
+ */
+export const OPENAI_API_KEY = __env__('MI_OPENAI_API_KEY', false)
+
+/**
+ * OpenAI model for SEO generation.
+ *
+ * @type {string}
+ */
+export const OPENAI_MODEL = __env__('MI_OPENAI_MODEL', false, 'gpt-4o-mini')
+
+/**
  * ipinfo.io API key.
  * Required for more tha, 1000 requests/day.
  *
@@ -458,6 +472,8 @@ export const SENTRY_TRACES_SAMPLE_RATE = Number.parseFloat(__env__('MI_SENTRY_TR
  */
 export interface User extends Document {
   agency?: Types.ObjectId
+  primaryOrg?: Types.ObjectId
+  orgRole?: string
   fullName: string
   email: string
   phone?: string
@@ -465,16 +481,22 @@ export interface User extends Document {
   birthDate?: Date
   verified?: boolean
   verifiedAt?: Date
+  approved?: boolean
   active?: boolean
   language: string
   enableEmailNotifications?: boolean
   avatar?: string
   bio?: string
   location?: string
+  company?: string
+  licenseId?: string
+  serviceAreas?: string[]
+  website?: string
   type?: movininTypes.UserType
   blacklisted?: boolean
   payLater?: boolean
   customerId?: string
+  onboardingCompleted?: boolean
   expireAt?: Date
 }
 
@@ -488,6 +510,8 @@ export interface User extends Document {
 export interface UserInfo {
   _id?: Types.ObjectId
   agency?: Types.ObjectId
+  primaryOrg?: Types.ObjectId
+  orgRole?: string
   fullName: string
   email?: string
   phone?: string
@@ -495,15 +519,21 @@ export interface UserInfo {
   birthDate?: Date
   verified?: boolean
   verifiedAt?: Date
+  approved?: boolean
   active?: boolean
   language?: string
   enableEmailNotifications?: boolean
   avatar?: string
   bio?: string
   location?: string
+  company?: string
+  licenseId?: string
+  serviceAreas?: string[]
+  website?: string
   type?: string
   blacklisted?: boolean
   payLater?: boolean
+  onboardingCompleted?: boolean
 }
 
 /**
@@ -638,6 +668,8 @@ export interface Notification extends Document {
   user: Types.ObjectId
   message: string
   booking: Types.ObjectId
+  link?: string
+  type?: movininTypes.NotificationType
   isRead?: boolean
 }
 
@@ -652,6 +684,7 @@ export interface Notification extends Document {
 export interface NotificationCounter extends Document {
   user: Types.ObjectId
   count?: number
+  messageCount?: number
 }
 
 /**
@@ -666,7 +699,15 @@ export interface Property extends Document {
   name: string
   type: movininTypes.PropertyType
   agency: Types.ObjectId
+  broker?: Types.ObjectId
+  developer?: Types.ObjectId
+  owner?: Types.ObjectId
+  brokerageOrg?: Types.ObjectId
+  developerOrg?: Types.ObjectId
+  developmentId?: Types.ObjectId
   description: string
+  aiDescription?: string
+  useAiDescription?: boolean
   image: string
   images?: string[]
   bedrooms: number
@@ -682,11 +723,21 @@ export interface Property extends Document {
   latitude?: number
   longitude?: number
   price: number
+  salePrice?: number | null
   hidden?: boolean
   cancellation?: number
   aircon?: boolean
   available?: boolean
   rentalTerm: movininTypes.RentalTerm
+  listingType?: movininTypes.ListingType
+  listingStatus?: movininTypes.ListingStatus
+  seoTitle?: string
+  seoDescription?: string
+  seoKeywords?: string[]
+  seoGeneratedAt?: Date
+  reviewedBy?: Types.ObjectId
+  reviewedAt?: Date
+  reviewNotes?: string
   blockOnPay?: boolean
 }
 
@@ -702,7 +753,15 @@ export interface PropertyInfo extends Document {
   name: string
   type: movininTypes.PropertyType
   agency: UserInfo
+  broker?: UserInfo
+  developer?: UserInfo
+  owner?: UserInfo
+  brokerageOrg?: Organization
+  developerOrg?: Organization
+  developmentId?: Types.ObjectId
   description: string
+  aiDescription?: string
+  useAiDescription?: boolean
   image: string
   images?: string[]
   bedrooms: number
@@ -716,9 +775,19 @@ export interface PropertyInfo extends Document {
   location: Types.ObjectId
   address?: string
   price: number
+  salePrice?: number | null
   hidden?: boolean
   cancellation?: boolean
   rentalTerm: movininTypes.RentalTerm
+  listingType?: movininTypes.ListingType
+  listingStatus?: movininTypes.ListingStatus
+  seoTitle?: string
+  seoDescription?: string
+  seoKeywords?: string[]
+  seoGeneratedAt?: Date
+  reviewedBy?: UserInfo
+  reviewedAt?: Date
+  reviewNotes?: string
 }
 
 /**
@@ -746,4 +815,107 @@ export interface Token extends Document {
   user: Types.ObjectId
   token: string
   expireAt?: Date
+}
+
+/**
+ * Organization Document.
+ *
+ * @export
+ * @interface Organization
+ * @typedef {Organization}
+ * @extends {Document}
+ */
+export interface Organization extends Document {
+  name: string
+  slug?: string
+  type: movininTypes.OrganizationType
+  description?: string
+  logo?: string
+  cover?: string
+  email?: string
+  phone?: string
+  website?: string
+  location?: string
+  serviceAreas?: string[]
+  verified?: boolean
+  approved?: boolean
+  active?: boolean
+  createdBy?: Types.ObjectId
+  seats?: number
+  plan?: string
+  expiresAt?: Date
+}
+
+/**
+ * OrgMembership Document.
+ *
+ * @export
+ * @interface OrgMembership
+ * @typedef {OrgMembership}
+ * @extends {Document}
+ */
+export interface OrgMembership extends Document {
+  org: Types.ObjectId
+  user: Types.ObjectId
+  role: movininTypes.OrgMemberRole
+  title?: string
+  status: movininTypes.OrgMemberStatus
+  invitedBy?: Types.ObjectId
+  invitedAt?: Date
+  acceptedAt?: Date
+}
+
+/**
+ * OrgPartnership Document.
+ *
+ * @export
+ * @interface OrgPartnership
+ * @typedef {OrgPartnership}
+ * @extends {Document}
+ */
+export interface OrgPartnership extends Document {
+  brokerOrg: Types.ObjectId
+  developerOrg: Types.ObjectId
+  status: movininTypes.OrgPartnershipStatus
+  message?: string
+  requestedBy?: Types.ObjectId
+  reviewedBy?: Types.ObjectId
+  reviewedAt?: Date
+}
+
+/**
+ * MessageThread Document.
+ *
+ * @export
+ * @interface MessageThread
+ * @typedef {MessageThread}
+ * @extends {Document}
+ */
+export interface MessageThread extends Document {
+  type: movininTypes.MessageThreadType
+  title?: string
+  participants: Types.ObjectId[]
+  property?: Types.ObjectId
+  developerOrg?: Types.ObjectId
+  brokerageOrg?: Types.ObjectId
+  createdBy?: Types.ObjectId
+  lastMessageAt?: Date
+}
+
+/**
+ * Message Document.
+ *
+ * @export
+ * @interface Message
+ * @typedef {Message}
+ * @extends {Document}
+ */
+export interface Message extends Document {
+  thread: Types.ObjectId
+  property?: Types.ObjectId
+  sender: Types.ObjectId
+  recipient?: Types.ObjectId
+  message: string
+  createdAt?: Date
+  updatedAt?: Date
 }

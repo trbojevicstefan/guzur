@@ -43,6 +43,31 @@ li.bs-s {
   background: #bc2143 !important;
 }
 
+.bs-s-new,
+.bs-s-new:hover {
+  background: #6c757d !important;
+}
+
+.bs-s-contacted,
+.bs-s-contacted:hover {
+  background: #0d6efd !important;
+}
+
+.bs-s-viewing_scheduled,
+.bs-s-viewing_scheduled:hover {
+  background: #20c997 !important;
+}
+
+.bs-s-closed_won,
+.bs-s-closed_won:hover {
+  background: #198754 !important;
+}
+
+.bs-s-closed_lost,
+.bs-s-closed_lost:hover {
+  background: #dc3545 !important;
+}
+
 .bs-s-sv {
   display: inherit;
   text-align: center;

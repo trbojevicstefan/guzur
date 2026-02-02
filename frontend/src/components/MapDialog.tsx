@@ -9,14 +9,22 @@ import '@/assets/css/map-dialog.css'
 
 interface MapDialogProps {
   location?: movininTypes.Location
+  locations?: movininTypes.Location[]
+  properties?: movininTypes.Property[]
   openMapDialog: boolean
   onClose: () => void
+  onSelectProperty?: (propertyId: string) => void
+  showTileToggle?: boolean
 }
 
 const MapDialog = ({
   location,
+  locations,
+  properties,
   openMapDialog: openMapDialogProp,
   onClose,
+  onSelectProperty,
+  showTileToggle = false,
 }: MapDialogProps) => {
   const [openMapDialog, setOpenMapDialog] = useState(openMapDialogProp)
 
@@ -75,14 +83,18 @@ const MapDialog = ({
         </Box>
       </DialogTitle>
       <DialogContent className="map-dialog-content">
-        {location && (
-          <Map
-            position={[location.latitude || env.MAP_LATITUDE, location.longitude || env.MAP_LONGITUDE]}
-            initialZoom={location.latitude && location.longitude ? 10 : 2.5}
-            locations={[location]}
-            className="map"
-          />
-        )}
+        <Map
+          position={[
+            location?.latitude || env.MAP_LATITUDE,
+            location?.longitude || env.MAP_LONGITUDE,
+          ]}
+          initialZoom={location?.latitude && location?.longitude ? 10 : env.MAP_ZOOM}
+          locations={locations || (location ? [location] : [])}
+          properties={properties}
+          onSelectProperty={onSelectProperty}
+          className="map"
+          showTileToggle={showTileToggle}
+        />
       </DialogContent>
     </Dialog>
   )

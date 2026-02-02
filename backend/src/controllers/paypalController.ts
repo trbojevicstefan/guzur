@@ -8,6 +8,7 @@ import User from '../models/User'
 import Property from '../models/Property'
 import * as bookingController from './bookingController'
 import * as ipinfoHelper from '../utils/ipinfoHelper'
+import * as helper from '../utils/helper'
 
 /**
  * Create PayPal order.
@@ -45,7 +46,8 @@ export const createPayPalOrder = async (req: Request, res: Response) => {
 export const checkPayPalOrder = async (req: Request, res: Response) => {
   try {
     const paypal = await import('../payment/paypal.js')
-    const { bookingId, orderId } = req.params
+    const bookingId = helper.normalizeParam(req.params.bookingId) as string
+    const orderId = helper.normalizeParam(req.params.orderId) as string
 
     //
     // 1. Retrieve Checkout Sesssion and Booking

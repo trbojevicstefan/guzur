@@ -46,7 +46,8 @@ describe('Test database initialization', () => {
     await l2.save()
 
     // test batch deletion pf unsupported languages
-    for (let i = 0; i < 1050; i++) {
+    const batchCount = process.env.MI_FAST_TESTS ? Number(process.env.MI_FAST_TESTS) : 1050
+    for (let i = 0; i < batchCount; i++) {
       const lv2 = new LocationValue({ language: 'pt', value: 'localização' })
       await lv2.save()
     }
@@ -259,3 +260,4 @@ describe('initialize', () => {
     })
   })
 })
+

@@ -7,8 +7,10 @@ const routes = {
   deleteImage: '/api/delete-property-image/:property/:image',
   getProperty: '/api/property/:id/:language',
   getProperties: '/api/properties/:page/:size',
+  getMyProperties: '/api/my-properties/:page/:size',
   getBookingProperties: '/api/booking-properties/:page/:size',
   getFrontendProperties: '/api/frontend-properties/:page/:size',
+  getFrontendDevelopmentUnits: '/api/frontend-development-units/:developmentId/:page/:size',
   checkProperty: '/api/check-property/:id',
 }
 

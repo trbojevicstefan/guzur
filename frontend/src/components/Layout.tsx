@@ -64,12 +64,21 @@ const Layout = ({
           (!user && !loading) || (user && user.verified) ? (
             <div className="content">{children}</div>
           ) : (
-            !loading && (
+            !loading ? (
               <div className="validate-email">
                 <span>{strings.VALIDATE_EMAIL}</span>
                 <Button type="button" variant="contained" className="btn-primary btn-resend" onClick={handleResend}>
                   {strings.RESEND}
                 </Button>
+              </div>
+            ) : (
+              <div className="page-loading">
+                <div className="page-loading-card">
+                  <div className="skeleton skeleton-title" />
+                  <div className="skeleton skeleton-line" />
+                  <div className="skeleton skeleton-line" />
+                  <div className="skeleton skeleton-line short" />
+                </div>
               </div>
             )
           )

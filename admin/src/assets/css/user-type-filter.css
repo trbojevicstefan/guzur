@@ -1,9 +1,12 @@
 div.user-type-filter {
-  background: #fafafa;
+  background: var(--surface-glass);
   margin: 10px 10px 0 0;
-  padding: 5px;
-  border: 1px solid #dadada;
+  padding: 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   font-size: 13px;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 div.user-type-filter ul.user-type-list {
@@ -38,6 +41,10 @@ div.user-type-filter ul.user-type-list li span.bs {
   margin-bottom: 0;
   display: inline-block;
   opacity: 1;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 div.user-type-filter ul.user-type-list li span.bs:hover {
@@ -45,7 +52,19 @@ div.user-type-filter ul.user-type-list li span.bs:hover {
 }
 
 div.user-type-filter ul.user-type-list li span.bs-admin {
-  background: #121212;
+  background: #111111;
+}
+
+div.user-type-filter ul.user-type-list li span.bs-broker {
+  background: #e98003;
+}
+
+div.user-type-filter ul.user-type-list li span.bs-developer {
+  background: #2c7be5;
+}
+
+div.user-type-filter ul.user-type-list li span.bs-owner {
+  background: #6f42c1;
 }
 
 div.user-type-filter ul.user-type-list li span.bs-agency {
@@ -64,5 +83,5 @@ div.user-type-filter div.filter-actions {
 div.user-type-filter div.filter-actions span.uncheckall {
   text-decoration: underline;
   cursor: pointer;
-  color: #0064c8;
+  color: var(--accent);
 }

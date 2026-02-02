@@ -19,18 +19,22 @@ div.us-list span.bs {
   height: 26px;
   justify-content: center;
   align-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 div.us-list span.us-admin {
-  background: #121212;
+  background: #111111;
 }
 
 div.us-list span.us-agency {
-  background: #e98003;
+  background: #ff8a00;
 }
 
 div.us-list span.us-user {
-  background: #22bba7;
+  background: #1fb6a5;
 }
 
 div.us-list span.bp {
@@ -57,4 +61,17 @@ div.us-list span.us-avatar img {
 div.us-list .us-blacklisted,
 div.us-list .us-blacklisted:hover {
   background: #f0f0f0;
+}
+
+div.us-list .us-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+div.us-list .us-action-btn {
+  text-transform: none;
+  font-size: 12px;
+  padding: 2px 6px;
+  min-width: 0;
 }

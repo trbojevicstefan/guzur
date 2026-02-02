@@ -52,6 +52,7 @@ import Footer from '@/components/Footer'
 import Map from '@/components/Map'
 import ViewOnMapButton from '@/components/ViewOnMapButton'
 import MapDialog from '@/components/MapDialog'
+import { strings as mapStrings } from '@/lang/map'
 import CheckoutStatus from '@/components/CheckoutStatus'
 import Backdrop from '@/components/SimpleBackdrop'
 import Unauthorized from '@/components/Unauthorized'
@@ -420,9 +421,12 @@ const Checkout = () => {
                   {(location.latitude && location.longitude) && (
                     <Map
                       position={[location.latitude || env.MAP_LATITUDE, location.longitude || env.MAP_LONGITUDE]}
-                      initialZoom={location.latitude && location.longitude ? 10 : 2.5}
+                      initialZoom={location.latitude && location.longitude ? 10 : env.MAP_ZOOM}
                       locations={[location]}
                       className="map"
+                      showTileToggle
+                      streetLabel={mapStrings.STREET}
+                      satelliteLabel={mapStrings.SATELLITE}
                     >
                       <ViewOnMapButton onClick={() => setOpenMapDialog(true)} />
                     </Map>
@@ -746,6 +750,7 @@ const Checkout = () => {
         location={location}
         openMapDialog={openMapDialog}
         onClose={() => setOpenMapDialog(false)}
+        showTileToggle
       />
     </Layout>
   )

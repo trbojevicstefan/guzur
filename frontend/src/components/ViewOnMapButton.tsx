@@ -1,7 +1,6 @@
 import React from 'react'
+import { Fullscreen as FullscreenIcon } from '@mui/icons-material'
 import { strings } from '@/lang/view-on-map-button'
-
-import ViewOnMap from '@/assets/img/view-on-map.png'
 
 import '@/assets/css/view-on-map-button.css'
 
@@ -14,9 +13,10 @@ const ViewOnMapButton = ({ onClick }: ViewOnMapButtonProps) => (
     type="button"
     onClick={onClick}
     className="view-on-map"
+    aria-label={strings.VIEW_ON_MAP}
+    title={strings.VIEW_ON_MAP}
   >
-    <img alt="View On Map" src={ViewOnMap} />
-    <span>{strings.VIEW_ON_MAP}</span>
+    <FullscreenIcon />
   </button>
 )
 

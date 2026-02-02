@@ -11,8 +11,12 @@ const AgencyList = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const _agencies = await AgencyService.getAllAgencies()
-      setAgencies(_agencies)
+      try {
+        const _agencies = await AgencyService.getAllAgencies()
+        setAgencies(Array.isArray(_agencies) ? _agencies : [])
+      } catch {
+        setAgencies([])
+      }
     }
 
     fetch()

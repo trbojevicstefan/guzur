@@ -75,11 +75,34 @@ export const deleteNotifications = (userId: string, ids: string[]): Promise<numb
  * @param {number} page
  * @returns {Promise<movininTypes.Result<movininTypes.Notification>>}
  */
-export const getNotifications = (userId: string, page: number): Promise<movininTypes.Result<movininTypes.Notification>> => (
-  axiosInstance
+export const getNotifications = (
+  userId: string,
+  page: number,
+  types?: movininTypes.NotificationType[],
+): Promise<movininTypes.Result<movininTypes.Notification>> => {
+  const typeParam = types && types.length > 0 ? `?type=${types.join(',')}` : ''
+  return axiosInstance
     .get(
-      `/api/notifications/${encodeURIComponent(userId)}/${page}/${env.PAGE_SIZE}`,
+      `/api/notifications/${encodeURIComponent(userId)}/${page}/${env.PAGE_SIZE}${typeParam}`,
       { withCredentials: true }
     )
     .then((res) => res.data)
-)
+}
+
+/**
+ * Mark notifications as read by type.
+ *
+ * @param {string} userId
+ * @param {movininTypes.NotificationType[]} types
+ * @returns {Promise<number>}
+ */
+export const markAsReadByType = (userId: string, types: movininTypes.NotificationType[]): Promise<number> => {
+  const typeParam = types.join(',')
+  return axiosInstance
+    .post(
+      `/api/mark-notifications-as-read-by-type/${encodeURIComponent(userId)}/${typeParam}`,
+      {},
+      { withCredentials: true },
+    )
+    .then((res) => res.status)
+}

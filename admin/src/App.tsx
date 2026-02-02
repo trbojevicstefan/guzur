@@ -11,7 +11,7 @@ const SignIn = lazy(() => import('@/pages/SignIn'))
 const Activate = lazy(() => import('@/pages/Activate'))
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('@/pages/ResetPassword'))
-const SignUp = lazy(() => import('@/pages/SignUp'))
+const Dashboard = lazy(() => import('@/pages/Dashboard'))
 const Agencies = lazy(() => import('@/pages/Agencies'))
 const Agency = lazy(() => import('@/pages/Agency'))
 const CreateAgency = lazy(() => import('@/pages/CreateAgency'))
@@ -24,6 +24,16 @@ const Property = lazy(() => import('@/pages/Property'))
 const PropertyBookings = lazy(() => import('@/pages/PropertyBookings'))
 const CreateProperty = lazy(() => import('@/pages/CreateProperty'))
 const UpdateProperty = lazy(() => import('@/pages/UpdateProperty'))
+const Developments = lazy(() => import('@/pages/Developments'))
+const Development = lazy(() => import('@/pages/Development'))
+const CreateDevelopment = lazy(() => import('@/pages/CreateDevelopment'))
+const UpdateDevelopment = lazy(() => import('@/pages/UpdateDevelopment'))
+const Organizations = lazy(() => import('@/pages/Organizations'))
+const Organization = lazy(() => import('@/pages/Organization'))
+const Developers = lazy(() => import('@/pages/Developers'))
+const Owners = lazy(() => import('@/pages/Owners'))
+const Leads = lazy(() => import('@/pages/Leads'))
+const Rfqs = lazy(() => import('@/pages/Rfqs'))
 const Bookings = lazy(() => import('@/pages/Bookings'))
 const UpdateBooking = lazy(() => import('@/pages/UpdateBooking'))
 const CreateBooking = lazy(() => import('@/pages/CreateBooking'))
@@ -73,7 +83,8 @@ const router = createBrowserRouter([
     path: '/',
     element: <AppLayout />,
     children: [
-      { index: true, element: <Bookings /> },
+      { index: true, element: <Dashboard /> },
+      { path: '/bookings', element: <Bookings /> },
       { path: '/sign-in', element: <SignIn /> },
       { path: '/activate', element: <Activate /> },
       { path: '/forgot-password', element: <ForgotPassword /> },
@@ -83,6 +94,10 @@ const router = createBrowserRouter([
       { path: '/agency', element: <Agency /> },
       { path: '/create-agency', element: <CreateAgency /> },
       { path: '/update-agency', element: <UpdateAgency /> },
+      { path: '/brokers', element: <Agencies /> },
+      { path: '/broker', element: <Agency /> },
+      { path: '/create-broker', element: <CreateAgency /> },
+      { path: '/update-broker', element: <UpdateAgency /> },
       { path: '/locations', element: <Locations /> },
       { path: '/create-location', element: <CreateLocation /> },
       { path: '/update-location', element: <UpdateLocation /> },
@@ -91,6 +106,16 @@ const router = createBrowserRouter([
       { path: '/property-bookings', element: <PropertyBookings /> },
       { path: '/create-property', element: <CreateProperty /> },
       { path: '/update-property', element: <UpdateProperty /> },
+      { path: '/developments', element: <Developments /> },
+      { path: '/organizations', element: <Organizations /> },
+      { path: '/organization', element: <Organization /> },
+      { path: '/developers', element: <Developers /> },
+      { path: '/owners', element: <Owners /> },
+      { path: '/development', element: <Development /> },
+      { path: '/create-development', element: <CreateDevelopment /> },
+      { path: '/update-development', element: <UpdateDevelopment /> },
+      { path: '/leads', element: <Leads /> },
+      { path: '/rfqs', element: <Rfqs /> },
       { path: '/update-booking', element: <UpdateBooking /> },
       { path: '/create-booking', element: <CreateBooking /> },
       { path: '/users', element: <Users /> },

@@ -1,3 +1,12 @@
+div.rental-term-filter {
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
+  margin: 10px 0;
+}
+
 div.rental-term-filter div.filter-elements {
   padding: 7px 5px;
 }
@@ -22,5 +31,5 @@ div.rental-term-filter div.filter-actions {
 div.rental-term-filter div.filter-actions span.uncheckall {
   text-decoration: underline;
   cursor: pointer;
-  color: #0064c8;
+  color: var(--accent);
 }

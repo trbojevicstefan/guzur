@@ -243,6 +243,51 @@ div.content {
   padding: 0;
 }
 
+.page-loading {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.page-loading-card {
+  width: min(820px, 92vw);
+  border-radius: 24px;
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(220, 220, 220, 0.5) 25%, rgba(245, 245, 245, 0.9) 37%, rgba(220, 220, 220, 0.5) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  border-radius: 999px;
+  height: 14px;
+  margin-bottom: 14px;
+}
+
+.skeleton-title {
+  height: 28px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.skeleton-line.short {
+  width: 55%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
 @media only screen and (width <=550px) {
   .search-dialog-content {
     width: auto;

@@ -20,6 +20,9 @@ import * as mailHelper from '../utils/mailHelper'
 import NotificationCounter from '../models/NotificationCounter'
 import Notification from '../models/Notification'
 import Property from '../models/Property'
+import Organization from '../models/Organization'
+import OrgMembership from '../models/OrgMembership'
+import Lead from '../models/Lead'
 import * as logger from '../utils/logger'
 
 /**
@@ -30,6 +33,81 @@ import * as logger from '../utils/logger'
  * @returns {string}
  */
 const getStatusMessage = (lang: string, msg: string): string => `<!DOCTYPE html><html lang="' ${lang}'"><head></head><body><p>${msg}</p></body></html>`
+
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '')
+
+const createOrgForUser = async (user: env.User): Promise<env.Organization | null> => {
+  const userType = user.type as movininTypes.UserType | undefined
+  if (userType !== movininTypes.UserType.Broker && userType !== movininTypes.UserType.Developer) {
+    return null
+  }
+
+  const orgName = helper.trim(user.company || user.fullName, ' ')
+  const orgType = userType === movininTypes.UserType.Broker
+    ? movininTypes.OrganizationType.Brokerage
+    : movininTypes.OrganizationType.Developer
+
+  const slugBase = slugify(orgName || (orgType === movininTypes.OrganizationType.Brokerage ? 'brokerage' : 'developer'))
+  const slug = `${slugBase || 'org'}-${nanoid(6)}`
+
+  const org = new Organization({
+    name: orgName || user.fullName,
+    slug,
+    type: orgType,
+    description: user.bio,
+    email: user.email,
+    phone: user.phone,
+    website: user.website,
+    location: user.location,
+    serviceAreas: user.serviceAreas || [],
+    approved: false,
+    verified: user.verified,
+    active: true,
+    createdBy: user._id,
+  })
+
+  await org.save()
+
+  const membership = new OrgMembership({
+    org: org._id,
+    user: user._id,
+    role: movininTypes.OrgMemberRole.OwnerAdmin,
+    status: movininTypes.OrgMemberStatus.Active,
+    invitedBy: user._id,
+    invitedAt: new Date(),
+    acceptedAt: new Date(),
+  })
+
+  await membership.save()
+
+  user.primaryOrg = org._id
+  user.orgRole = movininTypes.OrgMemberRole.OwnerAdmin
+  await user.save()
+
+  return org
+}
+
+const ensurePrimaryOrgFromMembership = async (user: env.User) => {
+  if (user.primaryOrg) {
+    return
+  }
+
+  const membership = await OrgMembership.findOne({
+    user: user._id,
+    status: movininTypes.OrgMemberStatus.Active,
+  }).sort({ createdAt: 1 })
+
+  if (membership) {
+    user.primaryOrg = membership.org
+    user.orgRole = membership.role
+    await user.save()
+  }
+}
 
 /**
  * Sign Up.
@@ -46,11 +124,13 @@ const _signup = async (req: Request, res: Response, userType: movininTypes.UserT
   //
   // Create user
   //
-  let user: env.User
+  let user: env.User | undefined
+  let org: env.Organization | null = null
   try {
     body.email = helper.trim(body.email, ' ')
     body.active = true
     body.verified = false
+    body.approved = [movininTypes.UserType.User, movininTypes.UserType.Admin].includes(userType)
     body.blacklisted = false
     body.type = userType
 
@@ -60,6 +140,8 @@ const _signup = async (req: Request, res: Response, userType: movininTypes.UserT
 
     user = new User(body)
     await user.save()
+
+    org = await createOrgForUser(user)
 
     if (body.avatar) {
       const avatar = path.join(env.CDN_TEMP_USERS, body.avatar)
@@ -73,6 +155,17 @@ const _signup = async (req: Request, res: Response, userType: movininTypes.UserT
       }
     }
   } catch (err) {
+    try {
+      if (org) {
+        await OrgMembership.deleteMany({ org: org._id })
+        await Organization.deleteOne({ _id: org._id })
+      }
+      if (user && user._id) {
+        await User.deleteOne({ _id: user._id })
+      }
+    } catch (cleanupErr) {
+      logger.error(`[user.signup] cleanup error ${JSON.stringify(body)}`, cleanupErr)
+    }
     logger.error(`[user.signup] ${i18n.t('DB_ERROR')} ${JSON.stringify(body)}`, err)
     res.status(400).send(i18n.t('DB_ERROR') + err)
     return
@@ -106,17 +199,41 @@ const _signup = async (req: Request, res: Response, userType: movininTypes.UserT
     res.sendStatus(200)
   } catch (err) {
     try {
-      //
-      // Delete user in case of smtp failure
-      //
-      await Token.deleteMany({ user: user._id.toString() })
-      await user.deleteOne()
-    } catch (deleteErr) {
-      logger.error(`[user.signup] ${i18n.t('DB_ERROR')} ${JSON.stringify(body)}`, deleteErr)
+    //
+    // Delete user in case of smtp failure
+    //
+    await Token.deleteMany({ user: user._id.toString() })
+    if (org) {
+      await OrgMembership.deleteMany({ org: org._id })
+      await Organization.deleteOne({ _id: org._id })
+    }
+    await user.deleteOne()
+  } catch (deleteErr) {
+    logger.error(`[user.signup] ${i18n.t('DB_ERROR')} ${JSON.stringify(body)}`, deleteErr)
     }
     logger.error(`[user.signup] ${i18n.t('SMTP_ERROR')}`, err)
     res.status(400).send(i18n.t('SMTP_ERROR') + err)
   }
+}
+
+/**
+ * Normalize role to a supported UserType.
+ *
+ * @param {string} role
+ * @returns {movininTypes.UserType | null}
+ */
+  const resolveRole = (role: string): movininTypes.UserType | null => {
+    const upper = role.toUpperCase()
+    if (upper === movininTypes.UserType.Broker) {
+      return movininTypes.UserType.Broker
+    }
+  if (upper === movininTypes.UserType.Developer) {
+    return movininTypes.UserType.Developer
+  }
+  if (upper === movininTypes.UserType.Owner) {
+    return movininTypes.UserType.Owner
+  }
+  return null
 }
 
 /**
@@ -133,6 +250,27 @@ export const signup = async (req: Request, res: Response) => {
 }
 
 /**
+ * Role Sign Up.
+ *
+ * @export
+ * @async
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {unknown}
+ */
+export const roleSignup = async (req: Request, res: Response) => {
+  const role = helper.normalizeParam(req.params.role) as string
+  const resolvedRole = resolveRole(role)
+
+  if (!resolvedRole) {
+    res.status(400).send('Unsupported role')
+    return
+  }
+
+  await _signup(req, res, resolvedRole)
+}
+
+/**
  * Admin Sign Up.
  *
  * @export
@@ -143,6 +281,89 @@ export const signup = async (req: Request, res: Response) => {
  */
 export const adminSignup = async (req: Request, res: Response) => {
   await _signup(req, res, movininTypes.UserType.Admin)
+}
+
+/**
+ * Complete onboarding.
+ *
+ * @export
+ * @async
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {unknown}
+ */
+export const completeOnboarding = async (req: Request, res: Response) => {
+  const { body }: { body: movininTypes.UpdateUserPayload } = req
+  const { _id } = body
+
+  try {
+    if (!_id || !helper.isValidObjectId(_id)) {
+      throw new Error('body._id is not valid')
+    }
+
+    const cookieName = authHelper.getAuthCookieName(req)
+    const token = cookieName === env.X_ACCESS_TOKEN
+      ? (req.headers[env.X_ACCESS_TOKEN] as string)
+      : (req.signedCookies[cookieName] as string)
+
+    if (!token) {
+      res.status(403).send({ message: 'No token provided!' })
+      return
+    }
+
+    const sessionData = await authHelper.decryptJWT(token)
+    if (!sessionData || !helper.isValidObjectId(sessionData.id)) {
+      res.status(401).send({ message: 'Unauthorized!' })
+      return
+    }
+
+    const sessionUser = await User.findById(sessionData.id)
+    if (!sessionUser) {
+      res.status(401).send({ message: 'Unauthorized!' })
+      return
+    }
+
+    const isAdmin = sessionUser.type === movininTypes.UserType.Admin
+    if (!isAdmin && sessionUser._id.toString() !== _id) {
+      res.status(403).send({ message: 'Forbidden!' })
+      return
+    }
+
+    const user = await User.findById(_id)
+    if (!user) {
+      logger.error('[user.completeOnboarding] User not found:', _id)
+      res.sendStatus(204)
+      return
+    }
+
+    user.company = body.company
+    user.licenseId = body.licenseId
+    user.serviceAreas = body.serviceAreas || []
+    user.website = body.website
+    user.onboardingCompleted = Boolean(body.onboardingCompleted)
+
+    await user.save()
+
+    if (user.primaryOrg) {
+      const org = await Organization.findById(user.primaryOrg)
+      if (org) {
+        if (user.company) {
+          org.name = user.company
+        }
+        org.description = user.bio || org.description
+        org.website = user.website || org.website
+        org.location = user.location || org.location
+        org.serviceAreas = user.serviceAreas || org.serviceAreas
+        org.email = user.email || org.email
+        org.phone = user.phone || org.phone
+        await org.save()
+      }
+    }
+    res.json(user)
+  } catch (err) {
+    logger.error(`[user.completeOnboarding] ${i18n.t('DB_ERROR')} ${JSON.stringify(body)}`, err)
+    res.status(400).send(i18n.t('DB_ERROR') + err)
+  }
 }
 
 /**
@@ -160,6 +381,12 @@ export const create = async (req: Request, res: Response) => {
   try {
     body.verified = false
     body.blacklisted = false
+    if (typeof body.approved === 'undefined') {
+      const resolvedType = body.type as movininTypes.UserType | undefined
+      body.approved = resolvedType
+        ? [movininTypes.UserType.User, movininTypes.UserType.Admin].includes(resolvedType)
+        : true
+    }
 
     if (body.password) {
       const { password } = body
@@ -227,7 +454,8 @@ export const create = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const checkToken = async (req: Request, res: Response) => {
-  const { userId, email } = req.params
+  const userId = helper.normalizeParam(req.params.userId) as string
+  const email = helper.normalizeParam(req.params.email) as string
 
   try {
     const user = await User.findOne({
@@ -236,12 +464,12 @@ export const checkToken = async (req: Request, res: Response) => {
     })
 
     if (user) {
-      const type = req.params.type.toUpperCase() as movininTypes.AppType
+      const type = (helper.normalizeParam(req.params.type) as string).toUpperCase() as movininTypes.AppType
 
       if (
         ![movininTypes.AppType.Frontend, movininTypes.AppType.Admin].includes(type)
         || (type === movininTypes.AppType.Admin && user.type === movininTypes.UserType.User)
-        || (type === movininTypes.AppType.Frontend && user.type !== movininTypes.UserType.User)
+        || (type === movininTypes.AppType.Frontend && user.type === movininTypes.UserType.Admin)
         || user.active
       ) {
         res.sendStatus(204)
@@ -250,7 +478,7 @@ export const checkToken = async (req: Request, res: Response) => {
 
       const token = await Token.findOne({
         user: new mongoose.Types.ObjectId(userId),
-        token: req.params.token,
+        token: helper.normalizeParam(req.params.token) as string,
       })
 
       if (token) {
@@ -279,7 +507,7 @@ export const checkToken = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const deleteTokens = async (req: Request, res: Response) => {
-  const { userId } = req.params
+  const userId = helper.normalizeParam(req.params.userId) as string
 
   try {
     const result = await Token.deleteMany({
@@ -308,7 +536,7 @@ export const deleteTokens = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const resend = async (req: Request, res: Response) => {
-  const { email } = req.params
+  const email = helper.normalizeParam(req.params.email) as string
 
   try {
     if (!helper.isValidEmail(email)) {
@@ -318,12 +546,12 @@ export const resend = async (req: Request, res: Response) => {
     const user = await User.findOne({ email })
 
     if (user) {
-      const type = req.params.type.toUpperCase() as movininTypes.AppType
+      const type = (helper.normalizeParam(req.params.type) as string).toUpperCase() as movininTypes.AppType
 
       if (
         ![movininTypes.AppType.Frontend.toString(), movininTypes.AppType.Admin.toString()].includes(type)
         || (type === movininTypes.AppType.Admin && user.type === movininTypes.UserType.User)
-        || (type === movininTypes.AppType.Frontend && user.type !== movininTypes.UserType.User)
+        || (type === movininTypes.AppType.Frontend && user.type === movininTypes.UserType.Admin)
       ) {
         res.sendStatus(403)
         return
@@ -339,8 +567,9 @@ export const resend = async (req: Request, res: Response) => {
       // Send email
       i18n.locale = user.language
 
-      const reset = req.params.reset === 'true'
+      const reset = helper.normalizeParam(req.params.reset) === 'true'
 
+      const targetHost = type === movininTypes.AppType.Admin ? env.ADMIN_HOST : env.FRONTEND_HOST
       const mailOptions: nodemailer.SendMailOptions = {
         from: env.SMTP_FROM,
         to: user.email,
@@ -349,7 +578,7 @@ export const resend = async (req: Request, res: Response) => {
           `<p>${i18n.t('HELLO')}${user.fullName},<br><br>
             ${reset ? i18n.t('PASSWORD_RESET_LINK') : i18n.t('ACCOUNT_ACTIVATION_LINK')}<br><br>
             ${helper.joinURL(
-            user.type === movininTypes.UserType.User ? env.FRONTEND_HOST : env.ADMIN_HOST,
+            targetHost,
             reset ? 'reset-password' : 'activate',
           )}/?u=${encodeURIComponent(user._id.toString())}&e=${encodeURIComponent(user.email)}&t=${encodeURIComponent(token.token)}<br><br>
             ${i18n.t('REGARDS')}<br></p>`,
@@ -400,8 +629,15 @@ export const activate = async (req: Request, res: Response) => {
         user.expireAt = undefined
         await user.save()
 
-        res.sendStatus(200)
-        return
+          await OrgMembership.updateMany(
+            { user: user._id, status: movininTypes.OrgMemberStatus.Invited },
+            { $set: { status: movininTypes.OrgMemberStatus.Active, acceptedAt: new Date() } },
+          )
+
+          await ensurePrimaryOrgFromMembership(user)
+
+          res.sendStatus(200)
+          return
       }
     }
 
@@ -437,19 +673,26 @@ export const signin = async (req: Request, res: Response) => {
     }
 
     const user = await User.findOne({ email })
-    const type = req.params.type.toUpperCase() as movininTypes.AppType
+    const type = (helper.normalizeParam(req.params.type) as string).toUpperCase() as movininTypes.AppType
 
-    if (
-      !password
-      || !user
-      || !user.password
-      || ![movininTypes.AppType.Frontend, movininTypes.AppType.Admin].includes(type)
-      || (type === movininTypes.AppType.Admin && user.type === movininTypes.UserType.User)
-      || (type === movininTypes.AppType.Frontend && user.type !== movininTypes.UserType.User)
-    ) {
-      res.sendStatus(204)
-      return
-    }
+    const frontendAllowedTypes = [
+      movininTypes.UserType.User,
+      movininTypes.UserType.Broker,
+      movininTypes.UserType.Developer,
+      movininTypes.UserType.Owner,
+    ]
+
+      if (
+        !password
+        || !user
+        || !user.password
+        || ![movininTypes.AppType.Frontend, movininTypes.AppType.Admin].includes(type)
+        || (type === movininTypes.AppType.Admin && user.type !== movininTypes.UserType.Admin)
+        || (type === movininTypes.AppType.Frontend && !frontendAllowedTypes.includes(user.type as movininTypes.UserType))
+      ) {
+        res.sendStatus(204)
+        return
+      }
 
     const passwordMatch = await bcrypt.compare(password, user.password)
 
@@ -476,17 +719,22 @@ export const signin = async (req: Request, res: Response) => {
         cookieOptions.maxAge = env.JWT_EXPIRE_AT * 1000
       }
 
-      const payload: authHelper.SessionData = { id: user._id.toString() }
-      const token = await authHelper.encryptJWT(payload, stayConnected)
+        const payload: authHelper.SessionData = { id: user._id.toString() }
+        const token = await authHelper.encryptJWT(payload, stayConnected)
 
-      const loggedUser: movininTypes.User = {
-        _id: user._id.toString(),
-        email: user.email,
+        await ensurePrimaryOrgFromMembership(user)
+
+        const loggedUser: movininTypes.User = {
+          _id: user._id.toString(),
+          email: user.email,
         fullName: user.fullName,
         language: user.language,
         enableEmailNotifications: user.enableEmailNotifications,
         blacklisted: user.blacklisted,
         avatar: user.avatar,
+        type: user.type,
+        onboardingCompleted: user.onboardingCompleted,
+        approved: user.approved,
       }
 
       //
@@ -598,17 +846,22 @@ export const socialSignin = async (req: Request, res: Response) => {
       cookieOptions.maxAge = env.JWT_EXPIRE_AT * 1000
     }
 
-    const payload: authHelper.SessionData = { id: user._id.toString() }
-    const token = await authHelper.encryptJWT(payload, stayConnected)
+      const payload: authHelper.SessionData = { id: user._id.toString() }
+      const token = await authHelper.encryptJWT(payload, stayConnected)
 
-    const loggedUser: movininTypes.User = {
-      _id: user._id.toString(),
-      email: user.email,
+      await ensurePrimaryOrgFromMembership(user)
+
+      const loggedUser: movininTypes.User = {
+        _id: user._id.toString(),
+        email: user.email,
       fullName: user.fullName,
       language: user.language,
       enableEmailNotifications: user.enableEmailNotifications,
       blacklisted: user.blacklisted,
       avatar: user.avatar,
+      type: user.type,
+      onboardingCompleted: user.onboardingCompleted,
+      approved: user.approved,
     }
 
     //
@@ -666,7 +919,7 @@ export const signout = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const getPushToken = async (req: Request, res: Response) => {
-  const { userId } = req.params
+  const userId = helper.normalizeParam(req.params.userId) as string
 
   try {
     if (!helper.isValidObjectId(userId)) {
@@ -696,7 +949,8 @@ export const getPushToken = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const createPushToken = async (req: Request, res: Response) => {
-  const { userId, token } = req.params
+  const userId = helper.normalizeParam(req.params.userId) as string
+  const token = helper.normalizeParam(req.params.token) as string
 
   try {
     if (!helper.isValidObjectId(userId)) {
@@ -732,7 +986,7 @@ export const createPushToken = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const deletePushToken = async (req: Request, res: Response) => {
-  const { userId } = req.params
+  const userId = helper.normalizeParam(req.params.userId) as string
 
   try {
     if (!helper.isValidObjectId(userId)) {
@@ -802,7 +1056,8 @@ export const validateAccessToken = async (req: Request, res: Response) => {
  */
 export const confirmEmail = async (req: Request, res: Response) => {
   try {
-    const { token: _token, email: _email } = req.params
+    const _token = helper.normalizeParam(req.params.token) as string
+    const _email = helper.normalizeParam(req.params.email) as string
 
     if (!helper.isValidEmail(_email)) {
       throw new Error('email is not valid')
@@ -943,6 +1198,7 @@ export const update = async (req: Request, res: Response) => {
       enableEmailNotifications,
       payLater,
       blacklisted,
+      approved,
     } = body
 
     if (fullName) {
@@ -961,6 +1217,9 @@ export const update = async (req: Request, res: Response) => {
     }
     if (typeof payLater !== 'undefined') {
       user.payLater = payLater
+    }
+    if (typeof approved !== 'undefined') {
+      user.approved = approved
     }
 
     await user.save()
@@ -1054,7 +1313,7 @@ export const updateLanguage = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const getUser = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
   try {
     if (!helper.isValidObjectId(id)) {
       throw new Error('User id is not valid')
@@ -1076,6 +1335,13 @@ export const getUser = async (req: Request, res: Response) => {
       birthDate: 1,
       payLater: 1,
       customerId: 1,
+      onboardingCompleted: 1,
+      approved: 1,
+      serviceAreas: 1,
+      licenseId: 1,
+      website: 1,
+      primaryOrg: 1,
+      orgRole: 1,
     }).lean()
 
     if (!user) {
@@ -1127,7 +1393,7 @@ export const createAvatar = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const updateAvatar = async (req: Request, res: Response) => {
-  const { userId } = req.params
+  const userId = helper.normalizeParam(req.params.userId) as string
 
   try {
     if (!req.file) {
@@ -1176,7 +1442,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const deleteAvatar = async (req: Request, res: Response) => {
-  const { userId } = req.params
+  const userId = helper.normalizeParam(req.params.userId) as string
 
   try {
     const user = await User.findById(userId)
@@ -1213,7 +1479,7 @@ export const deleteAvatar = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const deleteTempAvatar = async (req: Request, res: Response) => {
-  const { avatar } = req.params
+  const avatar = helper.normalizeParam(req.params.avatar) as string
 
   try {
     const avatarFile = path.join(env.CDN_TEMP_USERS, avatar)
@@ -1302,7 +1568,8 @@ export const changePassword = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const checkPassword = async (req: Request, res: Response) => {
-  const { id, password } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
+  const password = helper.normalizeParam(req.params.password) as string
 
   try {
     if (!helper.isValidObjectId(id)) {
@@ -1349,8 +1616,8 @@ export const getUsers = async (req: Request, res: Response) => {
   try {
     const keyword: string = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
-    const page: number = Number.parseInt(req.params.page, 10)
-    const size: number = Number.parseInt(req.params.size, 10)
+    const page: number = Number.parseInt(helper.normalizeParam(req.params.page) ?? '0', 10)
+    const size: number = Number.parseInt(helper.normalizeParam(req.params.size) ?? '0', 10)
     const { body }: { body: movininTypes.GetUsersBody } = req
     const { types, user: userId } = body
 
@@ -1394,6 +1661,7 @@ export const getUsers = async (req: Request, res: Response) => {
             location: 1,
             type: 1,
             blacklisted: 1,
+            approved: 1,
             birthDate: 1,
             customerId: 1,
           },
@@ -1415,6 +1683,43 @@ export const getUsers = async (req: Request, res: Response) => {
     res.json(users)
   } catch (err) {
     logger.error(`[user.getUsers] ${i18n.t('DB_ERROR')}`, err)
+    res.status(400).send(i18n.t('DB_ERROR') + err)
+  }
+}
+
+/**
+ * Get Developer (Frontend/Public).
+ *
+ * @export
+ * @async
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {unknown}
+ */
+export const getFrontendDeveloper = async (req: Request, res: Response) => {
+  const id = helper.normalizeParam(req.params.id) as string
+
+  try {
+    if (!helper.isValidObjectId(id)) {
+      throw new Error('params.id is not valid')
+    }
+
+    const developer = await User.findOne({
+      _id: id,
+      type: movininTypes.UserType.Developer,
+      approved: true,
+      blacklisted: false,
+    }).select('fullName avatar company website phone bio serviceAreas')
+
+    if (!developer) {
+      logger.error('[user.getFrontendDeveloper] Developer not found:', id)
+      res.sendStatus(204)
+      return
+    }
+
+    res.json(developer)
+  } catch (err) {
+    logger.error(`[user.getFrontendDeveloper] ${i18n.t('DB_ERROR')} ${id}`, err)
     res.status(400).send(i18n.t('DB_ERROR') + err)
   }
 }
@@ -1446,7 +1751,7 @@ export const deleteUsers = async (req: Request, res: Response) => {
           }
         }
 
-        if (user.type === movininTypes.UserType.Agency) {
+        if (user.type === movininTypes.UserType.Broker) {
           await Booking.deleteMany({ agency: id })
           const properties = await Property.find({ agency: id })
           await Property.deleteMany({ agency: id })
@@ -1496,7 +1801,8 @@ export const deleteUsers = async (req: Request, res: Response) => {
  */
 export const verifyRecaptcha = async (req: Request, res: Response) => {
   try {
-    const { token, ip } = req.params
+    const token = helper.normalizeParam(req.params.token) as string
+    const ip = helper.normalizeParam(req.params.ip) as string
     const result = await axios.get(`https://www.google.com/recaptcha/api/siteverify?secret=${encodeURIComponent(env.RECAPTCHA_SECRET)}&response=${encodeURIComponent(token)}&remoteip=${ip}`)
     const { success } = result.data
 
@@ -1546,6 +1852,17 @@ export const sendEmail = async (req: Request, res: Response) => {
     }
     await mailHelper.sendMail(mailOptions)
 
+    if (isContactForm) {
+      const lead = new Lead({
+        name: from || 'Unknown',
+        email: from,
+        message: message ? `${subject ? `[${subject}] ` : ''}${message}` : subject,
+        source: 'CONTACT',
+        status: movininTypes.LeadStatus.New,
+      })
+      await lead.save()
+    }
+
     res.sendStatus(200)
   } catch (err) {
     logger.error(`[user.sendEmail] ${JSON.stringify(req.body)}`, err)
@@ -1562,7 +1879,7 @@ export const sendEmail = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const hasPassword = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
   try {
     const passwordExists = await User.exists({ _id: id, password: { $ne: null } })
 

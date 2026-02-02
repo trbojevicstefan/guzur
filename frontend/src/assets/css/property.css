@@ -7,16 +7,17 @@
 
 @media only screen and (width >=960px) {
   div.property-card {
-    max-width: 872px;
+    max-width: 980px;
     margin-right: auto;
     margin-left: auto;
-    margin-top: 15px;
-    padding-bottom: 30px;
+    margin-top: 24px;
+    padding-bottom: 24px;
   }
 
   div.property-card div.property {
     display: flex;
     flex-direction: row;
+    gap: 24px;
   }
 }
 
@@ -26,63 +27,68 @@ div.main-page {
 }
 
 div.property-card {
-  background-color: #fff;
-  border: 1px solid #ededed;
-  border-radius: 4px;
-  padding: 15px;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
+  padding: 24px;
   margin-bottom: 120px;
 }
 
 div.property-card div.property div.images-container {
-  width: 350px;
+  width: 380px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  margin-right: 15px;
+  gap: 12px;
 }
 
 div.property-card div.property div.main-image {
   width: 100%;
   height: 350px;
-  padding: 5px;
+  padding: 0;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 div.property-card div.property img.main-image {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 div.property-card div.property div.images {
-  display: flex;
-  flex-flow: row wrap;
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: 8px;
 }
 
 div.property-card div.property div.images div.image {
-  width: 60px;
-  height: 60px;
-  border: 2px solid #D5DBDB;
-  padding: 5px;
+  width: 100%;
+  height: 70px;
+  border: 1px solid var(--surface-border);
+  padding: 4px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin: 5px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 div.property-card div.property div.images div.image:hover {
-  border: 2px solid #004b91;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 }
 
 div.property-card div.property div.images div.selected,
 div.property-card div.property div.images div.selected:hover {
-  border: 2px solid #FF8F00;
+  border: 1px solid var(--accent);
 }
 
 div.property-card div.property div.images img.image {
@@ -100,10 +106,12 @@ div.property-card div.property div.right-panel div.right-panel-header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 div.property-card div.property div.right-panel div.name h2 {
-  font-size: 1.8em;
+  font-size: 1.8rem;
   font-weight: 700;
   text-size-adjust: none;
   line-height: 1.3em;
@@ -117,17 +125,18 @@ div.property-card div.property div.right-panel div.name h2 {
 }
 
 div.property-card div.property div.right-panel div.price {
-  color: #383838;
+  color: var(--text-strong);
   font-size: 1.5em;
   font-weight: 700;
   white-space: nowrap;
-  margin-left: 15px;
+  margin-left: 0;
 }
 
 div.property-card div.property-footer {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  gap: 16px;
 }
 
 div.property-card div.property-footer form.action {
@@ -135,6 +144,7 @@ div.property-card div.property-footer form.action {
   flex-direction: row;
   justify-content: flex-end;
   margin-top: 20px;
+  gap: 10px;
 }
 
 div.property-card div.property-footer form.action .from {
@@ -147,7 +157,10 @@ div.property-card div.property-footer form.action .to {
 
 div.property-card div.property-footer form.action .btn-book {
   margin: 1px;
-  background-color: #232323;
+  background-color: var(--accent);
+  border-radius: var(--radius-pill);
+  text-transform: none;
+  box-shadow: 0 12px 24px rgba(255, 56, 92, 0.2);
 }
 
 div.property-card div.property-footer form.action .button {
@@ -160,10 +173,145 @@ div.property-card div.property-footer div.agency {
   align-items: center;
 }
 
+div.property-card div.property-lead {
+  margin-top: 20px;
+}
+
+div.property-card div.description {
+  margin-top: 18px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+div.property-card div.property-map {
+  margin-top: 18px;
+}
+
+div.property-card div.property-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+div.property-card div.property-details {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+div.property-card div.property-details h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+div.property-card div.property-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 16px;
+}
+
+div.property-card div.property-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+div.property-card div.property-detail-row strong {
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+div.property-card button.property-link {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--surface-border);
+  padding: 6px 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+}
+
+div.property-card div.seller-card {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+div.property-card div.seller-card .seller-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+div.property-card div.seller-card .seller-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+div.property-card div.seller-card .seller-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+div.property-card div.seller-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+div.property-card div.seller-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+div.property-card div.seller-name {
+  font-weight: 700;
+  color: var(--text-strong);
+  line-height: 1.35;
+}
+
+div.property-card div.seller-type {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+div.property-card .seller-action {
+  border-radius: var(--radius-pill) !important;
+  text-transform: none !important;
+}
+
 @media only screen and (width <=960px) {
   div.property-card div.property-footer {
     flex-direction: column;
     justify-content: flex-start;
+    gap: 12px;
   }
 
   div.property-card div.property-footer form.action {
@@ -184,7 +332,7 @@ div.property-card div.property-footer div.agency {
   div.property-card div.property-footer form.action .btn-book {
     margin-top: 10px;
     min-height: 56px !important;
-    font-size: 1.1em;
+    font-size: 1rem;
   }
 }
 

@@ -109,7 +109,7 @@ export const create = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const update = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     const country = await Country.findById(id).populate<{ values: env.LocationValue[] }>('values')
@@ -154,7 +154,7 @@ export const update = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const deleteCountry = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     const country = await Country.findById(id)
@@ -183,13 +183,14 @@ export const deleteCountry = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const getCountry = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
+  const language = helper.normalizeParam(req.params.language) as string
 
   try {
     const country = await Country.findById(id).populate<{ values: env.LocationValue[] }>('values').lean()
 
     if (country) {
-      const name = (country.values as env.LocationValue[]).filter((value) => value.language === req.params.language)[0].value
+      const name = (country.values as env.LocationValue[]).filter((value) => value.language === language)[0].value
       const l = { ...country, name }
       res.json(l)
       return
@@ -213,9 +214,9 @@ export const getCountry = async (req: Request, res: Response) => {
  */
 export const getCountries = async (req: Request, res: Response) => {
   try {
-    const page = Number.parseInt(req.params.page, 10)
-    const size = Number.parseInt(req.params.size, 10)
-    const { language } = req.params
+    const page = Number.parseInt(helper.normalizeParam(req.params.page) ?? '0', 10)
+    const size = Number.parseInt(helper.normalizeParam(req.params.size) ?? '0', 10)
+    const language = helper.normalizeParam(req.params.language) as string
     const keyword = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
 
@@ -273,7 +274,9 @@ export const getCountries = async (req: Request, res: Response) => {
  */
 export const getCountriesWithLocations = async (req: Request, res: Response) => {
   try {
-    const { language, imageRequired: _imageRequired, minLocations: _minLocations } = req.params
+    const language = helper.normalizeParam(req.params.language) as string
+    const _imageRequired = helper.normalizeParam(req.params.imageRequired)
+    const _minLocations = helper.normalizeParam(req.params.minLocations)
 
     if (language.length !== 2) {
       throw new Error('Invalid language code')
@@ -384,7 +387,7 @@ export const getCountriesWithLocations = async (req: Request, res: Response) => 
  * @returns {unknown}
  */
 export const checkCountry = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     const _id = new mongoose.Types.ObjectId(id)
@@ -415,7 +418,8 @@ export const checkCountry = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const getCountryId = async (req: Request, res: Response) => {
-  const { name, language } = req.params
+  const name = helper.normalizeParam(req.params.name) as string
+  const language = helper.normalizeParam(req.params.language) as string
 
   try {
     if (language.length !== 2) {

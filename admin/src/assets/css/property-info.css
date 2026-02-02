@@ -1,6 +1,6 @@
 div.property div.property-agency a.property-agency-info {
-    color: #0064c8;
-    text-decoration: underline;
+    color: var(--accent);
+    text-decoration: none;
     font-size: 0.9em;
     line-height: 1em;
     white-space: nowrap;
@@ -29,10 +29,11 @@ div.property-info ul.property-info-list li.aircon {
     min-width: 60px;
     margin-bottom: 10px;
     padding: 3px 5px 0 0;
-    box-shadow: 0 0 0 1px #ddd inset;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
     margin-left: 5px;
-    border-radius: 5px;
+    border-radius: 12px;
     text-align: center;
+    background: rgba(255, 255, 255, 0.7);
 }
 
 div.property-info ul.extras-list {

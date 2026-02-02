@@ -39,9 +39,27 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
       }
 
       if (isAdmin) {
-        $match.$and?.push({ type: { $in: [movininTypes.UserType.Admin, movininTypes.UserType.Agency] } })
+        $match.$and?.push({
+          type: {
+            $in: [
+              movininTypes.UserType.Admin,
+              movininTypes.UserType.Broker,
+              movininTypes.UserType.Developer,
+              movininTypes.UserType.Owner,
+            ],
+          },
+        })
       } else if (isFrontend) {
-        $match.$and?.push({ type: movininTypes.UserType.User })
+        $match.$and?.push({
+          type: {
+            $in: [
+              movininTypes.UserType.User,
+              movininTypes.UserType.Broker,
+              movininTypes.UserType.Developer,
+              movininTypes.UserType.Owner,
+            ],
+          },
+        })
       }
 
       if (

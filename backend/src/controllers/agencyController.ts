@@ -14,7 +14,7 @@ import * as helper from '../utils/helper'
 import * as logger from '../utils/logger'
 
 /**
- * Validate Agency fullname.
+ * Validate Broker fullname.
  *
  * @export
  * @async
@@ -30,7 +30,7 @@ export const validate = async (req: Request, res: Response) => {
     const keyword = escapeStringRegexp(fullName)
     const options = 'i'
     const user = await User.findOne({
-      type: movininTypes.UserType.Agency,
+      type: movininTypes.UserType.Broker,
       fullName: { $regex: new RegExp(`^${keyword}$`), $options: options },
     })
     if (user) {
@@ -45,7 +45,7 @@ export const validate = async (req: Request, res: Response) => {
 }
 
 /**
- * Update Agency.
+ * Update Broker.
  *
  * @export
  * @async
@@ -102,7 +102,7 @@ export const update = async (req: Request, res: Response) => {
 }
 
 /**
- * Delete Agency by ID.
+ * Delete Broker by ID.
  *
  * @export
  * @async
@@ -159,7 +159,7 @@ export const deleteAgency = async (req: Request, res: Response) => {
 }
 
 /**
- * Get Agency by ID.
+ * Get Broker by ID.
  *
  * @export
  * @async
@@ -209,7 +209,7 @@ export const getAgency = async (req: Request, res: Response) => {
 }
 
 /**
- * Get Agencies.
+ * Get Brokers.
  *
  * @export
  * @async
@@ -219,8 +219,8 @@ export const getAgency = async (req: Request, res: Response) => {
  */
 export const getAgencies = async (req: Request, res: Response) => {
   try {
-    const page = Number.parseInt(req.params.page, 10)
-    const size = Number.parseInt(req.params.size, 10)
+    const page = Number.parseInt(helper.normalizeParam(req.params.page) ?? '0', 10)
+    const size = Number.parseInt(helper.normalizeParam(req.params.size) ?? '0', 10)
     const keyword = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
 
@@ -228,8 +228,7 @@ export const getAgencies = async (req: Request, res: Response) => {
       [
         {
           $match: {
-            type: movininTypes.UserType.Agency,
-            avatar: { $ne: null },
+            type: movininTypes.UserType.Broker,
             fullName: { $regex: keyword, $options: options },
           },
         },
@@ -260,7 +259,7 @@ export const getAgencies = async (req: Request, res: Response) => {
 }
 
 /**
- * Get all Agencies.
+ * Get all Brokers.
  *
  * @export
  * @async
@@ -274,8 +273,7 @@ export const getAllAgencies = async (req: Request, res: Response) => {
       [
         {
           $match: {
-            type: movininTypes.UserType.Agency,
-            avatar: { $ne: null },
+            type: movininTypes.UserType.Broker,
             blacklisted: false,
           },
         },

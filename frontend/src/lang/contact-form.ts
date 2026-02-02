@@ -1,4 +1,4 @@
-import LocalizedStrings from 'localized-strings'
+﻿import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/utils/langHelper'
 
 const strings = new LocalizedStrings({
@@ -7,7 +7,21 @@ const strings = new LocalizedStrings({
     SUBJECT: 'Objet',
     MESSAGE: 'Message',
     SEND: 'Envoyer',
-    MESSAGE_SENT: 'Message envoyé',
+    MESSAGE_SENT: 'Message envoyÃ©',
+  },
+  ar: {
+    CONTACT_HEADING: 'تواصل معنا',
+    SUBJECT: 'الموضوع',
+    MESSAGE: 'الرسالة',
+    SEND: 'إرسال',
+    MESSAGE_SENT: 'تم إرسال الرسالة',
+  },
+  el: {
+    CONTACT_HEADING: 'Î•Ï€Î¹ÎºÎ¿Î¹Î½Ï‰Î½Î¯Î±',
+    SUBJECT: 'Î˜Î­Î¼Î±',
+    MESSAGE: 'ÎœÎ®Î½Ï…Î¼Î±',
+    SEND: 'Î£Ï„ÎµÎ¯Î»ÎµÏ„Îµ',
+    MESSAGE_SENT: 'Î¤Î¿ Î¼Î®Î½Ï…Î¼Î± ÏƒÏ„Î¬Î»Î¸Î·ÎºÎµ'
   },
   en: {
     CONTACT_HEADING: 'Contact',
@@ -16,14 +30,8 @@ const strings = new LocalizedStrings({
     SEND: 'Send',
     MESSAGE_SENT: 'Message sent'
   },
-  el: {
-    CONTACT_HEADING: 'Επικοινωνία',
-    SUBJECT: 'Θέμα',
-    MESSAGE: 'Μήνυμα',
-    SEND: 'Στείλετε',
-    MESSAGE_SENT: 'Το μήνυμα στάλθηκε'
-  },
 })
 
 langHelper.setLanguage(strings)
 export { strings }
+

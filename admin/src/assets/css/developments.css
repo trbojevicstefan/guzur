@@ -1,0 +1,38 @@
+.developments {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 32px 20px 60px;
+}
+
+.developments .col-1 {
+  width: 260px;
+  padding: 18px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
+}
+
+.developments .col-2 {
+  flex: 1;
+}
+
+.developments .development-filter {
+  margin-top: 12px;
+}
+
+.cl-new-development {
+  margin-bottom: 10px;
+}
+
+@media only screen and (width <=960px) {
+  .developments {
+    flex-direction: column;
+  }
+
+  .developments .col-1 {
+    width: 100%;
+  }
+}

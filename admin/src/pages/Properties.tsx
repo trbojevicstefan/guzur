@@ -15,6 +15,10 @@ import AvailabilityFilter from '@/components/AvailabilityFilter'
 import PropertyList from '@/components/PropertyList'
 import * as AgencyService from '@/services/AgencyService'
 import RentalTermFilter from '@/components/RentalTermFilter'
+import ListingStatusFilter from '@/components/ListingStatusFilter'
+import BrokerSelectList from '@/components/BrokerSelectList'
+import DeveloperSelectList from '@/components/DeveloperSelectList'
+import OwnerSelectList from '@/components/OwnerSelectList'
 import env from '@/config/env.config'
 
 import '@/assets/css/properties.css'
@@ -31,6 +35,10 @@ const Properties = () => {
   const [loading, setLoading] = useState(true)
   const [propertyTypes, setPropertyTypes] = useState(movininHelper.getAllPropertyTypes())
   const [rentalTerms, setRentalTerms] = useState(movininHelper.getAllRentalTerms())
+  const [listingStatuses, setListingStatuses] = useState(helper.getListingStatuses().map((status) => status.value))
+  const [broker, setBroker] = useState<movininTypes.Option>()
+  const [developer, setDeveloper] = useState<movininTypes.Option>()
+  const [owner, setOwner] = useState<movininTypes.Option>()
   const [availability, setAvailability] = useState(
     [
       movininTypes.Availablity.Available,
@@ -68,15 +76,30 @@ const Properties = () => {
     setAvailability(values)
   }
 
+  const handleListingStatusFilterChange = (values: movininTypes.ListingStatus[]) => {
+    setListingStatuses(values)
+  }
+
+  const handleBrokerChange = (values: movininTypes.Option[]) => {
+    setBroker(values[0])
+  }
+
+  const handleDeveloperChange = (values: movininTypes.Option[]) => {
+    setDeveloper(values[0])
+  }
+
+  const handleOwnerChange = (values: movininTypes.Option[]) => {
+    setOwner(values[0])
+  }
+
   const onLoad = async (_user?: movininTypes.User) => {
     setUser(_user)
     const _isAdmin = helper.admin(_user)
     setAdmin(_isAdmin)
     if (_isAdmin) {
       const _allAgencies = await AgencyService.getAllAgencies()
-      const _agencies = movininHelper.flattenAgencies(_allAgencies)
       setAllAgencies(_allAgencies)
-      setAgencies(_agencies)
+      setAgencies(undefined)
     } else {
       const agencyId = (_user && _user._id) as string
       setAgencies([agencyId])
@@ -125,6 +148,30 @@ const Properties = () => {
                       />
                     )
                   }
+              {admin && (
+                <BrokerSelectList
+                  label={commonStrings.BROKER}
+                  onChange={handleBrokerChange}
+                />
+              )}
+              {admin && (
+                <DeveloperSelectList
+                  label={commonStrings.DEVELOPER}
+                  onChange={handleDeveloperChange}
+                />
+              )}
+              {admin && (
+                <OwnerSelectList
+                  label={commonStrings.OWNER}
+                  onChange={handleOwnerChange}
+                />
+              )}
+              {admin && (
+                <ListingStatusFilter
+                  className="property-filter"
+                  onChange={handleListingStatusFilterChange}
+                />
+              )}
                 </>
               )}
             </div>
@@ -136,6 +183,10 @@ const Properties = () => {
               types={propertyTypes}
               rentalTerms={rentalTerms}
               availability={availability}
+              listingStatuses={listingStatuses}
+              brokers={broker ? [broker._id] : undefined}
+              developers={developer ? [developer._id] : undefined}
+              owners={owner ? [owner._id] : undefined}
               keyword={keyword}
               loading={loading}
               language={user.language || env.DEFAULT_LANGUAGE}

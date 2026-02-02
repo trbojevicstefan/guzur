@@ -1,6 +1,6 @@
 div.property-filter {
-  background: #fff;
-  margin: 10px 0;
+  background: transparent;
+  margin: 0;
 }
 
 div.property-filter .location,
@@ -8,13 +8,15 @@ div.property-filter .from,
 div.property-filter .to,
 div.property-filter .search,
 div.property-filter .chk-same-location {
-  padding: 5px;
+  padding: 6px 4px;
 }
 
 div.property-filter .btn-search {
-  background: #232323;
+  background: var(--accent);
   color: #fff;
-  margin: 5px 0;
+  margin: 6px 0 4px;
+  border-radius: var(--radius-pill);
+  text-transform: none;
 }
 
 div.property-filter .chk-same-location label {

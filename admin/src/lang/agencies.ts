@@ -3,14 +3,14 @@ import * as langHelper from '@/utils/langHelper'
 
 const strings = new LocalizedStrings({
   fr: {
-    NEW_AGENCY: 'Nouvelle agence',
-    AGENCY: 'agence',
-    AGENCIES: 'agences',
+    NEW_AGENCY: 'Nouveau courtier',
+    AGENCY: 'courtier',
+    AGENCIES: 'courtiers',
   },
   en: {
-    NEW_AGENCY: 'New agency',
-    AGENCY: 'agency',
-    AGENCIES: 'agencies',
+    NEW_AGENCY: 'New broker',
+    AGENCY: 'broker',
+    AGENCIES: 'brokers',
   },
 })
 

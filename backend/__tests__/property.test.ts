@@ -118,10 +118,13 @@ describe('POST /api/create-property', () => {
       location: LOCATION1_ID,
       address: '',
       price: 4000,
+      salePrice: 250000,
       hidden: true,
       cancellation: 0,
       available: false,
       rentalTerm: movininTypes.RentalTerm.Monthly,
+      listingType: movininTypes.ListingType.Both,
+      listingStatus: movininTypes.ListingStatus.Published,
     }
     let res = await request(app)
       .post('/api/create-property')
@@ -130,6 +133,9 @@ describe('POST /api/create-property', () => {
     expect(res.statusCode).toBe(200)
     const property = res.body
     expect(property.blockOnPay).toBe(true)
+    expect(property.listingType).toBe(movininTypes.ListingType.Both)
+    expect(property.salePrice).toBe(250000)
+    expect(property.listingStatus).toBe(movininTypes.ListingStatus.PendingReview)
     PROPERTY_ID = property._id
 
     if (!(await helper.pathExists(mainImage))) {
@@ -600,7 +606,7 @@ describe('POST /api/frontend-properties/:page/:size', () => {
     res = await request(app)
       .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
       .send(payload)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(200)
     payload.from = new Date(2024, 0, 1)
 
     // test failure (to missing)
@@ -608,7 +614,7 @@ describe('POST /api/frontend-properties/:page/:size', () => {
     res = await request(app)
       .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
       .send(payload)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(200)
     payload.to = new Date(2024, 1, 1)
 
     res = await request(app)

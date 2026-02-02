@@ -52,7 +52,7 @@ const Agencies = () => {
                   variant="contained"
                   className="btn-primary new-agency"
                   size="small"
-                  onClick={() => navigate('/create-agency')}
+                  onClick={() => navigate('/create-broker')}
                 >
                   {strings.NEW_AGENCY}
                 </Button>

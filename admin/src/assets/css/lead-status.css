@@ -1,0 +1,31 @@
+.lead-status {
+  display: inline-flex;
+  align-items: center;
+}
+
+.lead-status .ls {
+  padding: 3px 6px;
+  color: #fff;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.lead-status .ls-new {
+  background: #6c757d;
+}
+
+.lead-status .ls-contacted {
+  background: #0d6efd;
+}
+
+.lead-status .ls-viewing_scheduled {
+  background: #20c997;
+}
+
+.lead-status .ls-closed_won {
+  background: #198754;
+}
+
+.lead-status .ls-closed_lost {
+  background: #dc3545;
+}

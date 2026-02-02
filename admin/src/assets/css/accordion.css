@@ -1,10 +1,12 @@
 div.accordion-container {
-  background: #fff;
+  background: var(--surface-glass);
   margin: 10px 0;
-  border: 1px solid #dadada;
-  border-radius: 5px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   font-size: 13px;
   user-select: none;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 div.accordion-container span.accordion {
@@ -14,22 +16,22 @@ div.accordion-container span.accordion {
   display: inline-block;
   width: 100%;
   text-align: center;
-  color: rgb(0 0 0 / 60%);
+  color: var(--text-muted);
   font-weight: 400;
   font-size: 13px;
   line-height: 2em;
-  background: #fff;
-  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-xl);
 }
 
 div.accordion-container span.accordion-active {
-  border-bottom: 1px solid #dadada;
-  border-radius: 5px 5px 0 0;
+  border-bottom: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 div.accordion-container span.accordion-active,
 div.accordion-container span.accordion:hover {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.85);
 }
 
 div.accordion-container span.accordion::after {

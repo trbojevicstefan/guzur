@@ -1,38 +1,67 @@
-  import LocalizedStrings from 'localized-strings'
-  import * as langHelper from '@/utils/langHelper'
+import LocalizedStrings from 'localized-strings'
+import * as langHelper from '@/utils/langHelper'
 
-  const strings = new LocalizedStrings({
-    fr: {
-      SIGN_IN: 'Se connecter',
-      HOME: 'Accueil',
-      BOOKINGS: 'Réservations',
-      ABOUT: 'À propos',
-      TOS: "Conditions d'utilisation",
-      CONTACT: 'Contact',
-      LANGUAGE: 'Langue',
-      SETTINGS: 'Paramètres',
-      SIGN_OUT: 'Déconnexion',
-      AGENCIES: 'Agences',
-      LOCATIONS: 'Destinations',
-      PRIVACY_POLICY: 'Politique de Confidentialité',
-      COOKIE_POLICY: 'Politique de cookies',
-    },
-    en: {
-      SIGN_IN: 'Sign in',
-      HOME: 'Home',
-      BOOKINGS: 'Bookings',
-      ABOUT: 'About',
-      TOS: 'Terms of Service',
-      CONTACT: 'Contact',
-      LANGUAGE: 'Language',
-      SETTINGS: 'Settings',
-      SIGN_OUT: 'Sign out',
-      AGENCIES: 'Agencies',
-      LOCATIONS: 'Destinations',
-      PRIVACY_POLICY: 'Privacy Policy',
-      COOKIE_POLICY: 'Cookie Policy',
-    },
-  })
+const strings = new LocalizedStrings({
+  fr: {
+    SIGN_IN: 'Se connecter',
+    HOME: 'Accueil',
+    BOOKINGS: 'RAcservations',
+    ABOUT: 'A? propos',
+    TOS: "Conditions d'utilisation",
+    CONTACT: 'Contact',
+    PROJECTS: 'Projets',
+    LANGUAGE: 'Langue',
+    SETTINGS: 'ParamA"tres',
+    SIGN_OUT: 'DAcconnexion',
+    PULSE: 'Guzur Pulse',
+    RFQ: 'Demander un bien',
+    BROKERS: 'Courtiers',
+    DEVELOPERS: 'Promoteurs',
+    LOCATIONS: 'Destinations',
+    PRIVACY_POLICY: 'Politique de ConfidentialitAc',
+    COOKIE_POLICY: 'Politique de cookies',
+  },
+  ar: {
+    SIGN_IN: 'تسجيل الدخول',
+    HOME: 'الرئيسية',
+    BOOKINGS: 'الحجوزات',
+    DASHBOARD: 'لوحة التحكم',
+    ABOUT: 'من نحن',
+    TOS: 'الشروط والأحكام',
+    CONTACT: 'اتصل بنا',
+    PROJECTS: 'المشروعات',
+    LANGUAGE: 'اللغة',
+    SETTINGS: 'الإعدادات',
+    SIGN_OUT: 'تسجيل الخروج',
+    PULSE: 'Guzur Pulse',
+    RFQ: 'طلب عقار',
+    BROKERS: 'الوسطاء',
+    DEVELOPERS: 'المطورون',
+    LOCATIONS: 'المناطق',
+    PRIVACY_POLICY: 'سياسة الخصوصية',
+    COOKIE_POLICY: 'سياسة ملفات تعريف الارتباط',
+  },
+  en: {
+    SIGN_IN: 'Sign in',
+    HOME: 'Home',
+    BOOKINGS: 'Bookings',
+    DASHBOARD: 'Dashboard',
+    ABOUT: 'About',
+    TOS: 'Terms of Service',
+    CONTACT: 'Contact',
+    PROJECTS: 'Projects',
+    LANGUAGE: 'Language',
+    SETTINGS: 'Settings',
+    SIGN_OUT: 'Sign out',
+    PULSE: 'Guzur Pulse',
+    RFQ: 'Request Home',
+    BROKERS: 'Brokers',
+    DEVELOPERS: 'Developers',
+    LOCATIONS: 'Destinations',
+    PRIVACY_POLICY: 'Privacy Policy',
+    COOKIE_POLICY: 'Cookie Policy',
+  },
+})
 
-  langHelper.setLanguage(strings)
-  export { strings }
+langHelper.setLanguage(strings)
+export { strings }

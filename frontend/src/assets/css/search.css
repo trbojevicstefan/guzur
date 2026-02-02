@@ -2,6 +2,76 @@ div.properties {
   display: flex;
   flex: 1 0 auto;
   transform: translate3d(0, 0, 0);
+  gap: 24px;
+}
+
+div.properties .search-header {
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px auto 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+div.properties .search-breadcrumbs {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+div.properties .search-breadcrumbs .separator {
+  opacity: 0.6;
+}
+
+div.properties .search-top-bar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) repeat(3, auto);
+  gap: 10px;
+  align-items: center;
+}
+
+div.properties .search-input {
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  box-shadow: var(--shadow-ambient);
+}
+
+div.properties .search-input input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-strong);
+}
+
+div.properties .search-action {
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-strong);
+  text-transform: none;
+  padding: 10px 16px;
+}
+
+div.properties .search-title {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+div.properties .search-title h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+div.properties .search-title span {
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
 div.properties div.search {
@@ -15,11 +85,17 @@ div.properties div.col-1 .map {
   min-height: 0;
   height: 180px;
   margin-bottom: 3px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 div.properties div.col-1 .filter,
 div.properties div.col-1 div.info-box {
-  background-color: #fff;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ambient);
+  padding: 12px;
 }
 
 /* Device width is less than or equal to 960px */
@@ -28,6 +104,7 @@ div.properties div.col-1 div.info-box {
   div.properties {
     flex: 0 1 auto;
     flex-direction: column;
+    gap: 12px;
   }
 
   div.properties .sc-search {
@@ -45,6 +122,7 @@ div.properties div.col-1 div.info-box {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    gap: 12px;
   }
 
   div.properties div.col-1 div.col-1-container {
@@ -77,8 +155,12 @@ div.properties div.col-1 div.info-box {
   }
 
   div.properties div.col-1 {
-    width: 300px;
+    width: 340px;
     margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 0 0 340px;
   }
 
   div.properties div.col-2 {
@@ -95,5 +177,55 @@ div.properties div.col-1 div.info-box {
   div.properties .new-property {
     margin: 10px 5px 0 0;
     width: 100%;
+  }
+}
+
+@media only screen and (width >=960px) {
+  div.properties .property-list-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    max-width: 980px;
+  }
+}
+
+@media only screen and (width <=1200px) and (width >=960px) {
+  div.properties .property-list-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media only screen and (width <=960px) {
+  div.properties .property-list-grid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+div.properties .property-list-list {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+div.properties .search-requires-dates {
+  width: 100%;
+  max-width: 1000px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-border);
+  background: var(--surface-glass);
+  color: var(--text-muted);
+  box-shadow: var(--shadow-ambient);
+  margin-bottom: 6px;
+}
+
+@media only screen and (width <=960px) {
+  div.properties .search-header {
+    margin: 10px 15px;
+  }
+
+  div.properties .search-top-bar {
+    grid-template-columns: 1fr;
   }
 }

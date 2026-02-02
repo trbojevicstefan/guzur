@@ -1,5 +1,5 @@
 div.rental-term-filter div.filter-elements {
-  padding: 7px 5px;
+  padding: 6px 4px;
 }
 
 div.rental-term-filter div.filter-elements div.filter-element input[type='checkbox'].rental-term-checkbox {
@@ -11,7 +11,7 @@ div.rental-term-filter div.filter-elements div.filter-element span {
   margin-left: 5px;
   cursor: pointer;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 div.rental-term-filter div.filter-actions {
@@ -22,5 +22,5 @@ div.rental-term-filter div.filter-actions {
 div.rental-term-filter div.filter-actions span.uncheckall {
   text-decoration: underline;
   cursor: pointer;
-  color: #0064c8;
+  color: var(--accent);
 }

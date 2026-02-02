@@ -22,7 +22,10 @@ div.location-caroussel .btn-slider-next {
 div.location-caroussel div.box {
   width: 346px !important;
   height: 346px;
-  background-color: #fff;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
   display: flex !important;
   flex-direction: column;
   margin-right: 30px;
@@ -35,6 +38,9 @@ div.location-caroussel div.box div.location-image {
   justify-content: center;
   width: 346px;
   height: 140px;
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  overflow: hidden;
 }
 
 div.location-caroussel div.box div.location-image img {
@@ -43,7 +49,7 @@ div.location-caroussel div.box div.location-image img {
 }
 
 div.location-caroussel div.box div.location-image .location-icon {
-  color: #939393;
+  color: var(--text-muted);
 }
 
 div.location-caroussel div.box div.title {

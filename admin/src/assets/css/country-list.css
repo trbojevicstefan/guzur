@@ -20,14 +20,16 @@ section.country-list .empty-list {
 
 section.country-list .country-list-item {
   position: relative;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  color: #333;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  color: var(--text-strong);
   font-size: 12px;
   margin-bottom: 10px;
   height: 75px;
   word-break: break-word;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 section.country-list .country-title {

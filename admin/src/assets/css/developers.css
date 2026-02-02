@@ -1,0 +1,36 @@
+div.developers {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  padding: 32px 20px 60px;
+  gap: 20px;
+}
+
+div.developers .col-1 {
+  width: 260px;
+  padding: 18px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
+}
+
+div.developers .col-2 {
+  flex: 1;
+}
+
+div.developers .developer-count {
+  margin-top: 12px;
+}
+
+@media only screen and (width <=960px) {
+  div.developers {
+    flex-direction: column;
+  }
+
+  div.developers .col-1 {
+    width: 100%;
+  }
+}

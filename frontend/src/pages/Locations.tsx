@@ -6,6 +6,7 @@ import * as movininTypes from ':movinin-types'
 import * as LocationService from '@/services/LocationService'
 import Layout from '@/components/Layout'
 import Map from '@/components/Map'
+import { strings as mapStrings } from '@/lang/map'
 import SearchForm from '@/components/SearchForm'
 import Footer from '@/components/Footer'
 
@@ -28,6 +29,9 @@ const Locations = () => {
           position={new L.LatLng(env.MAP_LATITUDE, env.MAP_LONGITUDE)}
           initialZoom={env.MAP_ZOOM}
           locations={locations}
+          showTileToggle
+          streetLabel={mapStrings.STREET}
+          satelliteLabel={mapStrings.SATELLITE}
           onSelelectLocation={async (locationId) => {
             setLocation(locationId)
             setOpenSearchFormDialog(true)

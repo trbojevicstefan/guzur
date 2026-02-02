@@ -1,0 +1,74 @@
+.organization-list-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.organization-item {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 18px 40px rgba(17, 17, 17, 0.06);
+}
+
+.organization-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.organization-item-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.organization-item-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.organization-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  color: #4b5563;
+  font-size: 0.85rem;
+}
+
+.organization-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.organization-action-btn {
+  text-transform: none !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.status.approved {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #047857 !important;
+}
+
+.status.pending {
+  background: rgba(251, 191, 36, 0.2) !important;
+  color: #92400e !important;
+}
+
+.status.active {
+  background: rgba(59, 130, 246, 0.12) !important;
+  color: #1d4ed8 !important;
+}
+
+.status.inactive {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #b91c1c !important;
+}

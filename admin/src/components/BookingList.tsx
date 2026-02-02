@@ -336,7 +336,7 @@ const BookingList = ({
         headerName: commonStrings.AGENCY,
         flex: 1,
         renderCell: ({ row, value }: GridRenderCellParams<movininTypes.Booking, string>) => (
-          <Link href={`/agency?c=${(row.agency as movininTypes.User)._id}`} className="cell-agency">
+          <Link href={`/broker?c=${(row.agency as movininTypes.User)._id}`} className="cell-agency">
             <img src={movininHelper.joinURL(env.CDN_USERS, (row.agency as movininTypes.User).avatar)} alt={value} />
           </Link>
         ),

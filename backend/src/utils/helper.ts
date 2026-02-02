@@ -7,15 +7,28 @@ import Stripe from 'stripe'
 import { nanoid } from 'nanoid'
 
 /**
+ * Normalize request param to a single string.
+ *
+ * @export
+ * @param {string | string[] | undefined} input
+ * @returns {string | undefined}
+ */
+export const normalizeParam = (input?: string | string[]) => (Array.isArray(input) ? input[0] : input)
+
+/**
  * Convert string to boolean.
  *
  * @export
- * @param {string} input
+ * @param {string | string[]} input
  * @returns {boolean}
  */
-export const StringToBoolean = (input: string): boolean => {
+export const StringToBoolean = (input?: string | string[]): boolean => {
   try {
-    return Boolean(JSON.parse(input.toLowerCase()))
+    const normalized = normalizeParam(input)
+    if (!normalized) {
+      return false
+    }
+    return Boolean(JSON.parse(normalized.toLowerCase()))
   } catch {
     return false
   }
@@ -139,7 +152,7 @@ export const clone = (obj: any) => (Array.isArray(obj) ? Array.from(obj) : ({ ..
  * @param {?string} id
  * @returns {boolean}
  */
-export const isValidObjectId = (id?: string) => mongoose.isValidObjectId(id)
+export const isValidObjectId = (id?: string | string[]) => mongoose.isValidObjectId(normalizeParam(id))
 
 /**
  * Check email.
@@ -147,7 +160,10 @@ export const isValidObjectId = (id?: string) => mongoose.isValidObjectId(id)
  * @param {string} email
  * @returns {boolean}
  */
-export const isValidEmail = (email?: string) => !!email && validator.isEmail(email)
+export const isValidEmail = (email?: string | string[]) => {
+  const normalized = normalizeParam(email)
+  return !!normalized && validator.isEmail(normalized)
+}
 
 /**
  * Generate user token.

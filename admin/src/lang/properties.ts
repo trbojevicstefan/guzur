@@ -41,6 +41,9 @@ const strings = new LocalizedStrings({
     YEARS: 'ans',
     VIEW_BOOKINGS: 'Voir les réservations',
     PETS_ALLOWED_TOOLTIP: 'Animaux domestiques autorisés',
+    DESCRIPTION: 'Description',
+    AI_DESCRIPTION: 'Description IA',
+    PUBLISHER_DESCRIPTION: 'Description éditeur',
   },
   en: {
     NEW_PROPERTY: 'New property',
@@ -81,6 +84,9 @@ const strings = new LocalizedStrings({
     YEARS: 'years',
     VIEW_BOOKINGS: 'View bookings',
     PETS_ALLOWED_TOOLTIP: 'Pets allowed',
+    DESCRIPTION: 'Description',
+    AI_DESCRIPTION: 'AI description',
+    PUBLISHER_DESCRIPTION: 'Publisher description',
   },
 })
 

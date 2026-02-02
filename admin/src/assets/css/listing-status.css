@@ -1,0 +1,31 @@
+.listing-status {
+  display: inline-flex;
+  align-items: center;
+}
+
+.listing-status .ls {
+  padding: 3px 6px;
+  color: #fff;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.listing-status .ls-draft {
+  background: #6c757d;
+}
+
+.listing-status .ls-pending_review {
+  background: #f59e0b;
+}
+
+.listing-status .ls-published {
+  background: #198754;
+}
+
+.listing-status .ls-rejected {
+  background: #dc3545;
+}
+
+.listing-status .ls-archived {
+  background: #374151;
+}

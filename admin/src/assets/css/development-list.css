@@ -1,0 +1,14 @@
+.development-list {
+  margin-top: 10px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-glass);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
+}
+
+.list-actions-cell {
+  display: flex;
+  gap: 4px;
+}

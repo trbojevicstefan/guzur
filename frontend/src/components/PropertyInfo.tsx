@@ -42,6 +42,8 @@ const PropertyInfo = ({
 }: PropertyInfoProps) => {
   const fr = langHelper.fr()
   const [cancellation, setCancellation] = useState('')
+  const isRentListing = property.listingType === movininTypes.ListingType.Rent
+    || property.listingType === movininTypes.ListingType.Both
 
   useEffect(() => {
     const init = async () => {
@@ -156,14 +158,16 @@ const PropertyInfo = ({
                 </li>
               )
             }
-            <li>
-              <Tooltip title={property.cancellation > -1 ? strings.CANCELLATION_TOOLTIP : cancellation} placement="left">
-                <div className="property-info-list-item">
-                  {getExtraIcon(property.cancellation)}
-                  <span className="property-info-list-text">{cancellation}</span>
-                </div>
-              </Tooltip>
-            </li>
+            {isRentListing && (
+              <li>
+                <Tooltip title={property.cancellation > -1 ? strings.CANCELLATION_TOOLTIP : cancellation} placement="left">
+                  <div className="property-info-list-item">
+                    {getExtraIcon(property.cancellation)}
+                    <span className="property-info-list-text">{cancellation}</span>
+                  </div>
+                </Tooltip>
+              </li>
+            )}
             {property.location.name && (
               <li>
                 <Tooltip title={property.location.name} placement="left">
@@ -175,23 +179,27 @@ const PropertyInfo = ({
               </li>
             )}
 
-            <li>
-              <Tooltip title={cpStrings.MINIMUM_AGE} placement="left">
-                <div className="property-info-list-item">
-                  <MinimumAgeIcon />
-                  <span className="property-info-list-text">{`${property.minimumAge} ${strings.YEARS}`}</span>
-                </div>
-              </Tooltip>
-            </li>
+            {isRentListing && (
+              <li>
+                <Tooltip title={cpStrings.MINIMUM_AGE} placement="left">
+                  <div className="property-info-list-item">
+                    <MinimumAgeIcon />
+                    <span className="property-info-list-text">{`${property.minimumAge} ${strings.YEARS}`}</span>
+                  </div>
+                </Tooltip>
+              </li>
+            )}
 
-            <li>
-              <Tooltip title={cpStrings.RENTAL_TERM} placement="left">
-                <div className="property-info-list-item">
-                  <RentalTermIcon />
-                  <span className="property-info-list-text">{helper.rentalTerm(property.rentalTerm)}</span>
-                </div>
-              </Tooltip>
-            </li>
+            {isRentListing && (
+              <li>
+                <Tooltip title={cpStrings.RENTAL_TERM} placement="left">
+                  <div className="property-info-list-item">
+                    <RentalTermIcon />
+                    <span className="property-info-list-text">{helper.rentalTerm(property.rentalTerm)}</span>
+                  </div>
+                </Tooltip>
+              </li>
+            )}
             {description && (
               <li>
                 <div className="property-info-list-item">

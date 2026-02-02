@@ -12,11 +12,14 @@ import '@/assets/css/property-filter.css'
 import Accordion from './Accordion'
 
 interface PropertyFilterProps {
-  from: Date
-  to: Date
-  location: movininTypes.Location
+  from?: Date
+  to?: Date
+  location?: movininTypes.Location
   className?: string
   collapse?: boolean
+  showDates?: boolean
+  requireDates?: boolean
+  requireLocation?: boolean
   onSubmit: movininTypes.PropertyFilterSubmitEvent
 }
 
@@ -26,6 +29,9 @@ const PropertyFilter = ({
   location: filterLocation,
   className,
   collapse,
+  showDates,
+  requireDates = true,
+  requireLocation = true,
   onSubmit
 }: PropertyFilterProps) => {
   const _minDate = new Date()
@@ -37,6 +43,8 @@ const PropertyFilter = ({
   const [location, setLocation] = useState<movininTypes.Location | null | undefined>(filterLocation)
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
+
+  const shouldShowDates = showDates ?? requireDates
 
   useEffect(() => {
     if (filterFrom) {
@@ -55,12 +63,26 @@ const PropertyFilter = ({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!location || !from || !to || fromError || toError) {
+    if (requireDates) {
+      if (!from) {
+        setFromError(true)
+      }
+      if (from && !to) {
+        setToError(true)
+      }
+    }
+
+    if ((requireLocation && !location) || (requireDates && (!from || !to)) || fromError || toError) {
       return
     }
 
     if (onSubmit) {
-      const filter: movininTypes.PropertyFilter = { location, from, to }
+      const nextLocation = (location || filterLocation) as movininTypes.Location
+      const filter: movininTypes.PropertyFilter = {
+        location: nextLocation,
+        from: requireDates ? from : undefined,
+        to: requireDates ? to : undefined,
+      }
       onSubmit(filter)
     }
   }
@@ -78,71 +100,79 @@ const PropertyFilter = ({
             hidePopupIcon
             customOpen={env.isMobile}
             init={!env.isMobile}
-            required
+            required={requireLocation}
             variant="standard"
             value={location as movininTypes.Location}
             onChange={handleLocationChange}
           />
         </FormControl>
 
-        <FormControl fullWidth className="from">
-          <DatePicker
-            label={commonStrings.FROM}
-            value={from}
-            minDate={_minDate}
-            variant="standard"
-            required
-            onChange={(date) => {
-              if (date) {
-                const __minDate = new Date(date)
-                __minDate.setDate(date.getDate() + 1)
-                setFrom(date)
-                setMinDate(__minDate)
-                setFromError(false)
+      {shouldShowDates && (
+        <>
+          <FormControl fullWidth className="from">
+            <DatePicker
+              label={commonStrings.FROM}
+              value={from}
+              minDate={_minDate}
+              variant="standard"
+              required={requireDates}
+              error={fromError}
+              helperText={fromError ? commonStrings.REQUIRED : undefined}
+              onChange={(date) => {
+                if (date) {
+                  const __minDate = new Date(date)
+                  __minDate.setDate(date.getDate() + 1)
+                  setFrom(date)
+                  setMinDate(__minDate)
+                  setFromError(false)
 
-                if (to && (to.getTime() - date.getTime() < 24 * 60 * 60 * 1000)) {
+                  if (to && (to.getTime() - date.getTime() < 24 * 60 * 60 * 1000)) {
+                    setTo(undefined)
+                  }
+                } else {
+                  setFrom(undefined)
+                  setMinDate(_minDate)
+                }
+              }}
+              onError={(err: DateTimeValidationError) => {
+                if (err) {
+                  setFromError(true)
+                } else {
+                  setFromError(false)
+                }
+              }}
+              language={UserService.getLanguage()}
+            />
+          </FormControl>
+          <FormControl fullWidth className="to">
+            <DatePicker
+              label={commonStrings.TO}
+              value={to}
+              minDate={minDate || _minDate}
+              variant="standard"
+              required={requireDates}
+              error={toError}
+              helperText={toError ? commonStrings.REQUIRED : undefined}
+              onChange={(date) => {
+                if (date) {
+                  setTo(date)
+                  setToError(false)
+                } else {
                   setTo(undefined)
                 }
-              } else {
-                setFrom(undefined)
-                setMinDate(_minDate)
-              }
-            }}
-            onError={(err: DateTimeValidationError) => {
-              if (err) {
-                setFromError(true)
-              } else {
-                setFromError(false)
-              }
-            }}
-            language={UserService.getLanguage()}
-          />
-        </FormControl>
-        <FormControl fullWidth className="to">
-          <DatePicker
-            label={commonStrings.TO}
-            value={to}
-            minDate={minDate}
-            variant="standard"
-            required
-            onChange={(date) => {
-              if (date) {
-                setTo(date)
-                setToError(false)
-              } else {
-                setTo(undefined)
-              }
-            }}
-            onError={(err: DateTimeValidationError) => {
-              if (err) {
-                setToError(true)
-              } else {
-                setToError(false)
-              }
-            }}
-            language={UserService.getLanguage()}
-          />
-        </FormControl>
+              }}
+              onError={(err: DateTimeValidationError) => {
+                if (err) {
+                  setToError(true)
+                } else {
+                  setToError(false)
+                }
+              }}
+              language={UserService.getLanguage()}
+            />
+          </FormControl>
+        </>
+      )}
         <FormControl fullWidth className="search">
           <Button type="submit" variant="contained" className="btn-search">
             {commonStrings.SEARCH}

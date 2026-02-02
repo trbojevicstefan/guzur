@@ -22,7 +22,10 @@ import {
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
-  AccountCircle, Check as VerifiedIcon
+  AccountCircle,
+  Check as VerifiedIcon,
+  CheckCircle as ApproveIcon,
+  HighlightOff as RevokeIcon,
 } from '@mui/icons-material'
 import * as movininTypes from ':movinin-types'
 import * as movininHelper from ':movinin-helper'
@@ -241,6 +244,15 @@ const UserList = ({
         valueGetter: (value: string) => value,
       },
       {
+        field: 'approved',
+        headerName: commonStrings.APPROVAL_STATUS,
+        flex: 1,
+        renderCell: ({ value }: GridRenderCellParams<movininTypes.User, boolean>) => (
+          <span>{value ? commonStrings.APPROVED : commonStrings.UNVERIFIED}</span>
+        ),
+        valueGetter: (value: boolean) => value,
+      },
+      {
         field: 'action',
         headerName: '',
         sortable: false,
@@ -254,17 +266,33 @@ const UserList = ({
 
           const __user = row
           return _user.type === movininTypes.RecordType.Admin || __user.agency === _user._id ? (
-            <div>
-              <Tooltip title={commonStrings.UPDATE}>
-                <IconButton onClick={() => navigate(`/update-user?u=${row._id}`)}>
-                  <EditIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={commonStrings.DELETE}>
-                <IconButton onClick={handleDelete}>
-                  <DeleteIcon />
-                </IconButton>
-              </Tooltip>
+            <div className="us-actions">
+              {_user.type === movininTypes.RecordType.Admin && (
+                <Button
+                  size="small"
+                  startIcon={row.approved ? <RevokeIcon /> : <ApproveIcon />}
+                  className="us-action-btn"
+                  onClick={(e) => handleToggleApproved(e, row)}
+                >
+                  {row.approved ? commonStrings.REVOKE : commonStrings.APPROVE}
+                </Button>
+              )}
+              <Button
+                size="small"
+                startIcon={<EditIcon />}
+                className="us-action-btn"
+                onClick={() => navigate(`/update-user?u=${row._id}`)}
+              >
+                {commonStrings.UPDATE}
+              </Button>
+              <Button
+                size="small"
+                startIcon={<DeleteIcon />}
+                className="us-action-btn"
+                onClick={handleDelete}
+              >
+                {commonStrings.DELETE}
+              </Button>
             </div>
           ) : (
             <></>
@@ -346,6 +374,30 @@ const UserList = ({
       helper.error(err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleApproved = async (e: React.MouseEvent<HTMLElement>, row: movininTypes.User) => {
+    e.stopPropagation()
+    try {
+      const approved = !row.approved
+      const payload: movininTypes.UpdateUserPayload = {
+        _id: row._id as string,
+        approved,
+        fullName: row.fullName || '',
+        phone: row.phone || '',
+        location: row.location || '',
+        bio: row.bio || '',
+        type: row.type,
+      }
+      const status = await UserService.updateUser(payload)
+      if (status === 200) {
+        fetchData(page, user)
+      } else {
+        helper.error()
+      }
+    } catch (err) {
+      helper.error(err)
     }
   }
 

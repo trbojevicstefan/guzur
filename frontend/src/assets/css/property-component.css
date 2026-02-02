@@ -1,37 +1,44 @@
 article.property {
   position: relative;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  color: #333;
-  font-size: 12px;
-  margin-bottom: 10px;
-  /* min-height: 430px; */
-  max-width: 800px;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
+  color: var(--text-strong);
+  font-size: 14px;
+  margin-bottom: 18px;
+  max-width: 980px;
   width: 100%;
-  padding: 5px;
+  padding: 16px;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  gap: 18px;
 }
 
 article.property div.left-panel {
-  width: 200px;
+  flex: 0 0 240px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 12px;
 }
 
 article.property div.left-panel .property-img {
-  margin-top: 15px;
-  margin-bottom: 0;
-  max-width: 100%;
-  max-height: 100%;
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 10 / 11;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+}
+
+section.property-list-grid article.property div.left-panel .property-img {
+  aspect-ratio: 4 / 3;
+  height: clamp(140px, 16vw, 200px);
 }
 
 article.property div.left-panel div.property-agency a.property-agency-info {
-  color: #0064c8;
-  text-decoration: underline;
+  color: var(--text-muted);
+  text-decoration: none;
   font-size: 0.9em;
   line-height: 1em;
   white-space: nowrap;
@@ -39,21 +46,23 @@ article.property div.left-panel div.property-agency a.property-agency-info {
 }
 
 article.property div.middle-panel {
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  gap: 8px;
 }
 
 article.property div.middle-panel div.name {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  padding: 7px 11px;
+  padding: 0 4px;
   pointer-events: none;
 }
 
 article.property div.middle-panel div.name h2 {
-  font-size: 1.8em;
+  font-size: 1.2rem;
   font-weight: 700;
   text-size-adjust: none;
   line-height: 1.3em;
@@ -66,24 +75,46 @@ article.property div.middle-panel div.name h2 {
   text-overflow: ellipsis;
 }
 
+article.property div.middle-panel .property-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+article.property div.middle-panel .property-link {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--surface-border);
+  padding: 6px 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-radius: var(--radius-pill);
+}
+
 article.property div.middle-panel .property-info div.property-info-description {
   max-width: 400px;
 }
 
 article.property div.right-panel {
+  min-width: 200px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
 }
 
 article.property div.right-panel div.price {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 article.property div.right-panel div.price span.price-main {
-  color: #383838;
-  font-size: 2.5em;
+  color: var(--text-strong);
+  font-size: 1.4rem;
   font-weight: 700;
   line-height: 1em;
   white-space: nowrap;
@@ -93,8 +124,8 @@ article.property div.right-panel div.price span.price-main {
 
 article.property div.right-panel div.price span.price-days,
 article.property div.right-panel div.price span.price-day {
-  font-size: 13px;
-  color: #a1a1a1;
+  font-size: 0.75rem;
+  color: var(--text-muted);
   display: table-row;
   text-align: right;
 }
@@ -102,41 +133,88 @@ article.property div.right-panel div.price span.price-day {
 article.property div.right-panel div.action {
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
-article.property .btn-view {
-  height: 42px;
-  font-size: 1.5em;
-  font-weight: 400;
-  padding: 0 2em;
+article.property .btn-view,
+article.property .btn-message,
+article.property .btn-book {
+  height: 34px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0 1.2em;
+  border-radius: var(--radius-pill);
+  text-transform: none;
 }
 
 article.property .btn-book {
   border: 0;
-  border-radius: 5px;
   color: #fff;
-  height: 42px;
   margin: 0;
   white-space: nowrap;
-  background: #232323;
-  font-size: 1.5em;
-  font-weight: 400;
-  padding: 0 2em;
+  background: var(--accent);
+}
+
+article.property .btn-view,
+article.property .btn-message {
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text-strong);
+  transition: transform 0.4s ease-out, box-shadow 0.4s ease-out, background 0.4s ease-out, color 0.4s ease-out, border-color 0.4s ease-out;
+}
+
+article.property .btn-message {
+  border-color: rgba(255, 56, 92, 0.4);
+  color: var(--accent);
+  background: rgba(255, 56, 92, 0.08);
+}
+
+article.property .btn-view:hover,
+article.property .btn-message:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+article.property .btn-message:hover {
+  border-color: var(--accent);
+  color: #ffffff;
+  background: var(--accent);
+}
+
+section.property-list-grid article.property {
+  flex-direction: column;
+  max-width: none;
+  padding: 10px;
+}
+
+section.property-list-grid article.property div.left-panel {
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+section.property-list-grid article.property div.right-panel {
+  align-items: flex-start;
+  min-width: 0;
+}
+
+section.property-list-grid article.property div.right-panel div.price span.price-main,
+section.property-list-grid article.property div.right-panel div.price span.price-days,
+section.property-list-grid article.property div.right-panel div.price span.price-day {
+  text-align: left;
+}
+
+section.property-list-grid article.property div.right-panel div.action {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 @media only screen and (width <=960px) {
   article.property {
-    position: relative;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    color: #333;
-    font-size: 12px;
-    margin: 0 1px 10px;
-    min-height: 730px;
+    margin: 0 1px 18px;
     width: 100%;
-    padding: 15px;
-    display: flex;
+    padding: 16px;
     flex-direction: column;
   }
 
@@ -144,6 +222,20 @@ article.property .btn-book {
     justify-content: center;
     align-items: center;
     width: 100%;
-    padding: 15px;
+  }
+
+  article.property div.right-panel {
+    align-items: flex-start;
+  }
+
+  article.property div.right-panel div.price span.price-main,
+  article.property div.right-panel div.price span.price-days,
+  article.property div.right-panel div.price span.price-day {
+    text-align: left;
+  }
+
+  article.property div.right-panel div.action {
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 }

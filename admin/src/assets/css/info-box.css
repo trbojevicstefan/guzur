@@ -1,13 +1,15 @@
 div.info-box {
-  background: #fafafa;
-  margin: 10px 0;
-  border: 1px solid #dadada;
-  border-radius: 5px;
+  background: var(--surface-glass);
+  margin: 12px 0;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
   height: 40px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 div.info-box .info-box-icon {
@@ -16,7 +18,7 @@ div.info-box .info-box-icon {
 }
 
 div.info-box span.info-box-text {
-  color: rgb(0 0 0 / 63%);
+  color: var(--text-strong);
   flex-grow: 1;
   font-size: 17px;
   font-weight: 700;

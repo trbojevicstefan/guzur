@@ -11,6 +11,14 @@ const userSchema = new Schema<env.User>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    primaryOrg: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+    },
+    orgRole: {
+      type: String,
+      trim: true,
+    },
     fullName: {
       type: String,
       required: [true, "can't be blank"],
@@ -53,6 +61,10 @@ const userSchema = new Schema<env.User>(
       type: Boolean,
       default: false,
     },
+    approved: {
+      type: Boolean,
+      default: false,
+    },
     verifiedAt: {
       type: Date,
     },
@@ -83,9 +95,32 @@ const userSchema = new Schema<env.User>(
       type: String,
       trim: true,
     },
+    company: {
+      type: String,
+      trim: true,
+    },
+    licenseId: {
+      type: String,
+      trim: true,
+    },
+    serviceAreas: {
+      type: [String],
+      default: [],
+    },
+    website: {
+      type: String,
+      trim: true,
+    },
     type: {
       type: String,
-      enum: [movininTypes.UserType.Admin, movininTypes.UserType.Agency, movininTypes.UserType.User],
+      enum: [
+        movininTypes.UserType.Admin,
+        movininTypes.UserType.Broker,
+        movininTypes.UserType.Developer,
+        movininTypes.UserType.Owner,
+        movininTypes.UserType.Agency,
+        movininTypes.UserType.User,
+      ],
       default: movininTypes.UserType.User,
     },
     blacklisted: {
@@ -98,6 +133,10 @@ const userSchema = new Schema<env.User>(
     },
     customerId: {
       type: String,
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
     },
     expireAt: {
       //

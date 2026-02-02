@@ -138,16 +138,18 @@ const User = () => {
     }
   }
 
-  const edit = loggedUser && user && (loggedUser.type === movininTypes.RecordType.Admin || loggedUser._id === user._id || (loggedUser.type === movininTypes.RecordType.Agency && loggedUser._id === user.agency))
-  const agency = user && user.type === movininTypes.RecordType.Agency
+  const isBrokerUser = user && [movininTypes.RecordType.Broker, movininTypes.RecordType.Agency].includes(user.type as movininTypes.RecordType)
+  const isBrokerAdmin = loggedUser && [movininTypes.RecordType.Broker, movininTypes.RecordType.Agency].includes(loggedUser.type as movininTypes.RecordType)
+  const edit = loggedUser && user && (loggedUser.type === movininTypes.RecordType.Admin || loggedUser._id === user._id || (isBrokerAdmin && loggedUser._id === user.agency))
+  const agency = !!isBrokerUser
 
   let _agencies: string[] = []
   if (loggedUser && user) {
     if ((agency && loggedUser._id === user._id)
-      || (loggedUser.type === movininTypes.RecordType.Admin && user.type === movininTypes.RecordType.Agency)
+      || (loggedUser.type === movininTypes.RecordType.Admin && isBrokerUser)
     ) {
       _agencies = [user._id as string]
-    } else if (loggedUser.type === movininTypes.RecordType.Agency && user.type === movininTypes.RecordType.User) {
+    } else if (isBrokerAdmin && user.type === movininTypes.RecordType.User) {
       _agencies = [loggedUser._id as string]
     } else if (loggedUser.type === movininTypes.RecordType.Admin) {
       _agencies = agencies

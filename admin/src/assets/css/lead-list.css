@@ -1,0 +1,24 @@
+.lead-grid {
+  width: 100%;
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
+}
+
+.lead-detail {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.lead-detail-title {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.lead-detail-value {
+  margin: 4px 0 8px;
+  word-break: break-word;
+  color: var(--text-muted);
+}

@@ -1,4 +1,4 @@
-import LocalizedStrings from 'localized-strings'
+﻿import LocalizedStrings from 'localized-strings'
 import env from '@/config/env.config'
 import * as langHelper from '@/utils/langHelper'
 
@@ -7,26 +7,51 @@ const strings = new LocalizedStrings({
     NAME: 'Nom',
     AGENCY: 'Agency',
     LOCATION: 'Locatlisation',
-    AVAILABLE: 'Disponible à la location',
+    AVAILABLE: 'Disponible Ã  la location',
     PROPERTY_TYPE: 'Type',
     PRICE: 'Prix',
-    MINIMUM_AGE: 'Âge minimum',
-    MINIMUM_AGE_NOT_VALID: `L'âge minimum doit être supérieur ou égal à ${env.MINIMUM_AGE} ans.`,
+    MINIMUM_AGE: 'Ã‚ge minimum',
+    MINIMUM_AGE_NOT_VALID: `L'Ã¢ge minimum doit Ãªtre supÃ©rieur ou Ã©gal Ã  ${env.MINIMUM_AGE} ans.`,
     ADDRESS: 'Adresse',
     DESCRIPTION: 'Description',
-    BEDROOMS: 'Chambres à couche',
+    BEDROOMS: 'Chambres Ã  couche',
     BATHROOMS: 'Salles de bain',
     KITCHENS: 'Cuisines',
     PARKING_SPACES: 'Parkings',
     SIZE: 'Superficie',
     AIRCON: 'Climatisation',
-    FURNISHED: 'Meublée',
+    FURNISHED: 'MeublÃ©e',
     PETS_ALLOWED: 'Animaux domestiques',
-    SOLD_OUT: 'Épuisée',
-    HIDDEN: 'Cachée',
+    SOLD_OUT: 'Ã‰puisÃ©e',
+    HIDDEN: 'CachÃ©e',
     IMAGES: 'Images',
     DESCRIPTION_REQUIRED: 'Le champ description est requis',
-    RENTAL_TERM: 'Durée de location'
+    RENTAL_TERM: 'DurÃ©e de location'
+  },
+  ar: {
+    NAME: 'الاسم',
+    AGENCY: 'الوسيط',
+    LOCATION: 'الموقع',
+    AVAILABLE: 'متاح للإيجار',
+    PROPERTY_TYPE: 'النوع',
+    PRICE: 'السعر',
+    MINIMUM_AGE: 'الحد الأدنى للعمر',
+    MINIMUM_AGE_NOT_VALID: `يجب أن يكون العمر ${env.MINIMUM_AGE} سنة على الأقل.`,
+    ADDRESS: 'العنوان',
+    DESCRIPTION: 'الوصف',
+    BEDROOMS: 'غرف النوم',
+    BATHROOMS: 'الحمّامات',
+    KITCHENS: 'المطابخ',
+    PARKING_SPACES: 'مواقف السيارات',
+    SIZE: 'المساحة',
+    AIRCON: 'تكييف',
+    FURNISHED: 'مفروش',
+    PETS_ALLOWED: 'مسموح بالحيوانات',
+    SOLD_OUT: 'غير متاح',
+    HIDDEN: 'مخفي',
+    IMAGES: 'الصور',
+    DESCRIPTION_REQUIRED: 'الوصف مطلوب',
+    RENTAL_TERM: 'مدة الإيجار',
   },
   en: {
     NAME: 'Name',
@@ -57,3 +82,4 @@ const strings = new LocalizedStrings({
 
 langHelper.setLanguage(strings)
 export { strings }
+

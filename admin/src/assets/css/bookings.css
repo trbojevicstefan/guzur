@@ -23,14 +23,18 @@ div.bookings {
   div.bookings div.col-1 .cl-agency-filter label.accordion,
   div.bookings div.col-1 .cl-status-filter label.accordion,
   div.bookings div.col-1 .cl-booking-filter label.accordion {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.8);
   }
 
   div.bookings div.col-1 .cl-agency-filter,
   div.bookings div.col-1 .cl-status-filter,
   div.bookings div.col-1 .cl-booking-filter {
     margin: 5px 10px;
-    background-color: #fff;
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
     max-width: 480px;
     width: calc(100% - 20px);
   }
@@ -62,21 +66,28 @@ div.bookings {
     left: 0;
     width: 300px;
     padding: 12px 0 0 12px;
-    background: #fefefe;
+    background: var(--surface-glass);
+    border-right: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
     overflow: auto;
   }
 
   div.bookings div.col-1 .cl-agency-filter label.accordion,
   div.bookings div.col-1 .cl-status-filter label.accordion,
   div.bookings div.col-1 .cl-booking-filter label.accordion {
-    background: #fafafa;
+    background: rgba(255, 255, 255, 0.75);
   }
 
   div.bookings div.col-1 .cl-agency-filter,
   div.bookings div.col-1 .cl-status-filter,
   div.bookings div.col-1 .cl-booking-filter {
     margin: 10px 10px 10px 0;
-    background-color: #fafafa;
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   div.bookings div.col-1 .cl-booking-filter div.panel,

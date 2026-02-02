@@ -18,6 +18,13 @@ import stripeRoutes from './routes/stripeRoutes'
 import countryRoutes from './routes/countryRoutes'
 import paypalRoutes from './routes/paypalRoutes'
 import ipinfoRoutes from './routes/ipinfoRoutes'
+import developmentRoutes from './routes/developmentRoutes'
+import leadRoutes from './routes/leadRoutes'
+import seoRoutes from './routes/seoRoutes'
+import messageRoutes from './routes/messageRoutes'
+import organizationRoutes from './routes/organizationRoutes'
+import orgPartnershipRoutes from './routes/orgPartnershipRoutes'
+import rfqRoutes from './routes/rfqRoutes'
 import * as helper from './utils/helper'
 
 const app = express()
@@ -60,6 +67,13 @@ app.use('/', stripeRoutes)
 app.use('/', countryRoutes)
 app.use('/', paypalRoutes)
 app.use('/', ipinfoRoutes)
+app.use('/', developmentRoutes)
+app.use('/', leadRoutes)
+app.use('/', seoRoutes)
+app.use('/', messageRoutes)
+app.use('/', organizationRoutes)
+app.use('/', orgPartnershipRoutes)
+app.use('/', rfqRoutes)
 
 if (env.ENABLE_SENTRY) {
   Sentry.setupExpressErrorHandler(app)

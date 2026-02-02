@@ -16,7 +16,15 @@ div.update-user .user-form-wrapper {
 div.update-user .user-form-title {
   text-align: center;
   text-transform: capitalize;
-  color: #121212;
+  color: var(--text-strong);
+}
+
+div.update-user .user-form {
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 div.update-user .resend-activation-link {

@@ -40,14 +40,16 @@ div.bs-list span.bp {
 
 div.bs-list div.booking-details {
   display: table;
-  color: #333;
+  color: var(--text-strong);
   font-size: 15px;
-  background-color: #fff;
+  background: var(--surface-glass);
   margin: 10px 0;
   padding: 10px;
-  border: 1px solid #d9d8d9;
-  border-radius: 5px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   width: 100%;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 div.bs-list div.booking-details div.bs {
@@ -128,7 +130,7 @@ div.bs-list div.booking-details div.booking-detail div.booking-detail-value div.
 }
 
 div.bs-list div.booking-details div.booking-detail div.booking-detail-value span.property-agency-name {
-  color: rgb(0 0 0 / 60%);
+  color: var(--accent);
   font-size: 0.9em;
   line-height: 1em;
   margin-left: 5px;

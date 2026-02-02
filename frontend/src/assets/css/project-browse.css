@@ -1,0 +1,109 @@
+.project-browse {
+  padding: 48px 20px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.project-browse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+}
+
+.project-browse-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-bottom: 12px;
+}
+
+.project-browse-search {
+  margin: 12px 0 20px;
+  max-width: 520px;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+}
+
+.project-browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.project-browse-card {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  background: var(--surface-glass);
+  backdrop-filter: blur(24px);
+  box-shadow: var(--shadow-ambient);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.5s ease-out, box-shadow 0.5s ease-out;
+}
+
+.project-browse-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.08);
+}
+
+.project-browse-card-title {
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.project-browse-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.project-browse-empty {
+  color: var(--text-muted);
+}
+
+.project-browse .MuiButton-root {
+  border-radius: var(--radius-pill);
+  text-transform: none;
+  font-weight: 600;
+}
+
+.project-browse .MuiButton-text {
+  color: var(--text-muted);
+}
+
+.project-browse .MuiButton-text:hover {
+  color: var(--text-strong);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.project-browse .MuiButton-outlined {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: var(--text-strong);
+}
+
+.project-browse .MuiButton-outlined:hover {
+  border-color: rgba(255, 56, 92, 0.6);
+  background: rgba(255, 56, 92, 0.08);
+}
+
+.project-browse .MuiButton-contained {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.project-browse .MuiButton-contained:hover {
+  background: #e22f50;
+  box-shadow: none;
+}

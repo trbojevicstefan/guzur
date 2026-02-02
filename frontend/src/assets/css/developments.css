@@ -1,0 +1,86 @@
+.developments-page {
+  padding: 48px 20px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.developments-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+}
+
+.developments-page h1 {
+  margin: 0;
+}
+
+.developments-browse-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.developments-filter-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.developments-search-input {
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+  font: inherit;
+  padding: 6px 0 7px;
+  outline: none;
+}
+
+.developments-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+}
+
+.developments-filters .MuiInputBase-root {
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.developments-filters .MuiOutlinedInput-notchedOutline,
+.developments-filters .MuiInput-underline:before,
+.developments-filters .MuiInput-underline:after {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.developments-page .MuiButton-text {
+  text-transform: none;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.developments-results {
+  margin-top: 12px;
+}
+
+.developments-loading {
+  padding: 12px 0;
+}

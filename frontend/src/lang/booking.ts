@@ -1,9 +1,13 @@
-import LocalizedStrings from 'localized-strings'
+﻿import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/utils/langHelper'
 
 const strings = new LocalizedStrings({
   fr: {
     TOTAL: 'Total :',
+  },
+  ar: {
+
+    TOTAL: 'Total:',
   },
   en: {
     TOTAL: 'Total:',
@@ -12,3 +16,4 @@ const strings = new LocalizedStrings({
 
 langHelper.setLanguage(strings)
 export { strings }
+

@@ -6,6 +6,9 @@ import {
   Button,
   Paper,
   FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
   Switch,
   TextField,
   FormHelperText
@@ -23,6 +26,7 @@ import { strings as commonStrings } from '@/lang/common'
 import { strings as csStrings } from '@/lang/properties'
 import { strings } from '@/lang/create-property'
 import * as PropertyService from '@/services/PropertyService'
+import * as SeoService from '@/services/SeoService'
 import * as helper from '@/utils/helper'
 import Error from '@/components/Error'
 import AgencySelectList from '@/components/AgencySelectList'
@@ -56,6 +60,13 @@ const CreateProperty = () => {
   const [available, setAvailable] = useState(true)
   const [description, setDescription] = useState('')
   const [descriptionError, setDescriptionError] = useState(false)
+  const [aiDescription, setAiDescription] = useState('')
+  const [useAiDescription, setUseAiDescription] = useState(false)
+  const [aiDescriptionError, setAiDescriptionError] = useState(false)
+  const [seoTitle, setSeoTitle] = useState('')
+  const [seoDescription, setSeoDescription] = useState('')
+  const [seoKeywords, setSeoKeywords] = useState<string[]>([])
+  const [seoError, setSeoError] = useState(false)
   const [bedrooms, setBedrooms] = useState('1')
   const [bathrooms, setBathrooms] = useState('1')
   const [kitchens, setKitchens] = useState('1')
@@ -229,6 +240,24 @@ const CreateProperty = () => {
         setDescriptionError(true)
         setFormError(false)
         setImageError(false)
+        setSeoError(false)
+        return
+      }
+
+      if (useAiDescription && !aiDescription) {
+        setAiDescriptionError(true)
+        setFormError(false)
+        setImageError(false)
+        setDescriptionError(false)
+        setSeoError(false)
+        return
+      }
+
+      if (!seoTitle || !seoDescription) {
+        setSeoError(true)
+        setFormError(false)
+        setImageError(false)
+        setDescriptionError(false)
         return
       }
 
@@ -239,6 +268,8 @@ const CreateProperty = () => {
         agency,
         type,
         description,
+        aiDescription: aiDescription || undefined,
+        useAiDescription,
         image,
         images,
         bedrooms: Number.parseInt(bedrooms, 10),
@@ -260,6 +291,10 @@ const CreateProperty = () => {
         available,
         rentalTerm,
         blockOnPay,
+        seoTitle,
+        seoDescription,
+        seoKeywords,
+        seoGeneratedAt: new Date(),
       }
 
       const property = await PropertyService.create(data)
@@ -300,6 +335,7 @@ const CreateProperty = () => {
           <form onSubmit={handleSubmit}>
             <ImageEditor
               title={strings.IMAGES}
+              maxImages={10}
               onMainImageUpsert={(img) => {
                 setImage(img.filename)
                 setImageError(false)
@@ -475,6 +511,108 @@ const CreateProperty = () => {
             </FormControl>
 
             <FormControl fullWidth margin="dense">
+              <TextField
+                label={strings.AI_DESCRIPTION}
+                multiline
+                minRows={4}
+                value={aiDescription}
+                variant="standard"
+                disabled
+              />
+              <FormHelperText>
+                {strings.AI_DESCRIPTION_HINT}
+              </FormHelperText>
+            </FormControl>
+
+            <FormControl component="fieldset" margin="dense">
+              <FormLabel>{strings.DESCRIPTION_SOURCE}</FormLabel>
+              <RadioGroup
+                row
+                value={useAiDescription ? 'ai' : 'publisher'}
+                onChange={(e) => {
+                  setUseAiDescription(e.target.value === 'ai')
+                  setAiDescriptionError(false)
+                }}
+              >
+                <FormControlLabel value="publisher" control={<Radio />} label={strings.PUBLISHER_DESCRIPTION} />
+                <FormControlLabel value="ai" control={<Radio />} label={strings.AI_DESCRIPTION_OPTION} />
+              </RadioGroup>
+              <FormHelperText error={aiDescriptionError}>
+                {aiDescriptionError ? strings.AI_DESCRIPTION_REQUIRED : ''}
+              </FormHelperText>
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <InputLabel className="required">{strings.SEO_TITLE}</InputLabel>
+              <Input
+                type="text"
+                value={seoTitle}
+                disabled
+              />
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <InputLabel className="required">{strings.SEO_DESCRIPTION}</InputLabel>
+              <Input
+                type="text"
+                value={seoDescription}
+                disabled
+              />
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{strings.SEO_KEYWORDS}</InputLabel>
+              <Input
+                type="text"
+                value={seoKeywords.join(', ')}
+                disabled
+              />
+            </FormControl>
+
+            <div className="buttons">
+              <Button
+                type="button"
+                variant="outlined"
+                size="small"
+                onClick={async () => {
+                  try {
+                    setLoading(true)
+                    setSeoError(false)
+                    setAiDescriptionError(false)
+                    const result = await SeoService.generate({
+                      name,
+                      type,
+                      description,
+                      location: location?.name,
+                      bedrooms: Number.parseInt(bedrooms, 10),
+                      bathrooms: Number.parseInt(bathrooms, 10),
+                      size: size ? Number(size) : undefined,
+                      listingType: undefined,
+                      price: Number(price),
+                      salePrice: null,
+                      rentalTerm,
+                      kitchens: Number.parseInt(kitchens || '0', 10),
+                      parkingSpaces: Number.parseInt(parkingSpaces || '0', 10),
+                      petsAllowed,
+                      furnished,
+                      aircon,
+                    })
+                    setSeoTitle(result.seoTitle)
+                    setSeoDescription(result.seoDescription)
+                    setSeoKeywords(result.seoKeywords || [])
+                    setAiDescription(result.aiDescription || '')
+                  } catch (err) {
+                    helper.error(err)
+                  } finally {
+                    setLoading(false)
+                  }
+                }}
+              >
+                {strings.GENERATE_SEO}
+              </Button>
+            </div>
+
+            <FormControl fullWidth margin="dense">
               <InputLabel className="required">{strings.BEDROOMS}</InputLabel>
               <Input
                 type="text"
@@ -631,6 +769,8 @@ const CreateProperty = () => {
             <div className="form-error">
               {imageError && <Error message={commonStrings.IMAGE_REQUIRED} />}
               {descriptionError && <Error message={strings.DESCRIPTION_REQUIRED} />}
+              {aiDescriptionError && <Error message={strings.AI_DESCRIPTION_REQUIRED} />}
+              {seoError && <Error message={strings.SEO_REQUIRED} />}
               {formError && <Error message={commonStrings.FORM_ERROR} />}
             </div>
           </form>

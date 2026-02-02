@@ -1,25 +1,27 @@
 .view-on-map {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  bottom: 14px;
+  right: 14px;
   z-index: 10000;
-  /* background-color: #062638; */
-  background-color: #1a1a1a;
+  background: rgba(26, 26, 26, 0.92);
   color: #fff;
-  border: 0;
-  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 44px;
+  height: 44px;
   display: flex;
-  flex-direction: row;
-  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
   cursor: pointer;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.view-on-map img {
-  max-width: 20px;
-  max-height: 20px;
-  margin-right: 2px;
+.view-on-map:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
 }
 
-.view-on-map span {
-  margin-top: 2px;
+.view-on-map svg {
+  font-size: 22px;
 }

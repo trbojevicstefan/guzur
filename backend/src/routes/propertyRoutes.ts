@@ -15,7 +15,9 @@ routes.route(routeNames.deleteImage).post(authJwt.verifyToken, propertyControlle
 routes.route(routeNames.deleteTempImage).post(authJwt.verifyToken, propertyController.deleteTempImage)
 routes.route(routeNames.getProperty).get(propertyController.getProperty)
 routes.route(routeNames.getProperties).post(authJwt.verifyToken, propertyController.getProperties)
+routes.route(routeNames.getMyProperties).get(authJwt.verifyToken, propertyController.getMyProperties)
 routes.route(routeNames.getBookingProperties).post(authJwt.verifyToken, propertyController.getBookingProperties)
 routes.route(routeNames.getFrontendProperties).post(propertyController.getFrontendProperties)
+routes.route(routeNames.getFrontendDevelopmentUnits).get(propertyController.getFrontendDevelopmentUnits)
 
 export default routes

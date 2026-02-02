@@ -1,0 +1,27 @@
+.rfq-status {
+  display: inline-flex;
+  align-items: center;
+}
+
+.rfq-status .rs {
+  padding: 3px 6px;
+  color: #fff;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.rfq-status .rs-new {
+  background: #6c757d;
+}
+
+.rfq-status .rs-contacted {
+  background: #0d6efd;
+}
+
+.rfq-status .rs-closed_won {
+  background: #198754;
+}
+
+.rfq-status .rs-closed_lost {
+  background: #dc3545;
+}

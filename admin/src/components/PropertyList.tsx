@@ -26,6 +26,7 @@ import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/properties'
 import * as helper from '@/utils/helper'
 import * as PropertyService from '@/services/PropertyService'
+import ListingStatus from '@/components/ListingStatus'
 import Pager from './Pager'
 import PropertyInfo from './PropertyInfo'
 import AgencyBadge from './AgencyBadge'
@@ -38,6 +39,10 @@ interface PropertyListProps {
   keyword?: string
   types?: movininTypes.PropertyType[]
   rentalTerms?: movininTypes.RentalTerm[]
+  listingStatuses?: movininTypes.ListingStatus[]
+  brokers?: string[]
+  developers?: string[]
+  owners?: string[]
   availability?: movininTypes.Availablity[]
   reload?: boolean
   properties?: movininTypes.Property[]
@@ -57,6 +62,10 @@ const PropertyList = ({
   keyword,
   types,
   rentalTerms,
+  listingStatuses,
+  brokers,
+  developers,
+  owners,
   availability,
   reload,
   properties,
@@ -110,6 +119,10 @@ const PropertyList = ({
         agencies: agencies ?? [],
         types,
         rentalTerms,
+        listingStatuses,
+        brokers,
+        developers,
+        owners,
         availability,
         language
       }
@@ -151,18 +164,20 @@ const PropertyList = ({
   }
 
   useEffect(() => {
-    if (agencies) {
-      if (agencies.length > 0) {
-        fetchData(page)
-      } else {
-        setRows([])
-        setRowCount(0)
-        setFetch(false)
-        if (onLoad) {
-          onLoad({ rows: [], rowCount: 0 })
-        }
-        setInit(false)
+    if (agencies === undefined) {
+      fetchData(page)
+      return
+    }
+    if (agencies.length > 0) {
+      fetchData(page)
+    } else {
+      setRows([])
+      setRowCount(0)
+      setFetch(false)
+      if (onLoad) {
+        onLoad({ rows: [], rowCount: 0 })
       }
+      setInit(false)
     }
   }, [page, agencies, keyword, availability, types, rentalTerms]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -314,6 +329,11 @@ const PropertyList = ({
                     {!hidePrice && (
                       <div className="price">
                         {helper.priceLabel(property, language)}
+                      </div>
+                    )}
+                    {property.listingStatus && (
+                      <div className="listing-status-row">
+                        <ListingStatus value={property.listingStatus} />
                       </div>
                     )}
 

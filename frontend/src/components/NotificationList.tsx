@@ -60,7 +60,11 @@ const NotificationList = ({ user }: NotificationListProps) => {
     if (user && user._id) {
       try {
         setLoading(true)
-        const data = await NotificationService.getNotifications(user._id, page)
+        const data = await NotificationService.getNotifications(
+          user._id,
+          page,
+          [movininTypes.NotificationType.General],
+        )
         const _data = data && data.length > 0 ? data[0] : { pageInfo: { totalRecord: 0 }, resultData: [] }
         if (!_data) {
           helper.error()
@@ -229,7 +233,7 @@ const NotificationList = ({ user }: NotificationListProps) => {
                     <div className="message-container">
                       <div className="message">{row.message}</div>
                       <div className="actions">
-                        {row.booking && (
+                        {(row.booking || row.link) && (
                           <Tooltip title={strings.VIEW}>
                             <IconButton
                               onClick={async () => {
@@ -240,7 +244,15 @@ const NotificationList = ({ user }: NotificationListProps) => {
                                   }
 
                                   const __navigate__ = () => {
-                                    navigate(`/booking?b=${row.booking}`)
+                                    const link = row.link || (row.booking ? `/booking?b=${row.booking}` : '')
+                                    if (!link) {
+                                      return
+                                    }
+                                    if (link.startsWith('http')) {
+                                      window.location.href = link
+                                      return
+                                    }
+                                    navigate(link)
                                   }
 
                                   if (!row.isRead) {

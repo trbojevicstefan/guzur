@@ -22,6 +22,7 @@ import {
   More as MoreIcon,
   Language as LanguageIcon,
   Settings as SettingsIcon,
+  Dashboard as DashboardIcon,
   Home as HomeIcon,
   InfoTwoTone as AboutIcon,
   DescriptionTwoTone as TosIcon,
@@ -33,6 +34,9 @@ import {
   PersonOutline as SignUpIcon,
   PrivacyTip as PrivacyIcon,
   Cookie as CookiePolicyIcon,
+  Apartment as ProjectsIcon,
+  Bolt as PulseIcon,
+  RequestQuote as RfqIcon,
 } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import { CircleFlag } from 'react-circle-flags'
@@ -48,6 +52,7 @@ import * as langHelper from '@/utils/langHelper'
 import * as helper from '@/utils/helper'
 import { useNotificationContext, NotificationContextType } from '@/context/NotificationContext'
 import { useUserContext, UserContextType } from '@/context/UserContext'
+import { useHeaderSearch } from '@/context/HeaderSearchContext'
 
 import '@/assets/css/header.css'
 
@@ -65,7 +70,8 @@ const Header = ({
   const navigate = useNavigate()
 
   const { user } = useUserContext() as UserContextType
-  const { notificationCount } = useNotificationContext() as NotificationContextType
+  const { notificationCount, messageCount } = useNotificationContext() as NotificationContextType
+  const { searchSlot } = useHeaderSearch()
 
   const [currentUser, setCurrentUser] = useState<movininTypes.User>()
 
@@ -77,6 +83,11 @@ const Header = ({
   const [sideAnchorEl, setSideAnchorEl] = useState<HTMLElement | null>(null)
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
+  const isPartner = currentUser && [
+    movininTypes.UserType.Broker,
+    movininTypes.UserType.Developer,
+    movininTypes.UserType.Owner,
+  ].includes(currentUser.type as movininTypes.UserType)
 
   const isMenuOpen = Boolean(anchorEl)
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
@@ -230,6 +241,10 @@ const Header = ({
     navigate('/notifications')
   }
 
+  const handleDashboardClick = () => {
+    navigate('/dashboard')
+  }
+
   const menuId = 'primary-account-menu'
   const renderMenu = (
     <Menu
@@ -242,6 +257,23 @@ const Header = ({
       onClose={handleMenuClose}
       className="menu"
     >
+      {isPartner && (
+        <MenuItem onClick={handleDashboardClick}>
+          <DashboardIcon className="header-action" />
+          {strings.DASHBOARD}
+        </MenuItem>
+      )}
+      {isSignedIn && (
+        <MenuItem
+          onClick={() => {
+            handleMenuClose()
+            navigate('/messages')
+          }}
+        >
+          <MailIcon className="header-action" />
+          {strings.PULSE}
+        </MenuItem>
+      )}
       <MenuItem onClick={handleSettingsClick}>
         <SettingsIcon className="header-action" />
         {strings.SETTINGS}
@@ -265,6 +297,27 @@ const Header = ({
       onClose={handleMobileMenuClose}
       className="menu"
     >
+      {isPartner && (
+        <MenuItem onClick={handleDashboardClick}>
+          <IconButton color="inherit">
+            <DashboardIcon />
+          </IconButton>
+          <p>{strings.DASHBOARD}</p>
+        </MenuItem>
+      )}
+      {isSignedIn && (
+        <MenuItem
+          onClick={() => {
+            handleMobileMenuClose()
+            navigate('/messages')
+          }}
+        >
+          <IconButton color="inherit">
+            <MailIcon />
+          </IconButton>
+          <p>{strings.PULSE}</p>
+        </MenuItem>
+      )}
       <MenuItem onClick={handleSettingsClick}>
         <SettingsIcon className="header-action" />
         <p>{strings.SETTINGS}</p>
@@ -334,20 +387,24 @@ const Header = ({
   return (
     (!hidden && (
       <div style={classes.grow} className="header">
-        <AppBar position="relative" sx={{ bgcolor: '#fff', boxShadow: 'none', borderBottom: '1px solid #ddd' }}>
+        <AppBar position="sticky" sx={{ bgcolor: 'transparent', boxShadow: 'none' }} className="header-bar">
           <Toolbar className="toolbar">
-            {isLoaded && (
-              <>
-                <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="open drawer" onClick={handleSideMenuOpen}>
-                  <MenuIcon />
-                </IconButton>
+            <div className="header-surface glass-surface">
+              {isLoaded && (
+                <>
+                  <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="open drawer" onClick={handleSideMenuOpen}>
+                    <MenuIcon />
+                  </IconButton>
 
-                <Button onClick={() => navigate('/')} className="logo">{env.WEBSITE_NAME}</Button>
-              </>
-            )}
-            <>
-              <Drawer open={isSideMenuOpen} onClose={handleSideMenuClose} className="menu side-menu">
-                <List sx={classes.list}>
+                  <Button onClick={() => navigate('/')} className="logo">
+                    <img src="/guzurlogo.png" alt={env.WEBSITE_NAME} className="logo-img" />
+                    <span className="logo-text">{env.WEBSITE_NAME}</span>
+                  </Button>
+                </>
+              )}
+              <>
+                <Drawer open={isSideMenuOpen} onClose={handleSideMenuClose} className="menu side-menu">
+                  <List sx={classes.list}>
                   <ListItem
                     onClick={() => {
                       navigate('/')
@@ -356,6 +413,15 @@ const Header = ({
                   >
                     <ListItemIcon><HomeIcon /></ListItemIcon>
                     <ListItemText primary={strings.HOME} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/rfq')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><RfqIcon /></ListItemIcon>
+                    <ListItemText primary={strings.RFQ} />
                   </ListItem>
                   {isSignedIn && (
                     <ListItem
@@ -368,14 +434,43 @@ const Header = ({
                       <ListItemText primary={strings.BOOKINGS} />
                     </ListItem>
                   )}
+                  {isSignedIn && isPartner && (
+                    <ListItem
+                      onClick={() => {
+                        navigate('/dashboard')
+                        handleSideMenuClose()
+                      }}
+                    >
+                      <ListItemIcon><DashboardIcon /></ListItemIcon>
+                      <ListItemText primary={strings.DASHBOARD} />
+                    </ListItem>
+                  )}
                   <ListItem
                     onClick={() => {
-                      navigate('/agencies')
+                      navigate('/brokers')
                       handleSideMenuClose()
                     }}
                   >
                     <ListItemIcon><AgencyIcon /></ListItemIcon>
-                    <ListItemText primary={strings.AGENCIES} />
+                    <ListItemText primary={strings.BROKERS} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/developers')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><AgencyIcon /></ListItemIcon>
+                    <ListItemText primary={strings.DEVELOPERS} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/projects')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><ProjectsIcon /></ListItemIcon>
+                    <ListItemText primary={strings.PROJECTS} />
                   </ListItem>
                   <ListItem
                     onClick={() => {
@@ -453,67 +548,105 @@ const Header = ({
                       </ListItem>
                     </>
                   )}
-                </List>
-              </Drawer>
-            </>
-            <div style={classes.grow} />
-            <div className="header-desktop">
-              {isLoaded && (
-                <Button variant="contained" onClick={handleCurrencyMenuOpen} disableElevation className="btn bold">
+                  </List>
+                </Drawer>
+              </>
+              {searchSlot && (
+                <div className="header-search-slot">
+                  {searchSlot}
+                </div>
+              )}
+              <div style={classes.grow} />
+              <div className="header-desktop">
+                {isLoaded && (
+                  <Button variant="contained" onClick={() => navigate('/rfq')} disableElevation className="btn btn-rfq">
+                    {strings.RFQ}
+                  </Button>
+                )}
+                {isLoaded && (
+                  <Button variant="contained" onClick={handleCurrencyMenuOpen} disableElevation className="btn bold">
+                    {PaymentService.getCurrency()}
+                  </Button>
+                )}
+                {isLoaded && (
+                  <Button variant="contained" onClick={handleLangMenuOpen} disableElevation fullWidth className="btn">
+                    {/* {lang?.label} */}
+                    <CircleFlag countryCode={lang?.countryCode as string} height={flagHeight} className="flag" title={lang?.label} />
+                  </Button>
+                )}
+                {!hideSignin && !isSignedIn && isLoaded && (
+                  <Button variant="contained" size="medium" startIcon={<SignUpIcon />} onClick={() => navigate('/sign-up')} disableElevation className="btn btn-auth" aria-label="Sign in">
+                    <span className="btn-auth-txt">{suStrings.SIGN_UP}</span>
+                  </Button>
+                )}
+                {!hideSignin && !isSignedIn && isLoaded && (
+                  <Button variant="contained" startIcon={<LoginIcon />} href="/sign-in" disableElevation fullWidth className="btn btn-auth">
+                    <span className="btn-auth-txt">{strings.SIGN_IN}</span>
+                  </Button>
+                )}
+                {isSignedIn && (
+                  <IconButton aria-label="" color="inherit" onClick={handleNotificationsClick} className="btn">
+                    <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
+                )}
+                {isSignedIn && (
+                  <IconButton
+                    aria-label={strings.PULSE}
+                    color="inherit"
+                    onClick={() => navigate('/messages')}
+                    className="btn"
+                  >
+                    <Badge badgeContent={messageCount > 0 ? messageCount : null} color="error">
+                      <PulseIcon />
+                    </Badge>
+                  </IconButton>
+                )}
+                {isSignedIn && (
+                  <IconButton edge="end" aria-label="account" aria-controls={menuId} aria-haspopup="true" onClick={handleAccountMenuOpen} color="inherit" className="btn">
+                    <Avatar loggedUser={currentUser} user={currentUser} size="small" readonly />
+                  </IconButton>
+                )}
+              </div>
+              <div className="header-mobile">
+                <Button variant="contained" onClick={() => navigate('/rfq')} disableElevation fullWidth className="btn btn-rfq">
+                  {strings.RFQ}
+                </Button>
+                <Button variant="contained" onClick={handleCurrencyMenuOpen} disableElevation fullWidth className="btn bold">
                   {PaymentService.getCurrency()}
                 </Button>
-              )}
-              {isLoaded && (
-                <Button variant="contained" onClick={handleLangMenuOpen} disableElevation fullWidth className="btn">
-                  {/* {lang?.label} */}
-                  <CircleFlag countryCode={lang?.countryCode as string} height={flagHeight} className="flag" title={lang?.label} />
-                </Button>
-              )}
-              {!hideSignin && !isSignedIn && isLoaded && (
-                <Button variant="contained" size="medium" startIcon={<SignUpIcon />} onClick={() => navigate('/sign-up')} disableElevation className="btn btn-auth" aria-label="Sign in">
-                  <span className="btn-auth-txt">{suStrings.SIGN_UP}</span>
-                </Button>
-              )}
-              {!hideSignin && !isSignedIn && isLoaded && (
-                <Button variant="contained" startIcon={<LoginIcon />} href="/sign-in" disableElevation fullWidth className="btn btn-auth">
-                  <span className="btn-auth-txt">{strings.SIGN_IN}</span>
-                </Button>
-              )}
-              {isSignedIn && (
-                <IconButton aria-label="" color="inherit" onClick={handleNotificationsClick} className="btn">
-                  <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
-                    <NotificationsIcon />
-                  </Badge>
-                </IconButton>
-              )}
-              {isSignedIn && (
-                <IconButton edge="end" aria-label="account" aria-controls={menuId} aria-haspopup="true" onClick={handleAccountMenuOpen} color="inherit" className="btn">
-                  <Avatar loggedUser={currentUser} user={currentUser} size="small" readonly />
-                </IconButton>
-              )}
-            </div>
-            <div className="header-mobile">
-              <Button variant="contained" onClick={handleCurrencyMenuOpen} disableElevation fullWidth className="btn bold">
-                {PaymentService.getCurrency()}
-              </Button>
-              {!isSignedIn && (
-                <Button variant="contained" onClick={handleLangMenuOpen} disableElevation fullWidth className="btn">
-                  {/* {lang?.label} */}
-                  <CircleFlag countryCode={lang?.countryCode as string} height={flagHeight} className="flag" title={lang?.label} />
-                </Button>
-              )}
-              {isSignedIn && (
-                <IconButton color="inherit" onClick={handleNotificationsClick} className="btn">
-                  <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
-                    <NotificationsIcon />
-                  </Badge>
-                </IconButton>
-              )}
-              {isSignedIn && (
-                <IconButton aria-label="show more" aria-controls={mobileMenuId} aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit" className="btn">
-                  <MoreIcon />
-                </IconButton>
-              )}
+                {!isSignedIn && (
+                  <Button variant="contained" onClick={handleLangMenuOpen} disableElevation fullWidth className="btn">
+                    {/* {lang?.label} */}
+                    <CircleFlag countryCode={lang?.countryCode as string} height={flagHeight} className="flag" title={lang?.label} />
+                  </Button>
+                )}
+                {isSignedIn && (
+                  <IconButton color="inherit" onClick={handleNotificationsClick} className="btn">
+                    <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
+                )}
+                {isSignedIn && (
+                  <IconButton
+                    color="inherit"
+                    onClick={() => navigate('/messages')}
+                    className="btn"
+                    aria-label={strings.PULSE}
+                  >
+                    <Badge badgeContent={messageCount > 0 ? messageCount : null} color="error">
+                      <PulseIcon />
+                    </Badge>
+                  </IconButton>
+                )}
+                {isSignedIn && (
+                  <IconButton aria-label="show more" aria-controls={mobileMenuId} aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit" className="btn">
+                    <MoreIcon />
+                  </IconButton>
+                )}
+              </div>
             </div>
           </Toolbar>
         </AppBar>

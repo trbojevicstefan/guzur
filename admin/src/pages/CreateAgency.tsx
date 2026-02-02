@@ -21,6 +21,7 @@ import * as AgencyService from '@/services/AgencyService'
 import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
+import LocationSelectList from '@/components/LocationSelectList'
 import * as helper from '@/utils/helper'
 
 import '@/assets/css/create-agency.css'
@@ -31,6 +32,7 @@ const CreateAgency = () => {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [location, setLocation] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState<movininTypes.Location | undefined>()
   const [bio, setBio] = useState('')
   const [error, setError] = useState(false)
   const [emailError, setEmailError] = useState(false)
@@ -143,8 +145,10 @@ const CreateAgency = () => {
     validatePhone(e.target.value)
   }
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
+  const handleLocationSelect = (values: movininTypes.Option[]) => {
+    const value = values[0] as movininTypes.Location | undefined
+    setSelectedLocation(value)
+    setLocation(value?.name || '')
   }
 
   const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,12 +174,12 @@ const CreateAgency = () => {
         setLoading(true)
 
         await UserService.deleteTempAvatar(avatar)
-        navigate('/agencies')
+        navigate('/brokers')
       } else {
-        navigate('/agencies')
+        navigate('/brokers')
       }
     } catch {
-      navigate('/agencies')
+      navigate('/brokers')
     }
   }
 
@@ -227,7 +231,7 @@ const CreateAgency = () => {
       const status = await UserService.create(data)
 
       if (status === 200) {
-        navigate('/agencies')
+        navigate('/brokers')
       } else {
         setError(true)
       }
@@ -323,8 +327,11 @@ const CreateAgency = () => {
             </FormControl>
 
             <FormControl fullWidth margin="dense">
-              <InputLabel>{commonStrings.LOCATION}</InputLabel>
-              <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" />
+              <LocationSelectList
+                label={commonStrings.LOCATION}
+                value={selectedLocation}
+                onChange={handleLocationSelect}
+              />
             </FormControl>
 
             <FormControl fullWidth margin="dense">

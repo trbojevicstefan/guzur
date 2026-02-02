@@ -12,9 +12,14 @@ const LANGUAGES = [
     label: 'English',
   },
   {
+    code: 'ar',
+    countryCode: 'eg',
+    label: 'Arabic',
+  },
+  {
     code: 'fr',
     countryCode: 'fr',
-    label: 'FranÃ§ais',
+    label: 'Français',
   },
 ]
 
@@ -63,7 +68,7 @@ const env = {
   isProduction: import.meta.env.VITE_NODE_ENV === 'production',
   isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
 
-  WEBSITE_NAME: String(import.meta.env.VITE_MI_WEBSITE_NAME || "Movin' In"),
+  WEBSITE_NAME: String(import.meta.env.VITE_MI_WEBSITE_NAME || 'Guzur'),
 
   APP_TYPE: movininTypes.AppType.Frontend,
   API_HOST: String(import.meta.env.VITE_MI_API_HOST),
@@ -77,6 +82,7 @@ const env = {
   BOOKINGS_PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_MI_BOOKINGS_PAGE_SIZE), 10) || 20,
   BOOKINGS_MOBILE_PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_MI_BOOKINGS_MOBILE_PAGE_SIZE), 10) || 10,
   CDN_USERS: String(import.meta.env.VITE_MI_CDN_USERS),
+  CDN_TEMP_USERS: String(import.meta.env.VITE_MI_CDN_TEMP_USERS || `${String(import.meta.env.VITE_MI_API_HOST)}/cdn/movinin/temp/users`),
   CDN_PROPERTIES: String(import.meta.env.VITE_MI_CDN_PROPERTIES),
   CDN_LOCATIONS: String(import.meta.env.VITE_MI_CDN_LOCATIONS),
   PAGE_OFFSET: 200,
@@ -114,9 +120,13 @@ const env = {
   MIN_LOCATIONS: Number.parseInt(String(import.meta.env.VITE_MI_MIN_LOCATIONS), 10) || 4,
   CONTACT_EMAIL: import.meta.env.VITE_MI_CONTACT_EMAIL,
   HIDE_AGENCIES: (import.meta.env.VITE_MI_HIDE_AGENCIES && import.meta.env.VITE_MI_HIDE_AGENCIES.toLowerCase()) === 'true',
-  MAP_LATITUDE: Number(String(import.meta.env.VITE_MI_MAP_LATITUDE || '36.966428')),
-  MAP_LONGITUDE: Number(String(import.meta.env.VITE_MI_MAP_LONGITUDE || '-95.844032')),
-  MAP_ZOOM: Number(String(import.meta.env.VITE_MI_MAP_ZOOM || '5')),
+  MAP_LATITUDE: Number(String(import.meta.env.VITE_MI_MAP_LATITUDE || '30.0444')),
+  MAP_LONGITUDE: Number(String(import.meta.env.VITE_MI_MAP_LONGITUDE || '31.2357')),
+  MAP_ZOOM: Number(String(import.meta.env.VITE_MI_MAP_ZOOM || '10')),
+  MAP_TILE_URL: String(import.meta.env.VITE_MI_MAP_TILE_URL || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+  MAP_TILE_ATTRIBUTION: String(import.meta.env.VITE_MI_MAP_TILE_ATTRIBUTION || '(c) OpenStreetMap contributors'),
 }
 
 export default env
+
+

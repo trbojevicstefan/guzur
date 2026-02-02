@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom/client'
 import { ToastContainer } from 'react-toastify'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
+import { CacheProvider } from '@emotion/react'
+import createCache from '@emotion/cache'
+import rtlPlugin from 'stylis-plugin-rtl'
+import { prefixer } from 'stylis'
 
-import { frFR as corefrFR, enUS as coreenUS } from '@mui/material/locale'
+import { frFR as corefrFR, enUS as coreenUS, arEG as corearEG } from '@mui/material/locale'
 import { frFR, enUS } from '@mui/x-date-pickers/locales'
-import { frFR as dataGridfrFR, enUS as dataGridenUS } from '@mui/x-data-grid/locales'
+import { frFR as dataGridfrFR, enUS as dataGridenUS, arSD as dataGridarSD } from '@mui/x-data-grid/locales'
 import { disableDevTools } from ':disable-react-devtools'
 import * as helper from '@/utils/helper'
 import * as UserService from '@/services/UserService'
@@ -24,27 +28,35 @@ import { strings as changePasswordStrings } from '@/lang/change-password'
 import { strings as checkoutStrings } from '@/lang/checkout'
 import { strings as commonStrings } from '@/lang/common'
 import { strings as contactFormStrings } from '@/lang/contact-form'
+import { strings as dashboardStrings } from '@/lang/dashboard'
 import { strings as footerStrings } from '@/lang/footer'
 import { strings as headerStrings } from '@/lang/header'
 import { strings as homeStrings } from '@/lang/home'
+import { strings as leadFormStrings } from '@/lang/lead-form'
+import { strings as listingFormStrings } from '@/lang/listing-form'
 import { strings as locationCarrouselStrings } from '@/lang/location-carrousel'
 import { strings as mapStrings } from '@/lang/map'
 import { strings as masterStrings } from '@/lang/master'
 import { strings as noMatchStrings } from '@/lang/no-match'
 import { strings as notificationsStrings } from '@/lang/notifications'
+import { strings as onboardingStrings } from '@/lang/onboarding'
+import { strings as organizationsStrings } from '@/lang/organizations'
 import { strings as propertiesStrings } from '@/lang/properties'
 import { strings as propertyStrings } from '@/lang/property'
+import { strings as rfqStrings } from '@/lang/rfq'
 import { strings as rentalTermStrings } from '@/lang/rental-term'
 import { strings as resetPasswordStrings } from '@/lang/reset-password'
 import { strings as searchStrings } from '@/lang/search'
 import { strings as settingsStrings } from '@/lang/settings'
 import { strings as signInStrings } from '@/lang/sign-in'
 import { strings as signUpStrings } from '@/lang/sign-up'
+import { strings as signUpRoleStrings } from '@/lang/sign-up-role'
 import { strings as soldOutStrings } from '@/lang/sold-out'
 import { strings as tosStrings } from '@/lang/tos'
 
 // import 'github-fork-ribbon-css/gh-fork-ribbon.css'
 
+import '@/assets/css/theme.css'
 import '@/assets/css/common.css'
 import '@/assets/css/index.css'
 
@@ -121,22 +133,29 @@ if (lang) {
     checkoutStrings.setLanguage(_lang)
     commonStrings.setLanguage(_lang)
     contactFormStrings.setLanguage(_lang)
+    dashboardStrings.setLanguage(_lang)
     footerStrings.setLanguage(_lang)
     headerStrings.setLanguage(_lang)
     homeStrings.setLanguage(_lang)
+    leadFormStrings.setLanguage(_lang)
+    listingFormStrings.setLanguage(_lang)
     locationCarrouselStrings.setLanguage(_lang)
     mapStrings.setLanguage(_lang)
     masterStrings.setLanguage(_lang)
     noMatchStrings.setLanguage(_lang)
     notificationsStrings.setLanguage(_lang)
+    onboardingStrings.setLanguage(_lang)
+    organizationsStrings.setLanguage(_lang)
     propertiesStrings.setLanguage(_lang)
     propertyStrings.setLanguage(_lang)
+    rfqStrings.setLanguage(_lang)
     rentalTermStrings.setLanguage(_lang)
     resetPasswordStrings.setLanguage(_lang)
     searchStrings.setLanguage(_lang)
     settingsStrings.setLanguage(_lang)
     signInStrings.setLanguage(_lang)
     signUpStrings.setLanguage(_lang)
+    signUpRoleStrings.setLanguage(_lang)
     soldOutStrings.setLanguage(_lang)
     tosStrings.setLanguage(_lang)
   }
@@ -156,9 +175,24 @@ if (lang) {
 
 language = UserService.getLanguage()
 const isFr = language === 'fr'
+const isAr = language === 'ar'
+const isRtl = isAr
+
+document.documentElement.lang = language
+document.documentElement.dir = isRtl ? 'rtl' : 'ltr'
+
+const rtlCache = createCache({
+  key: 'muirtl',
+  stylisPlugins: [prefixer, rtlPlugin],
+})
+
+const pickerLocale = isAr ? enUS : isFr ? frFR : enUS
+const dataGridLocale = isAr ? dataGridarSD : isFr ? dataGridfrFR : dataGridenUS
+const coreLocale = isAr ? corearEG : isFr ? corefrFR : coreenUS
 
 const theme = createTheme(
   {
+    direction: isRtl ? 'rtl' : 'ltr',
     palette: {
       primary: {
         main: '#1a1a1a',
@@ -168,16 +202,9 @@ const theme = createTheme(
     },
     typography: {
       fontFamily: [
-        '-apple-system',
-        'BlinkMacSystemFont',
+        '"Sora"',
         '"Segoe UI"',
-        'Roboto',
-        '"Helvetica Neue"',
-        'Arial',
         'sans-serif',
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
       ].join(','),
     },
     components: {
@@ -185,6 +212,7 @@ const theme = createTheme(
         styleOverrides: {
           body: {
             backgroundColor: '#fafafa',
+            fontFamily: '"Sora", "Segoe UI", sans-serif',
           },
         },
       },
@@ -237,34 +265,55 @@ const theme = createTheme(
       },
     },
   },
-  isFr ? frFR : enUS,
-  isFr ? dataGridfrFR : dataGridenUS,
-  isFr ? corefrFR : coreenUS,
+  pickerLocale,
+  dataGridLocale,
+  coreLocale,
 )
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <ThemeProvider theme={theme}>
-    <CssBaseline>
-      <App />
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss={false}
-        draggable={false}
-        pauseOnHover
-        theme="dark"
-      />
-    </CssBaseline>
-    {/* <a
-      className="github-fork-ribbon fixed left-bottom"
-      href="https://github.com/aelassas/movinin"
-      data-ribbon="Fork me on GitHub"
-      title="Fork me on GitHub"
-    >
-      Fork me on GitHub
-    </a> */}
-  </ThemeProvider>,
+  isRtl ? (
+    <CacheProvider value={rtlCache}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline>
+          <App />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            pauseOnFocusLoss={false}
+            draggable={false}
+            pauseOnHover
+            theme="dark"
+          />
+        </CssBaseline>
+      </ThemeProvider>
+    </CacheProvider>
+  ) : (
+    <ThemeProvider theme={theme}>
+      <CssBaseline>
+        <App />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss={false}
+          draggable={false}
+          pauseOnHover
+          theme="dark"
+        />
+      </CssBaseline>
+      {/* <a
+        className="github-fork-ribbon fixed left-bottom"
+        href="https://github.com/aelassas/movinin"
+        data-ribbon="Fork me on GitHub"
+        title="Fork me on GitHub"
+      >
+        Fork me on GitHub
+      </a> */}
+    </ThemeProvider>
+  ),
 )

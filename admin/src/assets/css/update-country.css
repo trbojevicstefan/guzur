@@ -16,7 +16,15 @@ div.update-country {
 .country-form-title {
   text-align: center;
   text-transform: capitalize;
-  color: #121212;
+  color: var(--text-strong);
+}
+
+.country-form {
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 /* Device width is less than or equal to 960px */

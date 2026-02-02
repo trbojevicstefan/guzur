@@ -16,6 +16,7 @@ import * as movininTypes from ':movinin-types'
 import * as movininHelper from ':movinin-helper'
 import env from '@/config/env.config'
 import Layout from '@/components/Layout'
+import LocationSelectList from '@/components/LocationSelectList'
 import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/settings'
 import * as UserService from '@/services/UserService'
@@ -35,6 +36,7 @@ const Settings = () => {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [location, setLocation] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState<movininTypes.Option | undefined>(undefined)
   const [bio, setBio] = useState('')
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -78,10 +80,6 @@ const Settings = () => {
     }
     setBirthDateValid(true)
     return true
-  }
-
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
   }
 
   const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,6 +168,7 @@ const Settings = () => {
       setPhone(_user.phone || '')
       setBirthDate(_user && _user.birthDate ? new Date(_user.birthDate) : undefined)
       setLocation(_user.location || '')
+      setSelectedLocation(undefined)
       setBio(_user.bio || '')
       setEnableEmailNotifications(_user.enableEmailNotifications ?? true)
       setVisible(true)
@@ -227,7 +226,16 @@ const Settings = () => {
                 </FormControl>
                 <FormControl fullWidth margin="dense">
                   <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                  <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
+                  <LocationSelectList
+                    label={commonStrings.LOCATION}
+                    variant="standard"
+                    value={selectedLocation as movininTypes.Location}
+                    onChange={(values) => {
+                      const selected = values[0]
+                      setSelectedLocation(selected)
+                      setLocation(selected?.name || selected?._id || '')
+                    }}
+                  />
                 </FormControl>
                 <FormControl fullWidth margin="dense">
                   <InputLabel>{commonStrings.BIO}</InputLabel>

@@ -33,8 +33,10 @@ div.user div.col-1 .user-actions {
   div.user div.col-1 {
     padding-top: 10px;
     padding-bottom: 15px;
-    background: #fefefe;
-    border-bottom: #eee solid 1px;
+    background: var(--surface-glass);
+    border-bottom: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   div.user div.col-1 section.user-avatar-sec {
@@ -64,8 +66,10 @@ div.user div.col-1 .user-actions {
     left: 0;
     width: 300px;
     padding-top: 20px;
-    background: #fefefe;
-    border-right: #eee solid 1px;
+    background: var(--surface-glass);
+    border-right: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   div.user div.col-1 section.user-avatar-sec {

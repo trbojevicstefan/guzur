@@ -1,3 +1,14 @@
 .sc-search {
   width: 235px;
 }
+
+.sc-search .MuiInputBase-root {
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 6px 12px;
+}
+
+.sc-search .MuiInput-underline:before,
+.sc-search .MuiInput-underline:after {
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}

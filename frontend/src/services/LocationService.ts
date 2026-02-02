@@ -30,6 +30,30 @@ export const getLocationsWithPosition = (): Promise<movininTypes.Location[]> =>
     .then((res) => res.data)
 
 /**
+ * Get locations for frontend browsing by parent.
+ *
+ * @param {string} parentId
+ * @param {string} keyword
+ * @returns {Promise<movininTypes.Location[]>}
+ */
+export const getFrontendLocations = (parentId?: string, keyword?: string): Promise<movininTypes.Location[]> => {
+  const params = new URLSearchParams()
+  if (parentId) {
+    params.set('parent', parentId)
+  }
+  if (keyword) {
+    params.set('s', keyword)
+  }
+  const query = params.toString()
+
+  return axiosInstance
+    .get(
+      `/api/frontend-locations/${UserService.getLanguage()}${query ? `?${query}` : ''}`
+    )
+    .then((res) => res.data)
+}
+
+/**
  * Get a Location by ID.
  *
  * @param {string} id

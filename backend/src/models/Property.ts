@@ -27,9 +27,47 @@ const propertySchema = new Schema<env.Property>(
       ref: 'User',
       index: true,
     },
+    broker: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
+    developer: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
+    brokerageOrg: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+      index: true,
+    },
+    developerOrg: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+      index: true,
+    },
+    developmentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Development',
+      index: true,
+    },
     description: {
       type: String,
       required: [true, "can't be blank"],
+    },
+    aiDescription: {
+      type: String,
+      trim: true,
+    },
+    useAiDescription: {
+      type: Boolean,
+      default: false,
     },
     available: {
       type: Boolean,
@@ -108,6 +146,10 @@ const propertySchema = new Schema<env.Property>(
       type: Number,
       required: [true, "can't be blank"],
     },
+    salePrice: {
+      type: Number,
+      default: null,
+    },
     hidden: {
       type: Boolean,
       default: false,
@@ -130,6 +172,52 @@ const propertySchema = new Schema<env.Property>(
       ],
       required: [true, "can't be blank"],
     },
+    listingType: {
+      type: String,
+      enum: [
+        movininTypes.ListingType.Rent,
+        movininTypes.ListingType.Sale,
+        movininTypes.ListingType.Both,
+      ],
+      default: movininTypes.ListingType.Rent,
+    },
+    listingStatus: {
+      type: String,
+      enum: [
+        movininTypes.ListingStatus.Draft,
+        movininTypes.ListingStatus.PendingReview,
+        movininTypes.ListingStatus.Published,
+        movininTypes.ListingStatus.Rejected,
+        movininTypes.ListingStatus.Archived,
+      ],
+      default: movininTypes.ListingStatus.Published,
+    },
+    seoTitle: {
+      type: String,
+      trim: true,
+    },
+    seoDescription: {
+      type: String,
+      trim: true,
+    },
+    seoKeywords: {
+      type: [String],
+      default: [],
+    },
+    seoGeneratedAt: {
+      type: Date,
+    },
+    reviewedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    reviewedAt: {
+      type: Date,
+    },
+    reviewNotes: {
+      type: String,
+      trim: true,
+    },
     blockOnPay: {
       type: Boolean,
       default: true,
@@ -146,6 +234,13 @@ propertySchema.index({ updatedAt: -1, _id: 1 })
 propertySchema.index({ agency: 1, type: 1, rentalTerm: 1, available: 1, updatedAt: -1, _id: 1 })
 propertySchema.index({ type: 1, rentalTerm: 1, available: 1 })
 propertySchema.index({ location: 1, available: 1 })
+propertySchema.index({ listingStatus: 1, listingType: 1, updatedAt: -1, _id: 1 })
+propertySchema.index({ broker: 1, listingStatus: 1, updatedAt: -1, _id: 1 })
+propertySchema.index({ developer: 1, listingStatus: 1, updatedAt: -1, _id: 1 })
+propertySchema.index({ owner: 1, listingStatus: 1, updatedAt: -1, _id: 1 })
+propertySchema.index({ brokerageOrg: 1, listingStatus: 1, updatedAt: -1, _id: 1 })
+propertySchema.index({ developerOrg: 1, listingStatus: 1, updatedAt: -1, _id: 1 })
+propertySchema.index({ developmentId: 1, listingStatus: 1, updatedAt: -1, _id: 1 })
 propertySchema.index(
   { name: 'text' },
   {

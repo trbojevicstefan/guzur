@@ -1,9 +1,13 @@
-import LocalizedStrings from 'localized-strings'
+﻿import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/utils/langHelper'
 
 const strings = new LocalizedStrings({
   fr: {
-    NO_MATCH: 'Rien à voir ici !',
+    NO_MATCH: 'Rien Ã  voir ici !',
+  },
+  ar: {
+
+    NO_MATCH: 'Nothing to see here!',
   },
   en: {
     NO_MATCH: 'Nothing to see here!',
@@ -12,3 +16,4 @@ const strings = new LocalizedStrings({
 
 langHelper.setLanguage(strings)
 export { strings }
+

@@ -18,6 +18,21 @@ export const signup = (data: movininTypes.SignUpPayload): Promise<number> =>
     .then((res) => res.status)
 
 /**
+ * Sign up with role.
+ *
+ * @param {movininTypes.UserType} role
+ * @param {movininTypes.SignUpPayload} data
+ * @returns {Promise<number>}
+ */
+export const signupRole = (role: movininTypes.UserType, data: movininTypes.SignUpPayload): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/sign-up/${role}`,
+      data
+    )
+    .then((res) => res.status)
+
+/**
  * Check validation token.
  *
  * @param {string} userId
@@ -44,6 +59,21 @@ export const deleteTokens = (userId: string): Promise<number> =>
       `/api/delete-tokens/${encodeURIComponent(userId)}`
     )
     .then((res) => res.status)
+
+/**
+ * Complete onboarding.
+ *
+ * @param {movininTypes.UpdateUserPayload} data
+ * @returns {Promise<movininTypes.User>}
+ */
+export const completeOnboarding = (data: movininTypes.UpdateUserPayload): Promise<movininTypes.User> =>
+  axiosInstance
+    .post(
+      '/api/complete-onboarding',
+      data,
+      { withCredentials: true }
+    )
+    .then((res) => res.data)
 
 /**
  * Resend validation or activation email.
@@ -298,6 +328,19 @@ export const getUser = (id?: string): Promise<movininTypes.User | null> => {
 }
 
 /**
+ * Get a Developer by ID (public).
+ *
+ * @param {string} id
+ * @returns {Promise<movininTypes.User|null>}
+ */
+export const getFrontendDeveloper = (id: string): Promise<movininTypes.User | null> =>
+  axiosInstance
+    .get(
+      `/api/frontend-developer/${encodeURIComponent(id)}`
+    )
+    .then((res) => res.data)
+
+/**
  * Update a User.
  *
  * @param {movininTypes.UpdateUserPayload} data
@@ -358,6 +401,42 @@ export const updateAvatar = (userId: string, file: Blob): Promise<number> => {
     )
     .then((res) => res.status)
 }
+
+/**
+ * Create an avatar in temp storage.
+ *
+ * @param {Blob} file
+ * @returns {Promise<string>}
+ */
+export const createAvatar = (file: Blob): Promise<string> => {
+  const formData = new FormData()
+  formData.append('image', file)
+
+  return axiosInstance
+    .post(
+      '/api/create-avatar',
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    )
+    .then((res) => res.data)
+}
+
+/**
+ * Delete temp avatar.
+ *
+ * @param {string} avatar
+ * @returns {Promise<number>}
+ */
+export const deleteTempAvatar = (avatar: string): Promise<number> =>
+  axiosInstance
+    .delete(
+      `/api/delete-temp-avatar/${encodeURIComponent(avatar)}`,
+      { withCredentials: true },
+    )
+    .then((res) => res.status)
 
 /**
  * Delete avatar.

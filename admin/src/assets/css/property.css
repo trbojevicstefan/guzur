@@ -21,11 +21,13 @@
 }
 
 div.main {
-  background-color: #fff;
-  border: 1px solid #ededed;
-  border-radius: 4px;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   padding: 15px;
   margin-bottom: 15px;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
   /* transform: translate3d(0, 0, 0); */
 }
 
@@ -113,7 +115,7 @@ div.main div.property-card div.right-panel div.name h2 {
 }
 
 div.main div.property-card div.right-panel div.price {
-  color: #383838;
+  color: var(--text-strong);
   font-size: 1.5em;
   font-weight: 700;
   white-space: nowrap;
@@ -131,6 +133,30 @@ div.main div.footer div.action {
   flex-direction: row;
   justify-content: flex-end;
   margin-top: 20px;
+}
+
+div.main div.description {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--surface-border);
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+div.main div.description.secondary {
+  margin-top: 10px;
+  background: rgba(245, 247, 250, 0.9);
+}
+
+div.main div.description-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 
@@ -156,8 +182,8 @@ div.main div.agency span.agency-logo img {
 }
 
 div.main div.agency a.agency-info {
-  color: #0064c8;
-  text-decoration: underline;
+  color: var(--accent);
+  text-decoration: none;
   font-size: 0.9em;
   line-height: 1em;
   white-space: nowrap;

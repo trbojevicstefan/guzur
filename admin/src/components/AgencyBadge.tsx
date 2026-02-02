@@ -9,18 +9,33 @@ interface AgencyBadgeProps {
   agency: movininTypes.User
 }
 
-const AgencyBadge = ({ agency }: AgencyBadgeProps) => (agency
-    ? (
-      <div className="agency-badge">
-        <span className="agency-badge-logo">
-          <img
-            src={movininHelper.joinURL(env.CDN_USERS, agency.avatar)}
-            alt={agency.fullName}
-          />
-        </span>
-        <span className="agency-badge-text">{agency.fullName}</span>
-      </div>
-    )
-    : <></>)
+const AgencyBadge = ({ agency }: AgencyBadgeProps) => {
+  if (!agency) {
+    return <></>
+  }
+
+  const avatarUrl = agency.avatar && env.CDN_USERS
+    ? movininHelper.joinURL(env.CDN_USERS, agency.avatar)
+    : ''
+  const initials = (agency.fullName || '')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('')
+
+  return (
+    <div className="agency-badge">
+      <span className="agency-badge-logo">
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={agency.fullName} />
+        ) : (
+          <span>{initials || '?'}</span>
+        )}
+      </span>
+      <span className="agency-badge-text">{agency.fullName}</span>
+    </div>
+  )
+}
 
 export default AgencyBadge

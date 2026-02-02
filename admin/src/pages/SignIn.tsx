@@ -68,7 +68,7 @@ const SignIn = () => {
           if (params.has('u')) {
             navigate(`/user${window.location.search}`)
           } else if (params.has('c')) {
-            navigate(`/agency${window.location.search}`)
+            navigate(`/broker${window.location.search}`)
           } else if (params.has('cr')) {
             navigate(`/property${window.location.search}`)
           } else if (params.has('b')) {

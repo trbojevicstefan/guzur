@@ -48,7 +48,7 @@ const UserTypeFilter = ({
     setCheckedUserTypes(checkedUserTypes)
 
     if (onChange) {
-      onChange(movininHelper.clone(checkedUserTypes))
+      onChange(helper.expandUserTypes(movininHelper.clone(checkedUserTypes)))
     }
   }
 
@@ -80,7 +80,7 @@ const UserTypeFilter = ({
       setCheckedUserTypes(_userTypes)
 
       if (onChange) {
-        onChange(movininHelper.clone(_userTypes))
+        onChange(helper.expandUserTypes(movininHelper.clone(_userTypes)))
       }
     }
   }

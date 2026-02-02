@@ -13,6 +13,7 @@ routes.route(routeNames.delete).delete(authJwt.verifyToken, locationController.d
 routes.route(routeNames.getLocation).get(locationController.getLocation)
 routes.route(routeNames.getLocations).get(locationController.getLocations)
 routes.route(routeNames.getLocationsWithPosition).get(locationController.getLocationsWithPosition)
+routes.route(routeNames.getFrontendLocations).get(locationController.getFrontendLocations)
 routes.route(routeNames.checkLocation).get(authJwt.verifyToken, locationController.checkLocation)
 routes.route(routeNames.getLocationId).get(locationController.getLocationId)
 routes.route(routeNames.createImage).post([authJwt.verifyToken, multer({ storage: multer.memoryStorage() }).single('image')], locationController.createImage)

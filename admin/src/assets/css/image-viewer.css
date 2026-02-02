@@ -15,9 +15,12 @@
 .popup {
   width: 90%;
   height: 90%;
-  background-color: #fff;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
   border-radius: 8px;
   position: absolute;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 .iv-content {
@@ -45,7 +48,7 @@
 }
 
 .close {
-  color: black;
+  color: var(--text-strong);
   position: absolute;
   top: 0;
   right: 15px;
@@ -68,7 +71,7 @@
 }
 
 .navigation {
-  color: black;
+  color: var(--text-strong);
   cursor: pointer;
   position: absolute;
   top: calc(50% - 60px);

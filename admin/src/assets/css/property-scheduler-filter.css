@@ -1,8 +1,11 @@
 div.property-scheduler-filter {
-  background: #fafafa;
+  background: var(--surface-glass);
   margin: 10px 10px 0 0;
-  border: 1px solid #dadada;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   font-size: 13px;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 div.property-scheduler-filter .bf-search {

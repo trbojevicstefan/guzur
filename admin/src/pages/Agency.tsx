@@ -69,7 +69,7 @@ const Agency = () => {
         const status = await AgencyService.deleteAgency(agency._id as string)
 
         if (status === 200) {
-          navigate('/agencies')
+          navigate('/brokers')
         } else {
           helper.error()
         }
@@ -187,7 +187,7 @@ const Agency = () => {
             <div className="agency-actions">
               {edit && (
                 <Tooltip title={commonStrings.UPDATE}>
-                  <IconButton onClick={() => navigate(`/update-agency?c=${agency._id}`)}>
+                  <IconButton onClick={() => navigate(`/update-broker?c=${agency._id}`)}>
                     <EditIcon />
                   </IconButton>
                 </Tooltip>

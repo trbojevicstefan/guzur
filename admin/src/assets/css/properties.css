@@ -10,9 +10,19 @@ div.properties div.search {
   justify-content: center;
 }
 
+div.properties div.col-1 div.col-1-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 div.properties div.col-1 .filter,
 div.properties div.col-1 div.info-box {
-  background-color: #fff;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 /* Device width is less than or equal to 960px */
@@ -42,6 +52,12 @@ div.properties div.col-1 div.info-box {
   div.properties div.col-1 div.col-1-container {
     width: 100%;
     max-width: 480px;
+    padding: 18px;
+    border-radius: var(--radius-xl);
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   div.properties .property-filter {
@@ -67,6 +83,12 @@ div.properties div.col-1 div.info-box {
   div.properties div.col-1 {
     width: 300px;
     margin-left: 20px;
+    padding: 18px;
+    border-radius: var(--radius-xl);
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   div.properties div.col-2 {

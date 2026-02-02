@@ -265,14 +265,33 @@ export const getUserTypes = () => [
     label: commonStrings.RECORD_TYPE_ADMIN
   },
   {
-    value: movininTypes.UserType.Agency,
-    label: commonStrings.RECORD_TYPE_AGENCY,
+    value: movininTypes.UserType.Broker,
+    label: commonStrings.RECORD_TYPE_BROKER,
+  },
+  {
+    value: movininTypes.UserType.Developer,
+    label: commonStrings.RECORD_TYPE_DEVELOPER,
+  },
+  {
+    value: movininTypes.UserType.Owner,
+    label: commonStrings.RECORD_TYPE_OWNER,
   },
   {
     value: movininTypes.UserType.User,
     label: commonStrings.RECORD_TYPE_USER
   },
 ]
+
+/**
+ * Expand user types to include deprecated aliases for filtering.
+ *
+ * @param {movininTypes.UserType[]} types
+ * @returns {movininTypes.UserType[]}
+ */
+export const expandUserTypes = (types: movininTypes.UserType[]) => {
+  const expanded = new Set(types)
+  return Array.from(expanded)
+}
 
 /**
  * Get user type label.
@@ -285,12 +304,164 @@ export const getUserType = (type?: movininTypes.UserType) => {
     case movininTypes.UserType.Admin:
       return commonStrings.RECORD_TYPE_ADMIN
 
+    case movininTypes.UserType.Broker:
+      return commonStrings.RECORD_TYPE_BROKER
+
+    case movininTypes.UserType.Developer:
+      return commonStrings.RECORD_TYPE_DEVELOPER
+
+    case movininTypes.UserType.Owner:
+      return commonStrings.RECORD_TYPE_OWNER
+
     case movininTypes.UserType.Agency:
-      return commonStrings.RECORD_TYPE_AGENCY
+      return commonStrings.RECORD_TYPE_BROKER
 
     case movininTypes.UserType.User:
       return commonStrings.RECORD_TYPE_USER
 
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get lead status label.
+ *
+ * @param {movininTypes.LeadStatus} status
+ * @returns {string}
+ */
+export const getLeadStatus = (status?: movininTypes.LeadStatus) => {
+  switch (status) {
+    case movininTypes.LeadStatus.New:
+      return commonStrings.LEAD_STATUS_NEW
+    case movininTypes.LeadStatus.Contacted:
+      return commonStrings.LEAD_STATUS_CONTACTED
+    case movininTypes.LeadStatus.ViewingScheduled:
+      return commonStrings.LEAD_STATUS_VIEWING_SCHEDULED
+    case movininTypes.LeadStatus.ClosedWon:
+      return commonStrings.LEAD_STATUS_CLOSED_WON
+    case movininTypes.LeadStatus.ClosedLost:
+      return commonStrings.LEAD_STATUS_CLOSED_LOST
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get all lead statuses.
+ *
+ * @returns {movininTypes.StatusFilterItem[]}
+ */
+export const getLeadStatuses = (): { value: movininTypes.LeadStatus, label: string }[] => [
+  { value: movininTypes.LeadStatus.New, label: commonStrings.LEAD_STATUS_NEW },
+  { value: movininTypes.LeadStatus.Contacted, label: commonStrings.LEAD_STATUS_CONTACTED },
+  { value: movininTypes.LeadStatus.ViewingScheduled, label: commonStrings.LEAD_STATUS_VIEWING_SCHEDULED },
+  { value: movininTypes.LeadStatus.ClosedWon, label: commonStrings.LEAD_STATUS_CLOSED_WON },
+  { value: movininTypes.LeadStatus.ClosedLost, label: commonStrings.LEAD_STATUS_CLOSED_LOST },
+]
+
+export const getRfqStatus = (status?: movininTypes.RfqStatus) => {
+  switch (status) {
+    case movininTypes.RfqStatus.New:
+      return commonStrings.RFQ_STATUS_NEW
+    case movininTypes.RfqStatus.Contacted:
+      return commonStrings.RFQ_STATUS_CONTACTED
+    case movininTypes.RfqStatus.ClosedWon:
+      return commonStrings.RFQ_STATUS_CLOSED_WON
+    case movininTypes.RfqStatus.ClosedLost:
+      return commonStrings.RFQ_STATUS_CLOSED_LOST
+    default:
+      return ''
+  }
+}
+
+export const getRfqStatuses = (): { value: movininTypes.RfqStatus, label: string }[] => [
+  { value: movininTypes.RfqStatus.New, label: commonStrings.RFQ_STATUS_NEW },
+  { value: movininTypes.RfqStatus.Contacted, label: commonStrings.RFQ_STATUS_CONTACTED },
+  { value: movininTypes.RfqStatus.ClosedWon, label: commonStrings.RFQ_STATUS_CLOSED_WON },
+  { value: movininTypes.RfqStatus.ClosedLost, label: commonStrings.RFQ_STATUS_CLOSED_LOST },
+]
+
+/**
+ * Get development status label.
+ *
+ * @param {movininTypes.DevelopmentStatus} status
+ * @returns {string}
+ */
+export const getDevelopmentStatus = (status?: movininTypes.DevelopmentStatus) => {
+  switch (status) {
+    case movininTypes.DevelopmentStatus.Planning:
+      return commonStrings.DEVELOPMENT_STATUS_PLANNING
+    case movininTypes.DevelopmentStatus.InProgress:
+      return commonStrings.DEVELOPMENT_STATUS_IN_PROGRESS
+    case movininTypes.DevelopmentStatus.Completed:
+      return commonStrings.DEVELOPMENT_STATUS_COMPLETED
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get all development statuses.
+ *
+ * @returns {{ value: movininTypes.DevelopmentStatus, label: string }[]}
+ */
+export const getDevelopmentStatuses = (): { value: movininTypes.DevelopmentStatus, label: string }[] => [
+  { value: movininTypes.DevelopmentStatus.Planning, label: commonStrings.DEVELOPMENT_STATUS_PLANNING },
+  { value: movininTypes.DevelopmentStatus.InProgress, label: commonStrings.DEVELOPMENT_STATUS_IN_PROGRESS },
+  { value: movininTypes.DevelopmentStatus.Completed, label: commonStrings.DEVELOPMENT_STATUS_COMPLETED },
+]
+
+/**
+ * Get listing type label.
+ *
+ * @param {movininTypes.ListingType} type
+ * @returns {string}
+ */
+export const getListingType = (type?: movininTypes.ListingType) => {
+  switch (type) {
+    case movininTypes.ListingType.Rent:
+      return commonStrings.LISTING_TYPE_RENT
+    case movininTypes.ListingType.Sale:
+      return commonStrings.LISTING_TYPE_SALE
+    case movininTypes.ListingType.Both:
+      return commonStrings.LISTING_TYPE_BOTH
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get all listing statuses.
+ *
+ * @returns {{ value: movininTypes.ListingStatus, label: string }[]}
+ */
+export const getListingStatuses = (): { value: movininTypes.ListingStatus, label: string }[] => [
+  { value: movininTypes.ListingStatus.Draft, label: commonStrings.LISTING_STATUS_DRAFT },
+  { value: movininTypes.ListingStatus.PendingReview, label: commonStrings.LISTING_STATUS_PENDING_REVIEW },
+  { value: movininTypes.ListingStatus.Published, label: commonStrings.LISTING_STATUS_PUBLISHED },
+  { value: movininTypes.ListingStatus.Rejected, label: commonStrings.LISTING_STATUS_REJECTED },
+  { value: movininTypes.ListingStatus.Archived, label: commonStrings.LISTING_STATUS_ARCHIVED },
+]
+
+/**
+ * Get listing status label.
+ *
+ * @param {movininTypes.ListingStatus} status
+ * @returns {string}
+ */
+export const getListingStatus = (status?: movininTypes.ListingStatus) => {
+  switch (status) {
+    case movininTypes.ListingStatus.Draft:
+      return commonStrings.LISTING_STATUS_DRAFT
+    case movininTypes.ListingStatus.PendingReview:
+      return commonStrings.LISTING_STATUS_PENDING_REVIEW
+    case movininTypes.ListingStatus.Published:
+      return commonStrings.LISTING_STATUS_PUBLISHED
+    case movininTypes.ListingStatus.Rejected:
+      return commonStrings.LISTING_STATUS_REJECTED
+    case movininTypes.ListingStatus.Archived:
+      return commonStrings.LISTING_STATUS_ARCHIVED
     default:
       return ''
   }
@@ -447,8 +618,24 @@ export const rentalTermUnit = (term: movininTypes.RentalTerm): string => {
  * @param {string} language
  * @returns {string}
  */
-export const priceLabel = (property: movininTypes.Property, language: string): string =>
-  `${movininHelper.formatPrice(property.price, commonStrings.CURRENCY, language)}/${rentalTermUnit(property.rentalTerm)}`
+export const priceLabel = (property: movininTypes.Property, language: string): string => {
+  const rentPrice = movininHelper.formatPrice(property.price, commonStrings.CURRENCY, language)
+  const salePrice = property.salePrice != null
+    ? movininHelper.formatPrice(property.salePrice, commonStrings.CURRENCY, language)
+    : undefined
+
+  switch (property.listingType) {
+    case movininTypes.ListingType.Sale:
+      return salePrice || rentPrice
+    case movininTypes.ListingType.Both:
+      return salePrice
+        ? `${rentPrice}/${rentalTermUnit(property.rentalTerm)} | ${commonStrings.LISTING_TYPE_SALE}: ${salePrice}`
+        : `${rentPrice}/${rentalTermUnit(property.rentalTerm)}`
+    case movininTypes.ListingType.Rent:
+    default:
+      return `${rentPrice}/${rentalTermUnit(property.rentalTerm)}`
+  }
+}
 
 /**
  * Validate URL string.

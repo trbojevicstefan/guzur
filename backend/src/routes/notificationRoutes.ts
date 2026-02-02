@@ -8,6 +8,7 @@ const routes = express.Router()
 routes.route(routeNames.notificationCounter).get(authJwt.verifyToken, notificationController.notificationCounter)
 routes.route(routeNames.getNotifications).get(authJwt.verifyToken, notificationController.getNotifications)
 routes.route(routeNames.markAsRead).post(authJwt.verifyToken, notificationController.markAsRead)
+routes.route(routeNames.markAsReadByType).post(authJwt.verifyToken, notificationController.markAsReadByType)
 routes.route(routeNames.markAsUnRead).post(authJwt.verifyToken, notificationController.markAsUnRead)
 routes.route(routeNames.delete).post(authJwt.verifyToken, notificationController.deleteNotifications)
 

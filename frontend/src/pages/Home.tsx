@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Tabs, Tab, Dialog, DialogContent, Button } from '@mui/material'
 import {
@@ -9,24 +9,34 @@ import {
   Public,
   FlashOn,
   CheckBox,
+  ChevronLeft,
+  ChevronRight,
 } from '@mui/icons-material'
 import L from 'leaflet'
 import * as movininTypes from ':movinin-types'
+import * as movininHelper from ':movinin-helper'
 import env from '@/config/env.config'
 import { strings } from '@/lang/home'
+import { strings as commonStrings } from '@/lang/common'
 import * as CountryService from '@/services/CountryService'
 import * as LocationService from '@/services/LocationService'
+import * as PropertyService from '@/services/PropertyService'
+import * as UserService from '@/services/UserService'
 import Layout from '@/components/Layout'
 import SearchForm from '@/components/SearchForm'
 import LocationCarrousel from '@/components/LocationCarrousel'
 import TabPanel, { a11yProps } from '@/components/TabPanel'
 import Map from '@/components/Map'
+import { strings as mapStrings } from '@/lang/map'
 import Footer from '@/components/Footer'
+import PropertyList from '@/components/PropertyList'
+import { useHeaderSearch } from '@/context/HeaderSearchContext'
 
 import '@/assets/css/home.css'
 
 const Home = () => {
   const navigate = useNavigate()
+  const { setSearchSlot } = useHeaderSearch()
 
   const [countries, setCountries] = useState<movininTypes.CountryInfo[]>([])
   const [tabValue, setTabValue] = useState(0)
@@ -34,6 +44,12 @@ const Home = () => {
   const [locations, setLocations] = useState<movininTypes.Location[]>([])
   const [location, setLocation] = useState('')
   const [videoLoaded, setVideoLoaded] = useState(false)
+  const [featuredListings, setFeaturedListings] = useState<movininTypes.Property[]>([])
+  const [homeListings, setHomeListings] = useState<movininTypes.Property[]>([])
+  const [listingsLoading, setListingsLoading] = useState(false)
+  const [headerSearchActive, setHeaderSearchActive] = useState(false)
+  const featuredRowRef = useRef<HTMLDivElement | null>(null)
+  const allRowRef = useRef<HTMLDivElement | null>(null)
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
@@ -52,10 +68,44 @@ const Home = () => {
   }
 
   const onLoad = async () => {
-    const _countries = await CountryService.getCountriesWithLocations('', true, env.MIN_LOCATIONS)
-    setCountries(_countries)
-    const _locations = await LocationService.getLocationsWithPosition()
-    setLocations(_locations)
+    try {
+      const _countries = await CountryService.getCountriesWithLocations('', true, env.MIN_LOCATIONS)
+      setCountries(Array.isArray(_countries) ? _countries : [])
+    } catch {
+      setCountries([])
+    }
+
+    try {
+      const _locations = await LocationService.getLocationsWithPosition()
+      setLocations(Array.isArray(_locations) ? _locations : [])
+    } catch {
+      setLocations([])
+    }
+
+    try {
+      setListingsLoading(true)
+      const payload: movininTypes.GetPropertiesPayload = {
+        agencies: [],
+        types: movininHelper.getAllPropertyTypes(),
+        rentalTerms: movininHelper.getAllRentalTerms(),
+        listingStatuses: [movininTypes.ListingStatus.Published],
+      }
+      const data = await PropertyService.getProperties(payload, 1, 20)
+      const _data = (data && data.length > 0 ? data[0] : undefined) ?? { resultData: [] as movininTypes.Property[] }
+      const rows = Array.isArray(_data.resultData) ? _data.resultData : []
+      const sorted = [...rows].sort((a, b) => {
+        const nameA = a.location?.name || ''
+        const nameB = b.location?.name || ''
+        return nameA.localeCompare(nameB)
+      })
+      setHomeListings(sorted)
+      setFeaturedListings(sorted.slice(0, 6))
+    } catch {
+      setFeaturedListings([])
+      setHomeListings([])
+    } finally {
+      setListingsLoading(false)
+    }
 
     const observer = new IntersectionObserver(handleIntersection)
     const video = document.getElementById('cover') as HTMLVideoElement
@@ -65,6 +115,114 @@ const Home = () => {
       console.error('Cover video not found')
     }
   }
+
+  const language = UserService.getLanguage()
+
+  useEffect(() => {
+    const threshold = 180
+    const onScroll = () => {
+      const shouldActivate = window.scrollY > threshold
+      setHeaderSearchActive(shouldActivate)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      setHeaderSearchActive(false)
+      setSearchSlot(null)
+    }
+  }, [setSearchSlot])
+
+  useEffect(() => {
+    if (headerSearchActive) {
+      setSearchSlot(
+        <SearchForm
+          listingTypeOptions={[movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
+          defaultListingType={movininTypes.ListingType.Sale}
+          requireLocation={false}
+        />,
+      )
+    } else {
+      setSearchSlot(null)
+    }
+  }, [headerSearchActive, setSearchSlot])
+
+  const renderListingCard = (property: movininTypes.Property) => {
+    const isSaleListing = property.listingType === movininTypes.ListingType.Sale
+      || property.listingType === movininTypes.ListingType.Both
+    const priceValue = isSaleListing && property.salePrice ? property.salePrice : property.price
+    const sellerName = typeof property.agency === 'object'
+      ? (property.agency.fullName || property.agency.company || '')
+      : ''
+    const sizeLabel = property.size ? `${movininHelper.formatNumber(property.size, language)} ${env.SIZE_UNIT}` : ''
+    return (
+      <div key={property._id} className="home-listing-card">
+        <button
+          type="button"
+          className="home-listing-image"
+          onClick={() => {
+            navigate(`/property/${property._id}`, { state: { propertyId: property._id } })
+          }}
+        >
+          <img
+            src={movininHelper.joinURL(env.CDN_PROPERTIES, property.image)}
+            alt={property.name}
+            loading="lazy"
+          />
+        </button>
+        <div className="home-listing-body">
+          <div className="home-listing-name">{property.name}</div>
+          {sellerName && (
+            <div className="home-listing-seller">
+              {strings.SELLER_LABEL} {sellerName}
+            </div>
+          )}
+          <div className="home-listing-meta">
+            {sizeLabel && <span>{sizeLabel}</span>}
+            <span className="home-listing-price">
+              {movininHelper.formatPrice(priceValue, commonStrings.CURRENCY, language)}
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const scrollRow = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
+    const node = ref.current
+    if (!node) {
+      return
+    }
+    const offset = node.clientWidth * 0.8
+    node.scrollBy({
+      left: direction === 'left' ? -offset : offset,
+      behavior: 'smooth',
+    })
+  }
+
+  const renderListingsRow = (rows: movininTypes.Property[], ref: React.RefObject<HTMLDivElement | null>) => (
+    <div className="home-listings-row-wrapper">
+      <button
+        type="button"
+        className="home-listings-nav prev"
+        onClick={() => scrollRow(ref, 'left')}
+        aria-label="Scroll left"
+      >
+        <ChevronLeft />
+      </button>
+      <div className="home-listings-row" ref={ref}>
+        {rows.map(renderListingCard)}
+      </div>
+      <button
+        type="button"
+        className="home-listings-nav next"
+        onClick={() => scrollRow(ref, 'right')}
+        aria-label="Scroll right"
+      >
+        <ChevronRight />
+      </button>
+    </div>
+  )
 
   return (
     <Layout onLoad={onLoad} strict={false}>
@@ -84,7 +242,7 @@ const Home = () => {
                 setVideoLoaded(true)
               }}
             >
-              <source src="cover.mp4" type="video/mp4" />
+              <source src="hero2.mp4" type="video/mp4" />
               <track kind="captions" />
             </video>
             {!videoLoaded && (
@@ -92,16 +250,45 @@ const Home = () => {
             )}
           </div>
 
-          <div className="home-title">{strings.TITLE}</div>
-          <div className="home-cover">{strings.COVER}</div>
+          <div className="home-title">
+            <span className="home-title-line">{strings.TITLE_LINE1}</span>
+            <span className="home-title-line home-title-line-secondary">{strings.TITLE_LINE2}</span>
+          </div>
+          {strings.COVER && (
+            <div className="home-cover">{strings.COVER}</div>
+          )}
           {/* <div className="home-subtitle">{strings.SUBTITLE}</div> */}
 
         </div>
 
-        <div className="search">
-          <div className="home-search">
-            <SearchForm />
+        {!headerSearchActive && (
+          <div className="search">
+            <div className="home-search">
+              <SearchForm
+                listingTypeOptions={[movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
+                defaultListingType={movininTypes.ListingType.Sale}
+                requireLocation={false}
+              />
+            </div>
           </div>
+        )}
+
+        <div className="home-listings featured-listings">
+          <h1>{strings.FEATURED_TITLE}</h1>
+          {listingsLoading ? (
+            <PropertyList properties={[]} loading={listingsLoading} hideActions sizeAuto />
+          ) : (
+            renderListingsRow(featuredListings, featuredRowRef)
+          )}
+        </div>
+
+        <div className="home-listings all-listings">
+          <h1>{strings.LISTINGS_TITLE}</h1>
+          {listingsLoading ? (
+            <PropertyList properties={[]} loading={listingsLoading} hideActions sizeAuto />
+          ) : (
+            renderListingsRow(homeListings, allRowRef)
+          )}
         </div>
 
         <div className="services">
@@ -218,6 +405,10 @@ const Home = () => {
             position={new L.LatLng(env.MAP_LATITUDE, env.MAP_LONGITUDE)}
             initialZoom={env.MAP_ZOOM}
             locations={locations}
+            properties={homeListings}
+            showTileToggle
+            streetLabel={mapStrings.STREET}
+            satelliteLabel={mapStrings.SATELLITE}
             onSelelectLocation={async (locationId) => {
               setLocation(locationId)
               setOpenLocationSearchFormDialog(true)
@@ -277,6 +468,9 @@ const Home = () => {
         <DialogContent className="search-dialog-content">
           <SearchForm
             location={location}
+            listingTypeOptions={[movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
+            defaultListingType={movininTypes.ListingType.Sale}
+            requireLocation={false}
           // onCancel={() => {
           //   setOpenLocationSearchFormDialog(false)
           // }}

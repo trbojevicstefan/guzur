@@ -16,7 +16,7 @@ div.settings {
 .settings-form-title {
   text-align: center;
   text-transform: capitalize;
-  color: #121212;
+  color: var(--text-strong);
 }
 
 .settings-net-wrapper {
@@ -30,6 +30,11 @@ div.settings {
     width: 360px;
     height: 720px;
     padding: 30px;
+    border-radius: var(--radius-xl);
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   .settings-ctn {
@@ -40,6 +45,11 @@ div.settings {
     width: 360px;
     height: 200px;
     padding: 30px;
+    border-radius: var(--radius-xl);
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 }
 
@@ -50,6 +60,11 @@ div.settings {
     width: 600px;
     height: 640px;
     padding: 30px;
+    border-radius: var(--radius-xl);
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   .settings-ctn {
@@ -60,5 +75,10 @@ div.settings {
     width: 600px;
     height: 200px;
     padding: 30px;
+    border-radius: var(--radius-xl);
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 }

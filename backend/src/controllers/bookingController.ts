@@ -54,23 +54,30 @@ export const create = async (req: Request, res: Response) => {
 export const notify = async (renter: env.User, bookingId: string, user: env.User, notificationMessage: string) => {
   i18n.locale = user.language
 
+  const bookingLink = user.type === movininTypes.UserType.Admin
+    ? helper.joinURL(env.ADMIN_HOST, `update-booking?b=${bookingId}`)
+    : helper.joinURL(env.FRONTEND_HOST, `booking?b=${bookingId}`)
+
   // notification
   const message = `${renter.fullName} ${notificationMessage} ${bookingId}.`
   const notification = new Notification({
     user: user._id,
     message,
     booking: bookingId,
+    link: bookingLink,
+    type: movininTypes.NotificationType.General,
   })
 
   await notification.save()
   let counter = await NotificationCounter.findOne({ user: user._id })
-  if (counter && typeof counter.count !== 'undefined') {
-    counter.count += 1
-    await counter.save()
-  } else {
-    counter = new NotificationCounter({ user: user._id, count: 1 })
-    await counter.save()
+  if (!counter) {
+    counter = new NotificationCounter({ user: user._id, count: 0, messageCount: 0 })
   }
+  counter.count = (counter.count ?? 0) + 1
+  if (typeof counter.messageCount === 'undefined') {
+    counter.messageCount = 0
+  }
+  await counter.save()
 
   // mail
   if (user.enableEmailNotifications) {
@@ -81,7 +88,7 @@ export const notify = async (renter: env.User, bookingId: string, user: env.User
       html: `<p>
     ${i18n.t('HELLO')}${user.fullName},<br><br>
     ${message}<br><br>
-    ${helper.joinURL(env.ADMIN_HOST, `update-booking?b=${bookingId}`)}<br><br>
+    ${bookingLink}<br><br>
     ${i18n.t('REGARDS')}<br>
     </p>`,
     }
@@ -321,21 +328,25 @@ const notifyRenter = async (booking: env.Booking) => {
   i18n.locale = renter.language
 
   const message = `${i18n.t('BOOKING_UPDATED_NOTIFICATION_PART1')} ${booking._id} ${i18n.t('BOOKING_UPDATED_NOTIFICATION_PART2')}`
+  const bookingLink = helper.joinURL(env.FRONTEND_HOST, `booking?b=${booking._id}`)
   const notification = new Notification({
     user: renter._id,
     message,
     booking: booking._id,
+    link: bookingLink,
+    type: movininTypes.NotificationType.General,
   })
   await notification.save()
 
   let counter = await NotificationCounter.findOne({ user: renter._id })
-  if (counter && typeof counter.count !== 'undefined') {
-    counter.count += 1
-    await counter.save()
-  } else {
-    counter = new NotificationCounter({ user: renter._id, count: 1 })
-    await counter.save()
+  if (!counter) {
+    counter = new NotificationCounter({ user: renter._id, count: 0, messageCount: 0 })
   }
+  counter.count = (counter.count ?? 0) + 1
+  if (typeof counter.messageCount === 'undefined') {
+    counter.messageCount = 0
+  }
+  await counter.save()
 
   // mail
   if (renter.enableEmailNotifications) {
@@ -345,7 +356,7 @@ const notifyRenter = async (booking: env.Booking) => {
       subject: message,
       html: `<p>${i18n.t('HELLO')}${renter.fullName},<br><br>
     ${message}<br><br>
-    ${helper.joinURL(env.FRONTEND_HOST, `booking?b=${booking._id}`)}<br><br>
+    ${bookingLink}<br><br>
     ${i18n.t('REGARDS')}<br></p>`,
     }
     await mailHelper.sendMail(mailOptions)
@@ -655,8 +666,8 @@ export const getBookingId = async (req: Request, res: Response) => {
 export const getBookings = async (req: Request, res: Response) => {
   try {
     const { body }: { body: movininTypes.GetBookingsPayload } = req
-    const page = Number.parseInt(req.params.page, 10)
-    const size = Number.parseInt(req.params.size, 10)
+    const page = Number.parseInt(helper.normalizeParam(req.params.page) ?? '0', 10)
+    const size = Number.parseInt(helper.normalizeParam(req.params.size) ?? '0', 10)
     const agencies = body.agencies.map((id: string) => new mongoose.Types.ObjectId(id))
     const {
       statuses,
@@ -853,7 +864,7 @@ export const getBookings = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const hasBookings = async (req: Request, res: Response) => {
-  const { renter } = req.params
+  const renter = helper.normalizeParam(req.params.renter) as string
 
   try {
     const count = await Booking
@@ -885,7 +896,7 @@ export const hasBookings = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const cancelBooking = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const id = helper.normalizeParam(req.params.id) as string
 
   try {
     const booking = await Booking

@@ -18,8 +18,11 @@ import '@/assets/css/property-list.css'
 
 interface PropertyListProps {
   agencies?: string[]
+  brokerageOrgs?: string[]
+  developerOrgs?: string[]
   types?: movininTypes.PropertyType[]
   rentalTerms?: movininTypes.RentalTerm[]
+  listingTypes?: movininTypes.ListingType[]
   location?: string
   from?: Date
   to?: Date
@@ -36,8 +39,11 @@ interface PropertyListProps {
 
 const PropertyList = ({
   agencies,
+  brokerageOrgs,
+  developerOrgs,
   types,
   rentalTerms,
+  listingTypes,
   location,
   from,
   to,
@@ -83,8 +89,11 @@ const PropertyList = ({
 
       const payload: movininTypes.GetPropertiesPayload = {
         agencies: agencies ?? [],
+        brokerageOrgs,
+        developerOrgs,
         types,
         rentalTerms,
+        listingTypes,
         location,
         from,
         to,
@@ -125,20 +134,21 @@ const PropertyList = ({
   }
 
   useEffect(() => {
-    if (agencies) {
-      if (agencies.length > 0) {
-        fetchData(page)
-      } else {
-        setRows([])
-        setRowCount(0)
-        setFetch(false)
-        if (onLoad) {
-          onLoad({ rows: [], rowCount: 0 })
-        }
-        setInit(false)
+    const agencyOk = agencies === undefined || agencies.length > 0
+    const brokerageOk = brokerageOrgs === undefined || brokerageOrgs.length > 0
+    const developerOrgOk = developerOrgs === undefined || developerOrgs.length > 0
+    if (agencyOk && brokerageOk && developerOrgOk) {
+      fetchData(page)
+    } else {
+      setRows([])
+      setRowCount(0)
+      setFetch(false)
+      if (onLoad) {
+        onLoad({ rows: [], rowCount: 0 })
       }
+      setInit(false)
     }
-  }, [page, agencies, types, rentalTerms, location, from, to]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, agencies, brokerageOrgs, developerOrgs, types, rentalTerms, listingTypes, location, from, to]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (properties) {
@@ -156,8 +166,11 @@ const PropertyList = ({
     setPage(1)
   }, [
     agencies,
+    brokerageOrgs,
+    developerOrgs,
     types,
     rentalTerms,
+    listingTypes,
     location,
     from,
     to,
@@ -168,7 +181,7 @@ const PropertyList = ({
       setPage(1)
       fetchData(1)
     }
-  }, [reload, agencies, types, rentalTerms, location]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [reload, agencies, brokerageOrgs, developerOrgs, types, rentalTerms, listingTypes, location]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -183,8 +196,7 @@ const PropertyList = ({
               </CardContent>
             </Card>
           )
-          : ((from && to && location) || hidePrice) // || (hidePrice && booking))
-          && rows.map((property) => (
+          : rows.map((property) => (
             <Property
               key={property._id}
               property={property}

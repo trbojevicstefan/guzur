@@ -7,7 +7,7 @@ import Location from '../models/Location'
 import LocationValue from '../models/LocationValue'
 
 interface MyDoc extends Document {
-  values: string[]
+  values: mongoose.Types.ObjectId[]
 }
 
 /**
@@ -31,7 +31,7 @@ const syncLanguageValues = async <T extends { values: (mongoose.Types.ObjectId |
     })
 
     const newValues: env.LocationValue[] = []
-    const updates: { id: string; pushIds: string[] }[] = []
+    const updates: { id: mongoose.Types.ObjectId; pushIds: mongoose.Types.ObjectId[] }[] = []
 
     for (const doc of docs) {
       // Ensure English value exists to copy from
@@ -45,14 +45,14 @@ const syncLanguageValues = async <T extends { values: (mongoose.Types.ObjectId |
       const missingLangs = env.LANGUAGES.filter((lang) => !doc.values.some((v) => v.language === lang))
 
       if (missingLangs.length > 0) {
-        const additions: string[] = []
+        const additions: mongoose.Types.ObjectId[] = []
         for (const lang of missingLangs) {
           // Create new LocationValue with English value as fallback
           const val = new LocationValue({ language: lang, value: en.value })
           newValues.push(val)
-          additions.push(val._id.toString())
+          additions.push(val._id as mongoose.Types.ObjectId)
         }
-        updates.push({ id: (doc._id as mongoose.Types.ObjectId).toString(), pushIds: additions })
+        updates.push({ id: doc._id as mongoose.Types.ObjectId, pushIds: additions })
       }
     }
 
@@ -66,11 +66,11 @@ const syncLanguageValues = async <T extends { values: (mongoose.Types.ObjectId |
     if (updates.length > 0) {
       const bulkOps = updates.map(({ id, pushIds }) => ({
         updateOne: {
-          filter: { _id: new mongoose.Types.ObjectId(id) } as Filter<MyDoc>,
+          filter: { _id: id } as Filter<MyDoc>,
           update: { $push: { values: { $each: pushIds } } },
         },
       }))
-      await collection.bulkWrite(bulkOps)
+      await collection.bulkWrite(bulkOps as any)
       logger.info(`Updated ${updates.length} ${label} documents with new language values`)
     }
 

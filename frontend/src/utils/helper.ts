@@ -139,6 +139,121 @@ export const getBookingStatuses = (): movininTypes.StatusFilterItem[] => [
 ]
 
 /**
+ * Get lead status label.
+ *
+ * @param {movininTypes.LeadStatus} status
+ * @returns {string}
+ */
+export const getLeadStatus = (status?: movininTypes.LeadStatus) => {
+  switch (status) {
+    case movininTypes.LeadStatus.New:
+      return commonStrings.LEAD_STATUS_NEW
+    case movininTypes.LeadStatus.Contacted:
+      return commonStrings.LEAD_STATUS_CONTACTED
+    case movininTypes.LeadStatus.ViewingScheduled:
+      return commonStrings.LEAD_STATUS_VIEWING_SCHEDULED
+    case movininTypes.LeadStatus.ClosedWon:
+      return commonStrings.LEAD_STATUS_CLOSED_WON
+    case movininTypes.LeadStatus.ClosedLost:
+      return commonStrings.LEAD_STATUS_CLOSED_LOST
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get listing type label.
+ *
+ * @param {movininTypes.ListingType} listingType
+ * @returns {string}
+ */
+export const getListingType = (listingType?: movininTypes.ListingType) => {
+  switch (listingType) {
+    case movininTypes.ListingType.Rent:
+      return commonStrings.LISTING_TYPE_RENT
+    case movininTypes.ListingType.Sale:
+      return commonStrings.LISTING_TYPE_SALE
+    case movininTypes.ListingType.Both:
+      return commonStrings.LISTING_TYPE_BOTH
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get listing status label.
+ *
+ * @param {movininTypes.ListingStatus} status
+ * @returns {string}
+ */
+export const getListingStatus = (status?: movininTypes.ListingStatus) => {
+  switch (status) {
+    case movininTypes.ListingStatus.Draft:
+      return commonStrings.LISTING_STATUS_DRAFT
+    case movininTypes.ListingStatus.PendingReview:
+      return commonStrings.LISTING_STATUS_PENDING_REVIEW
+    case movininTypes.ListingStatus.Published:
+      return commonStrings.LISTING_STATUS_PUBLISHED
+    case movininTypes.ListingStatus.Rejected:
+      return commonStrings.LISTING_STATUS_REJECTED
+    case movininTypes.ListingStatus.Archived:
+      return commonStrings.LISTING_STATUS_ARCHIVED
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get development status label.
+ *
+ * @param {movininTypes.DevelopmentStatus} status
+ * @returns {string}
+ */
+export const getDevelopmentStatus = (status?: movininTypes.DevelopmentStatus) => {
+  switch (status) {
+    case movininTypes.DevelopmentStatus.Planning:
+      return commonStrings.DEVELOPMENT_STATUS_PLANNING
+    case movininTypes.DevelopmentStatus.InProgress:
+      return commonStrings.DEVELOPMENT_STATUS_IN_PROGRESS
+    case movininTypes.DevelopmentStatus.Completed:
+      return commonStrings.DEVELOPMENT_STATUS_COMPLETED
+    default:
+      return ''
+  }
+}
+
+/**
+ * Map a listing type selection to filter list.
+ *
+ * @param {movininTypes.ListingType} listingType
+ * @returns {movininTypes.ListingType[]}
+ */
+export const listingTypesFromSelection = (listingType?: movininTypes.ListingType) => {
+  if (!listingType || listingType === movininTypes.ListingType.Both) {
+    return movininHelper.getAllListingTypes()
+  }
+  return [listingType]
+}
+
+/**
+ * Check if listing type selection includes rent.
+ *
+ * @param {movininTypes.ListingType} listingType
+ * @returns {boolean}
+ */
+export const selectionIncludesRent = (listingType?: movininTypes.ListingType) =>
+  listingType === movininTypes.ListingType.Rent || listingType === movininTypes.ListingType.Both
+
+/**
+ * Check if listing type selection includes sale.
+ *
+ * @param {movininTypes.ListingType} listingType
+ * @returns {boolean}
+ */
+export const selectionIncludesSale = (listingType?: movininTypes.ListingType) =>
+  listingType === movininTypes.ListingType.Sale || listingType === movininTypes.ListingType.Both
+
+/**
  * Get bedrooms tooltip.
  *
  * @param {number} bedrooms
@@ -338,6 +453,21 @@ export const rentalTermUnit = (term: movininTypes.RentalTerm): string => {
 export const priceLabel = async (property: movininTypes.Property, language: string): Promise<string> => {
   const _price = await PaymentService.convertPrice(property.price)
   return `${movininHelper.formatPrice(_price, commonStrings.CURRENCY, language)}/${rentalTermUnit(property.rentalTerm)}`
+}
+
+/**
+ * Get sale price label.
+ *
+ * @param {movininTypes.Property} property
+ * @param {string} language
+ * @returns {string}
+ */
+export const salePriceLabel = async (property: movininTypes.Property, language: string): Promise<string> => {
+  if (!property.salePrice) {
+    return ''
+  }
+  const _price = await PaymentService.convertPrice(property.salePrice)
+  return movininHelper.formatPrice(_price, commonStrings.CURRENCY, language)
 }
 
 /**

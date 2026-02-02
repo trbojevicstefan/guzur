@@ -31,7 +31,7 @@
       ":reactjs-social-login": ["../packages/reactjs-social-login"],
     },
   },
-  "include": ["src"],
+  "include": ["src", "types", "src/types"],
   "references": [
     { "path": "./tsconfig.node.json" },
     { "path": "../packages/movinin-types" },

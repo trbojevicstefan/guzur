@@ -401,6 +401,12 @@ const SignUp = () => {
                       {commonStrings.CANCEL}
                     </Button>
                   </div>
+                  <div className="signup-partner">
+                    <span>{strings.ROLE_SIGN_UP}</span>
+                    <Link onClick={() => navigate('/sign-up/role')}>
+                      {strings.ROLE_SIGN_UP_LINK}
+                    </Link>
+                  </div>
                 </div>
                 <div className="form-error">
                   {passwordError && <Error message={commonStrings.PASSWORD_ERROR} />}

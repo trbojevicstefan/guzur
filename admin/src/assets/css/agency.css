@@ -15,7 +15,7 @@ div.agency {
   text-align: center;
   font-weight: 400;
   margin-top: 10px;
-  color: #676767;
+  color: var(--text-muted);
   word-wrap: break-word;
 }
 
@@ -46,7 +46,7 @@ div.agency {
 }
 
 .agency div.col-1 div.property-agency span.property-agency-info {
-  color: #a8a8a8;
+  color: var(--text-muted);
   display: inline-block;
   font-size: 0.9em;
   line-height: 1em;
@@ -63,8 +63,10 @@ div.agency {
 
   .agency div.col-1 {
     padding: 10px 0;
-    background: #fefefe;
-    border-bottom: #eee solid 1px;
+    background: var(--surface-glass);
+    border-bottom: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   .agency div.col-1 section.agency-avatar-sec {
@@ -89,8 +91,10 @@ div.agency {
     width: 300px;
     min-height: 100vh;
     padding-top: 20px;
-    background: #fefefe;
-    border-right: #eee solid 1px;
+    background: var(--surface-glass);
+    border-right: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   .agency div.col-1 section.agency-avatar-sec {

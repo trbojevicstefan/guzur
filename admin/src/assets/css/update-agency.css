@@ -12,6 +12,14 @@ div.update-agency .resend-activation-link {
   margin: 20px 0 10px;
 }
 
+.agency-form-update {
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
+}
+
 /* Device width is less than or equal to 960px */
 
 @media only screen and (width <=960px) {

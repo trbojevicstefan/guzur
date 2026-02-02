@@ -3,14 +3,14 @@ import * as langHelper from '@/utils/langHelper'
 
 const strings = new LocalizedStrings({
   fr: {
-    EMPTY_LIST: 'Aucune agence.',
-    VIEW_AGENCY: 'Voir le profil de cette agence',
-    DELETE_AGENCY: 'Êtes-vous sûr de vouloir supprimer cette agence et toutes ses données ?',
+    EMPTY_LIST: 'Aucun courtier.',
+    VIEW_AGENCY: 'Voir le profil de ce courtier',
+    DELETE_AGENCY: 'Etes-vous sur de vouloir supprimer ce courtier et toutes ses donnees ?',
   },
   en: {
-    EMPTY_LIST: 'No agencies.',
-    VIEW_AGENCY: 'View agency profile',
-    DELETE_AGENCY: 'Are you sure you want to delete this agency and all its data?',
+    EMPTY_LIST: 'No brokers.',
+    VIEW_AGENCY: 'View broker profile',
+    DELETE_AGENCY: 'Are you sure you want to delete this broker and all its data?',
   },
 })
 

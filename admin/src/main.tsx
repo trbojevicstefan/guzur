@@ -72,13 +72,14 @@ const theme = createTheme(
   {
     palette: {
       primary: {
-        main: '#1a1a1a',
+        main: '#ff385c',
         // contrastText: '#003B95',
         // dark: '#003B95',
       },
     },
     typography: {
       fontFamily: [
+        '"Sora"',
         '-apple-system',
         'BlinkMacSystemFont',
         '"Segoe UI"',

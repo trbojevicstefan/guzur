@@ -1,0 +1,16 @@
+.lead-form {
+  padding: 20px;
+  background-color: #fff;
+}
+
+.lead-form-title {
+  font-size: 1.4em;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.lead-form .buttons {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}

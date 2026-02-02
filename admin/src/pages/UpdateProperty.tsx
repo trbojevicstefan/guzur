@@ -6,9 +6,14 @@ import {
   Button,
   Paper,
   FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
   Switch,
   TextField,
-  FormHelperText
+  FormHelperText,
+  Select,
+  MenuItem
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { Editor } from 'react-draft-wysiwyg'
@@ -23,6 +28,7 @@ import { strings as commonStrings } from '@/lang/common'
 import { strings as csStrings } from '@/lang/properties'
 import { strings } from '@/lang/create-property'
 import * as PropertyService from '@/services/PropertyService'
+import * as SeoService from '@/services/SeoService'
 import * as helper from '@/utils/helper'
 import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
@@ -62,6 +68,17 @@ const UpdateProperty = () => {
   const [available, setAvailable] = useState(false)
   const [description, setDescription] = useState('')
   const [descriptionError, setDescriptionError] = useState(false)
+  const [aiDescription, setAiDescription] = useState('')
+  const [useAiDescription, setUseAiDescription] = useState(false)
+  const [aiDescriptionError, setAiDescriptionError] = useState(false)
+  const [seoTitle, setSeoTitle] = useState('')
+  const [seoDescription, setSeoDescription] = useState('')
+  const [seoKeywords, setSeoKeywords] = useState<string[]>([])
+  const [seoError, setSeoError] = useState(false)
+  const [listingType, setListingType] = useState<movininTypes.ListingType>(movininTypes.ListingType.Rent)
+  const [listingStatus, setListingStatus] = useState<movininTypes.ListingStatus>(movininTypes.ListingStatus.Published)
+  const [salePrice, setSalePrice] = useState('')
+  const [reviewNotes, setReviewNotes] = useState('')
   const [bedrooms, setBedrooms] = useState('1')
   const [bathrooms, setBathrooms] = useState('1')
   const [kitchens, setKitchens] = useState('1')
@@ -118,6 +135,10 @@ const UpdateProperty = () => {
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPrice(e.target.value)
+  }
+
+  const handleSalePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSalePrice(e.target.value)
   }
 
   const validateMinimumAge = (age: string, updateState = true) => {
@@ -231,6 +252,24 @@ const UpdateProperty = () => {
         setDescriptionError(true)
         setFormError(false)
         setImageError(false)
+        setSeoError(false)
+        return
+      }
+
+      if (useAiDescription && !aiDescription) {
+        setAiDescriptionError(true)
+        setFormError(false)
+        setImageError(false)
+        setDescriptionError(false)
+        setSeoError(false)
+        return
+      }
+
+      if (!seoTitle || !seoDescription) {
+        setSeoError(true)
+        setFormError(false)
+        setImageError(false)
+        setDescriptionError(false)
         return
       }
 
@@ -240,6 +279,8 @@ const UpdateProperty = () => {
         agency: agency._id,
         type,
         description,
+        aiDescription: aiDescription || undefined,
+        useAiDescription,
         image,
         images,
         bedrooms: Number.parseInt(bedrooms, 10),
@@ -256,11 +297,21 @@ const UpdateProperty = () => {
         latitude: latitude ? Number(latitude) : undefined,
         longitude: longitude ? Number(longitude) : undefined,
         price: Number(price),
+        salePrice: salePrice ? Number(salePrice) : null,
         hidden,
         cancellation: movininHelper.extraToNumber(cancellation),
         available,
         rentalTerm,
+        listingType,
+        listingStatus,
         blockOnPay,
+        seoTitle,
+        seoDescription,
+        seoKeywords,
+        seoGeneratedAt: new Date(),
+        reviewNotes,
+        reviewedBy: admin ? user?._id : undefined,
+        reviewedAt: admin ? new Date() : undefined,
       }
 
       const status = await PropertyService.update(data)
@@ -305,11 +356,20 @@ const UpdateProperty = () => {
               setName(_property.name)
               setAgency(_agency)
               setDescription(_property.description)
+              setAiDescription(_property.aiDescription || '')
+              setUseAiDescription(!!_property.useAiDescription)
+              setSeoTitle(_property.seoTitle || '')
+              setSeoDescription(_property.seoDescription || '')
+              setSeoKeywords(_property.seoKeywords || [])
               const contentBlock = htmlToDraft(_property.description)
               const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks)
               const _editorState = EditorState.createWithContent(contentState)
               setEditorState(_editorState)
               setType(_property.type)
+              setListingType(_property.listingType || movininTypes.ListingType.Rent)
+              setListingStatus(_property.listingStatus || movininTypes.ListingStatus.Published)
+              setSalePrice(_property.salePrice?.toString() || '')
+              setReviewNotes(_property.reviewNotes || '')
               setRentalTerm(_property.rentalTerm)
               setImage(_property.image)
               setImages(_property.images || [])
@@ -366,6 +426,7 @@ const UpdateProperty = () => {
             <form onSubmit={handleSubmit}>
               <ImageEditor
                 title={strings.IMAGES}
+                maxImages={10}
                 onMainImageUpsert={(img) => {
                   setImage(img.filename)
                   setImageUpdated(true)
@@ -490,6 +551,49 @@ const UpdateProperty = () => {
               </FormControl>
 
               <FormControl fullWidth margin="dense">
+                <InputLabel>{commonStrings.LISTING_TYPE}</InputLabel>
+                <Select
+                  value={listingType}
+                  onChange={(e) => setListingType(e.target.value as movininTypes.ListingType)}
+                  variant="standard"
+                  fullWidth
+                >
+                  <MenuItem value={movininTypes.ListingType.Rent}>{commonStrings.LISTING_TYPE_RENT}</MenuItem>
+                  <MenuItem value={movininTypes.ListingType.Sale}>{commonStrings.LISTING_TYPE_SALE}</MenuItem>
+                  <MenuItem value={movininTypes.ListingType.Both}>{commonStrings.LISTING_TYPE_BOTH}</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <TextField
+                  label={strings.SALE_PRICE}
+                  slotProps={{
+                    htmlInput: { inputMode: 'numeric', pattern: '^\\d+(\\.\\d+)?$' }
+                  }}
+                  onChange={handleSalePriceChange}
+                  variant="standard"
+                  autoComplete="off"
+                  value={salePrice}
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel>{commonStrings.STATUS}</InputLabel>
+                <Select
+                  value={listingStatus}
+                  onChange={(e) => setListingStatus(e.target.value as movininTypes.ListingStatus)}
+                  variant="standard"
+                  fullWidth
+                >
+                  <MenuItem value={movininTypes.ListingStatus.Draft}>{commonStrings.LISTING_STATUS_DRAFT}</MenuItem>
+                  <MenuItem value={movininTypes.ListingStatus.PendingReview}>{commonStrings.LISTING_STATUS_PENDING_REVIEW}</MenuItem>
+                  <MenuItem value={movininTypes.ListingStatus.Published}>{commonStrings.LISTING_STATUS_PUBLISHED}</MenuItem>
+                  <MenuItem value={movininTypes.ListingStatus.Rejected}>{commonStrings.LISTING_STATUS_REJECTED}</MenuItem>
+                  <MenuItem value={movininTypes.ListingStatus.Archived}>{commonStrings.LISTING_STATUS_ARCHIVED}</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
                 <InputLabel className="required">{strings.MINIMUM_AGE}</InputLabel>
                 <Input
                   type="text"
@@ -545,6 +649,117 @@ const UpdateProperty = () => {
                   stripPastedStyles
                 />
               </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <TextField
+                  label={strings.AI_DESCRIPTION}
+                  multiline
+                  minRows={4}
+                  value={aiDescription}
+                  variant="standard"
+                  disabled
+                />
+                <FormHelperText>
+                  {strings.AI_DESCRIPTION_HINT}
+                </FormHelperText>
+              </FormControl>
+
+              <FormControl component="fieldset" margin="dense">
+                <FormLabel>{strings.DESCRIPTION_SOURCE}</FormLabel>
+                <RadioGroup
+                  row
+                  value={useAiDescription ? 'ai' : 'publisher'}
+                  onChange={(e) => {
+                    setUseAiDescription(e.target.value === 'ai')
+                    setAiDescriptionError(false)
+                  }}
+                >
+                  <FormControlLabel value="publisher" control={<Radio />} label={strings.PUBLISHER_DESCRIPTION} />
+                  <FormControlLabel value="ai" control={<Radio />} label={strings.AI_DESCRIPTION_OPTION} />
+                </RadioGroup>
+                <FormHelperText error={aiDescriptionError}>
+                  {aiDescriptionError ? strings.AI_DESCRIPTION_REQUIRED : ''}
+                </FormHelperText>
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel className="required">{strings.SEO_TITLE}</InputLabel>
+                <Input
+                  type="text"
+                  value={seoTitle}
+                  disabled
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel className="required">{strings.SEO_DESCRIPTION}</InputLabel>
+                <Input
+                  type="text"
+                  value={seoDescription}
+                  disabled
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel>{strings.SEO_KEYWORDS}</InputLabel>
+                <Input
+                  type="text"
+                  value={seoKeywords.join(', ')}
+                  disabled
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel>{strings.NOTES}</InputLabel>
+                <Input
+                  type="text"
+                  value={reviewNotes}
+                  onChange={(e) => setReviewNotes(e.target.value)}
+                />
+              </FormControl>
+
+              <div className="buttons">
+                <Button
+                  type="button"
+                  variant="outlined"
+                  size="small"
+                  onClick={async () => {
+                    try {
+                      setLoading(true)
+                      setSeoError(false)
+                      setAiDescriptionError(false)
+                      const result = await SeoService.generate({
+                        name,
+                        type,
+                        description,
+                        location: location?.name,
+                        bedrooms: Number.parseInt(bedrooms, 10),
+                        bathrooms: Number.parseInt(bathrooms, 10),
+                        size: size ? Number(size) : undefined,
+                        listingType,
+                        price: Number(price),
+                        salePrice: salePrice ? Number(salePrice) : null,
+                        rentalTerm,
+                        kitchens: Number.parseInt(kitchens || '0', 10),
+                        parkingSpaces: Number.parseInt(parkingSpaces || '0', 10),
+                        petsAllowed,
+                        furnished,
+                        aircon,
+                      })
+                      setSeoTitle(result.seoTitle)
+                      setSeoDescription(result.seoDescription)
+                      setSeoKeywords(result.seoKeywords || [])
+                      setAiDescription(result.aiDescription || '')
+                    } catch (err) {
+                      helper.error(err)
+                    } finally {
+                      setLoading(false)
+                    }
+                  }}
+                >
+                  {strings.GENERATE_SEO}
+                </Button>
+              </div>
 
               <FormControl fullWidth margin="dense">
                 <InputLabel className="required">{strings.BEDROOMS}</InputLabel>
@@ -704,6 +919,8 @@ const UpdateProperty = () => {
                 {imageRequired && <Error message={commonStrings.IMAGE_REQUIRED} />}
                 {imageError && <Error message={commonStrings.IMAGE_REQUIRED} />}
                 {descriptionError && <Error message={strings.DESCRIPTION_REQUIRED} />}
+                {aiDescriptionError && <Error message={strings.AI_DESCRIPTION_REQUIRED} />}
+                {seoError && <Error message={strings.SEO_REQUIRED} />}
                 {formError && <Error message={commonStrings.FORM_ERROR} />}
               </div>
             </form>

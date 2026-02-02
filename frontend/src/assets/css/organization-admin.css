@@ -1,0 +1,139 @@
+.organization-admin {
+  padding: 24px;
+  min-height: calc(100vh - 220px);
+}
+
+.organization-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.organization-name {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.organization-desc {
+  color: #555;
+  margin-top: 6px;
+}
+
+.organization-section {
+  margin-bottom: 24px;
+}
+
+.organization-form {
+  display: grid;
+  gap: 16px;
+}
+
+.organization-form-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.organization-media-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 8px;
+}
+
+.organization-media-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.organization-media-label {
+  font-weight: 600;
+  color: #444;
+}
+
+.organization-media-preview {
+  border-radius: 16px;
+  background: #f6f6f6;
+  border: 1px dashed #ddd;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.organization-media-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.org-logo-preview {
+  min-height: 140px;
+}
+
+.org-logo-preview img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.org-cover-preview {
+  min-height: 140px;
+}
+
+.organization-media-placeholder {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.organization-media-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff385c;
+  color: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.organization-media-upload input {
+  display: none;
+}
+
+.organization-members {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.organization-member {
+  padding: 12px;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.organization-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.organization-empty,
+.organization-loading {
+  color: #666;
+}

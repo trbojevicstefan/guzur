@@ -19,6 +19,7 @@ interface ImageEditorProps {
   title?: string
   image?: ImageItem
   images?: ImageItem[]
+  maxImages?: number
   onMainImageUpsert?: (image: ImageItem) => void
   onAdd?: (image: ImageItem) => void
   onDelete?: (image: ImageItem, index?: number) => void
@@ -30,6 +31,7 @@ const ImageEditor = ({
   title,
   image: mainImage,
   images: ieImages,
+  maxImages = Number.POSITIVE_INFINITY,
   onMainImageUpsert,
   onAdd,
   onDelete,
@@ -81,11 +83,17 @@ const ImageEditor = ({
 
     if (files) {
       for (const file of files) {
+        if (images.length >= maxImages) {
+          break
+        }
         const reader = new FileReader()
 
         reader.onloadend = async () => {
           try {
             if (!filenames.includes(file.name)) {
+              if (images.length >= maxImages) {
+                return
+              }
               const filename = await PropertyService.uploadImage(file)
               filenames.push(file.name)
               const imgItem = { temp: true, filename }
@@ -160,6 +168,7 @@ const ImageEditor = ({
             }
           }}
           className="action"
+          disabled={images.length >= maxImages}
         >
           <ImageIcon className="icon" />
           <span>{strings.ADD_IMAGES}</span>

@@ -14,18 +14,20 @@ section.property-list .empty-list {
 
 section.property-list article {
   position: relative;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  color: #333;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  color: var(--text-strong);
   font-size: 12px;
   margin-bottom: 10px;
   /* min-height: 430px; */
   width: 800px;
-  padding: 5px;
+  padding: 12px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  box-shadow: var(--shadow-ambient);
+  backdrop-filter: blur(24px);
 }
 
 section.property-list article div.left-panel {
@@ -43,8 +45,8 @@ section.property-list article div.left-panel .property-img {
 }
 
 section.property-list article div.left-panel div.property-agency a.property-agency-info {
-  color: #0064c8;
-  text-decoration: underline;
+  color: var(--accent);
+  text-decoration: none;
   font-size: 0.9em;
   line-height: 1em;
   white-space: nowrap;
@@ -83,10 +85,14 @@ section.property-list article div.middle-panel .property-info div.property-info-
 }
 
 section.property-list article div.right-panel div.price {
-  color: #383838;
+  color: var(--text-strong);
   font-size: 2em;
   font-weight: 700;
   white-space: nowrap;
+}
+
+section.property-list article div.right-panel div.listing-status-row {
+  margin: 6px 0 10px;
 }
 
 section.property-list article div.right-panel div.action {
@@ -112,10 +118,10 @@ section.property-list article div.right-panel div.action {
 
   section.property-list article {
     position: relative;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    color: #333;
+    background: var(--surface-glass);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-xl);
+    color: var(--text-strong);
     font-size: 12px;
     margin: 0 1px 10px;
     min-height: 730px;
@@ -123,6 +129,8 @@ section.property-list article div.right-panel div.action {
     padding: 15px;
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-ambient);
+    backdrop-filter: blur(24px);
   }
 
   section.property-list article div.left-panel {

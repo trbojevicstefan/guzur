@@ -1,0 +1,8 @@
+.listing-type-filter .listing-type-filter-select {
+  padding: 6px 4px 0;
+}
+
+.listing-type-filter .MuiInputBase-root {
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.7);
+}

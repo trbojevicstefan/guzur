@@ -1,13 +1,16 @@
 div.pager-container {
   height: 54px;
   width: 100%;
-  padding: 5px 10px 5px 0;
+  padding: 8px 12px;
   margin-bottom: 15px;
-  background-color: #fff;
-  border-radius: 5px;
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  backdrop-filter: blur(24px);
 }
 
 div.pager {

@@ -1,4 +1,4 @@
-import React, { Dispatch, ReactNode, SetStateAction, useState } from 'react'
+import React, { Dispatch, ReactNode, SetStateAction, useMemo, useState } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import L, { LatLngExpression } from 'leaflet'
 import icon from 'leaflet/dist/images/marker-icon.png'
@@ -8,6 +8,7 @@ import * as movininTypes from ':movinin-types'
 import { strings } from '@/lang/map'
 import * as LocationService from '@/services/LocationService'
 import * as helper from '@/utils/helper'
+import env from '@/config/env.config'
 
 import 'leaflet-boundary-canvas'
 import 'leaflet/dist/leaflet.css'
@@ -69,19 +70,29 @@ interface MapProps {
   position?: LatLngExpression
   initialZoom?: number,
   locations?: movininTypes.Location[]
+  properties?: movininTypes.Property[]
   className?: string,
   children?: ReactNode
   onSelelectLocation?: (locationId: string) => void
+  onSelectProperty?: (propertyId: string) => void
+  showTileToggle?: boolean
+  streetLabel?: string
+  satelliteLabel?: string
 }
 
 const Map = ({
   title,
-  position = new L.LatLng(31.792305849269, -7.080168000000015),
+  position = new L.LatLng(env.MAP_LATITUDE, env.MAP_LONGITUDE),
   initialZoom,
   locations,
+  properties,
   className,
   children,
   onSelelectLocation,
+  onSelectProperty,
+  showTileToggle = false,
+  streetLabel = 'Street',
+  satelliteLabel = 'Satellite',
 }: MapProps) => {
   const _initialZoom = initialZoom || 5.5
   const [zoom, setZoom] = useState(_initialZoom)
@@ -95,7 +106,19 @@ const Map = ({
   // Tile server
   //
 
-  const tileURL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+  const [tileMode, setTileMode] = useState<'street' | 'satellite'>('street')
+  const tileConfig = useMemo(() => {
+    if (tileMode === 'satellite') {
+      return {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles (c) Esri',
+      }
+    }
+    return {
+      url: env.MAP_TILE_URL,
+      attribution: env.MAP_TILE_ATTRIBUTION,
+    }
+  }, [tileMode])
   // const language = UserService.getLanguage()
   // let tileURL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
   // if (language === 'fr') {
@@ -109,6 +132,44 @@ const Map = ({
         .map((l) => ({ name: l.name!, position: new L.LatLng(l.latitude!, l.longitude!) }))
     ) || []
   )
+
+  const hasCoords = (latitude?: number, longitude?: number) =>
+    typeof latitude === 'number' && !Number.isNaN(latitude)
+    && typeof longitude === 'number' && !Number.isNaN(longitude)
+
+  const getPropertyMarkers = () => (
+    (properties || [])
+      .filter((property) => hasCoords(property.latitude, property.longitude))
+      .map((property) => ({
+        id: property._id,
+        name: property.name,
+        listingType: property.listingType,
+        locationName: typeof property.location === 'object' ? property.location?.name : undefined,
+        position: new L.LatLng(property.latitude as number, property.longitude as number),
+      }))
+  )
+
+  const renderPropertyMarkers = () =>
+    getPropertyMarkers().map((marker) => (
+      <Marker key={marker.id} position={marker.position}>
+        <Popup className="marker">
+          <div className="name">{marker.name}</div>
+          {marker.locationName && <div className="meta">{marker.locationName}</div>}
+          {marker.listingType && <div className="meta">{helper.getListingType(marker.listingType)}</div>}
+          <div className="action">
+            {!!onSelectProperty && (
+              <button
+                type="button"
+                className="action-btn"
+                onClick={() => onSelectProperty(marker.id)}
+              >
+                {strings.VIEW_PROPERTY}
+              </button>
+            )}
+          </div>
+        </Popup>
+      </Marker>
+    ))
 
   const getMarkers = (__markers: Marker[]) =>
     __markers.map((marker) => (
@@ -153,9 +214,27 @@ const Map = ({
         className={`${className ? `${className} ` : ''}map`}
         ref={setMap}
       >
+        {showTileToggle && (
+          <div className="map-toggle">
+            <button
+              type="button"
+              className={`map-toggle-btn ${tileMode === 'street' ? 'active' : ''}`}
+              onClick={() => setTileMode('street')}
+            >
+              {streetLabel}
+            </button>
+            <button
+              type="button"
+              className={`map-toggle-btn ${tileMode === 'satellite' ? 'active' : ''}`}
+              onClick={() => setTileMode('satellite')}
+            >
+              {satelliteLabel}
+            </button>
+          </div>
+        )}
         <TileLayer
-          // attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url={tileURL}
+          attribution={tileConfig.attribution}
+          url={tileConfig.url}
         />
         <ZoomTracker setZoom={setZoom} />
         <ZoomControlledLayer zoom={zoom} minZoom={7.5}>
@@ -172,6 +251,9 @@ const Map = ({
           {
             getMarkers(getLocationMarkers())
           }
+        </ZoomControlledLayer>
+        <ZoomControlledLayer zoom={zoom} minZoom={_initialZoom}>
+          {renderPropertyMarkers()}
         </ZoomControlledLayer>
         {children}
       </MapContainer>

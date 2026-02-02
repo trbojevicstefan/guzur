@@ -7,7 +7,9 @@ import * as UserService from '@/services/UserService'
 // Create context
 export interface NotificationContextType {
   notificationCount: number,
-  setNotificationCount: React.Dispatch<React.SetStateAction<number>>
+  setNotificationCount: React.Dispatch<React.SetStateAction<number>>,
+  messageCount: number,
+  setMessageCount: React.Dispatch<React.SetStateAction<number>>
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null)
@@ -21,14 +23,19 @@ interface NotificationProviderProps {
 export const NotificationProvider = ({ children, refreshKey }: NotificationProviderProps) => {
   const { userLoaded } = useUserContext() as UserContextType
   const [notificationCount, setNotificationCount] = useState(0)
-  const value = useMemo(() => ({ notificationCount, setNotificationCount }), [notificationCount])
+  const [messageCount, setMessageCount] = useState(0)
+  const value = useMemo(
+    () => ({ notificationCount, setNotificationCount, messageCount, setMessageCount }),
+    [notificationCount, messageCount],
+  )
 
   const checkNotifications = useCallback(async () => {
     const currentUser = UserService.getCurrentUser()
 
     if (currentUser) {
       const notificationCounter = await NotificationService.getNotificationCounter(currentUser._id!)
-      setNotificationCount(notificationCounter.count)
+      setNotificationCount(notificationCounter.count ?? 0)
+      setMessageCount(notificationCounter.messageCount ?? 0)
     }
   }, [])
 

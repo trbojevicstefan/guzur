@@ -48,3 +48,6 @@ Use this checklist to verify MVP flows after deployments or major changes.
 - 4) Owner Submit for Review + Approval Gating: **Pending** (requires manual UI run)
 - 5) Buyer Messaging (Pulse): **Pending** (requires manual UI run)
 - 6) RFQ Buyer Request: **Pending** (requires manual UI run)
+
+### 2026-02-02
+- Redeploy trigger (no validation run).

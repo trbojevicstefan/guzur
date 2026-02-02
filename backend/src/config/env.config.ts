@@ -152,6 +152,14 @@ export const COOKIE_SECRET = __env__('MI_COOKIE_SECRET', false, 'Movinin')
 export const AUTH_COOKIE_DOMAIN = __env__('MI_AUTH_COOKIE_DOMAIN', false, 'localhost')
 
 /**
+ * Authentication cookie SameSite policy.
+ * Use "none" for cross-site (frontend on different domain) along with Secure cookies.
+ *
+ * @type {string}
+ */
+export const COOKIE_SAMESITE = __env__('MI_COOKIE_SAMESITE', false, 'strict') as 'strict' | 'lax' | 'none'
+
+/**
  * Cookie options.
  *
  * On production, authentication cookies are httpOnly, signed, secure and strict sameSite.
@@ -162,7 +170,14 @@ export const AUTH_COOKIE_DOMAIN = __env__('MI_AUTH_COOKIE_DOMAIN', false, 'local
  *
  * @type {CookieOptions}
  */
-export const COOKIE_OPTIONS: CookieOptions = { httpOnly: true, secure: HTTPS, signed: true, sameSite: 'strict', domain: AUTH_COOKIE_DOMAIN }
+const cookieSecure = COOKIE_SAMESITE === 'none' ? true : HTTPS
+export const COOKIE_OPTIONS: CookieOptions = {
+  httpOnly: true,
+  secure: cookieSecure,
+  signed: true,
+  sameSite: COOKIE_SAMESITE,
+  domain: AUTH_COOKIE_DOMAIN,
+}
 
 /**
  * frontend authentication cookie name.

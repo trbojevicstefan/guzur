@@ -3,10 +3,18 @@ import * as helper from '../utils/helper'
 import * as env from '../config/env.config'
 import * as logger from '../utils/logger'
 
-const whitelist = [
+const extraOrigins = env.CORS_ORIGINS
+  ? env.CORS_ORIGINS
+    .split(',')
+    .map((origin) => helper.trimEnd(origin.trim(), '/'))
+    .filter(Boolean)
+  : []
+
+const whitelist = Array.from(new Set([
   helper.trimEnd(env.ADMIN_HOST, '/'),
   helper.trimEnd(env.FRONTEND_HOST, '/'),
-]
+  ...extraOrigins,
+].filter(Boolean)))
 
 /**
  * CORS configuration.

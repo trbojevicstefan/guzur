@@ -1,0 +1,141 @@
+**Goal**
+Deliver a cohesive, pixel-perfect redesign of the platform that matches approved designs while keeping core layout elements intact and functionality stable.
+**Purpose**
+Serve as the single source of truth for redesign scope, rules, task tracking, and page-by-page completion status.
+**Constraints**
+- Do not change the header bar.
+- Do not change the footer.
+- Do not change the sidebar.
+**Quality Bar**
+- All pages must have a unified design system.
+- Every page must be pixel perfect against the provided designs.
+- Functionality must remain flawless after visual changes.
+- Reusable components are redesigned once; after approval, do not change them unless explicitly requested.
+**Workflow**
+- You will provide screenshots of the new designs for each page.
+- Open the browser, compare implementation to the design, and adjust until pixel perfect.
+- Mark a page with `[ x ]` only when it matches the design and passes functional checks.
+- Leave `[ ]` for any page not yet completed.
+**Task Breakdown**
+- Collect and label all design screenshots per page.
+- Record target viewport sizes and breakpoints from the designs.
+- Set up a reliable side-by-side comparison workflow (design vs. browser).
+- Establish typography scale (fonts, sizes, weights, line heights).
+- Establish color palette and semantic color tokens.
+- Establish spacing scale and layout grid rules.
+- Define elevation, borders, and shadow styles.
+- Audit existing reusable components and map them to designs.
+- Identify which reusable components require redesign.
+- Redesign each reusable component once and lock it after approval.
+- Update shared styles/utilities to match the new design language.
+- Verify header bar remains unchanged.
+- Verify footer remains unchanged.
+- Verify sidebar remains unchanged.
+- Align global layout spacing without altering locked elements.
+- Ensure button, link, and input states match the designs.
+- Ensure tables, cards, and lists match the designs.
+- Ensure dialogs, modals, and overlays match the designs.
+- Ensure empty, loading, and error states match the designs.
+- Validate visual consistency across all pages.
+- Validate responsiveness across supported breakpoints.
+- Validate accessibility basics (contrast, focus states, aria).
+- Run functional regression on booking flow.
+- Run functional regression on sales lead/inquiry flow.
+- Run functional regression on account/auth flows.
+- Update i18n strings if any UI text changes.
+- Capture any deltas or exceptions explicitly in this document.
+**Frontend Pages**
+- `frontend/src/pages/About.tsx` - Components: Footer, Layout [ ]
+- `frontend/src/pages/Activate.tsx` - Components: Footer, Layout, PasswordInput [ ]
+- `frontend/src/pages/Agencies.tsx` - Components: none [ ]
+- `frontend/src/pages/Booking.tsx` - Components: AgencySelectList, Backdrop, DatePicker, Layout, LocationSelectList, PropertyList, PropertySelectList, StatusList [ ]
+- `frontend/src/pages/Bookings.tsx` - Components: AgencyFilter, BookingFilter, BookingList, Layout, StatusFilter [ ]
+- `frontend/src/pages/Brokerage.tsx` - Components: Footer, Layout, PropertyList [ ]
+- `frontend/src/pages/Brokerages.tsx` - Components: Footer, Layout, OrganizationList [ ]
+- `frontend/src/pages/ChangePassword.tsx` - Components: Footer, Layout, PasswordInput [ ]
+- `frontend/src/pages/Checkout.tsx` - Components: Backdrop, CheckoutOptions, CheckoutStatus, DatePicker, Error, Footer, Layout, Map, MapDialog, PropertyList, SocialLogin, Unauthorized, ViewOnMapButton [ ]
+- `frontend/src/pages/CheckoutSession.tsx` - Components: CheckoutStatus, Layout [ ]
+- `frontend/src/pages/Contact.tsx` - Components: ContactForm, Footer, Layout [ ]
+- `frontend/src/pages/CookiePolicy.tsx` - Components: Footer, Layout [ ]
+- `frontend/src/pages/Dashboard.tsx` - Components: Layout [ ]
+- `frontend/src/pages/dashboards/BrokerDashboard.tsx` - Components: Layout, LeadTable, ListingTable [ ]
+- `frontend/src/pages/dashboards/CreateDevelopment.tsx` - Components: Error, Layout, LocationSelectList, MapPicker, SimpleBackdrop [ ]
+- `frontend/src/pages/dashboards/CreateListing.tsx` - Components: Layout, ListingTypeSelect, LocationSelectList, MapPicker, SimpleBackdrop [ ]
+- `frontend/src/pages/dashboards/DeveloperDashboard.tsx` - Components: DevelopmentList, Layout, LeadTable, ListingTable [ ]
+- `frontend/src/pages/dashboards/MyListings.tsx` - Components: Layout, ListingTable, Pager [ ]
+- `frontend/src/pages/dashboards/Organization.tsx` - Components: Layout, LocationSelectList [ ]
+- `frontend/src/pages/dashboards/OwnerDashboard.tsx` - Components: Layout, LeadTable, ListingTable [ ]
+- `frontend/src/pages/dashboards/UpdateListing.tsx` - Components: Layout, ListingTypeSelect, LocationSelectList, MapPicker, SimpleBackdrop [ ]
+- `frontend/src/pages/Developer.tsx` - Components: DevelopmentList, Footer, Layout, Pager, Progress [ ]
+- `frontend/src/pages/DeveloperOrg.tsx` - Components: DevelopmentList, Footer, Layout [ ]
+- `frontend/src/pages/DeveloperOrganizations.tsx` - Components: Footer, Layout, OrganizationList [ ]
+- `frontend/src/pages/Error.tsx` - Components: none [ ]
+- `frontend/src/pages/ForgotPassword.tsx` - Components: Footer, Layout, SocialLogin [ ]
+- `frontend/src/pages/Home.tsx` - Components: Footer, Layout, LocationCarrousel, Map, PropertyList, SearchForm, TabPanel [ ]
+- `frontend/src/pages/Info.tsx` - Components: none [ ]
+- `frontend/src/pages/Locations.tsx` - Components: Footer, Layout, Map, SearchForm [ ]
+- `frontend/src/pages/Messages.tsx` - Components: Footer, Layout [ ]
+- `frontend/src/pages/NoMatch.tsx` - Components: Layout [ ]
+- `frontend/src/pages/Notifications.tsx` - Components: Layout, NotificationList [ ]
+- `frontend/src/pages/Onboarding.tsx` - Components: Backdrop, Layout [ ]
+- `frontend/src/pages/Privacy.tsx` - Components: Footer, Layout [ ]
+- `frontend/src/pages/Project.tsx` - Components: Footer, Layout, ListingTable, Map, Pager, Progress [ ]
+- `frontend/src/pages/ProjectBrowse.tsx` - Components: Footer, Layout, Progress [ ]
+- `frontend/src/pages/Projects.tsx` - Components: DevelopmentList, Layout, LocationSelectList, Pager [ ]
+- `frontend/src/pages/Property.tsx` - Components: AgencyBadge, DatePicker, Footer, ImageViewer, Layout, LeadForm, Map, Progress, PropertyInfo [ ]
+- `frontend/src/pages/ResetPassword.tsx` - Components: Footer, Layout, PasswordInput [ ]
+- `frontend/src/pages/Rfq.tsx` - Components: Footer, Layout, LocationSelectList [ ]
+- `frontend/src/pages/RoleSignUp.tsx` - Components: Backdrop, Error, Footer, Layout, PasswordInput [ ]
+- `frontend/src/pages/Search.tsx` - Components: AgencyFilter, Layout, ListingTypeFilter, Map, MapDialog, PropertyFilter, PropertyList, PropertyTypeFilter, RentalTermFilter, ViewOnMapButton [ ]
+- `frontend/src/pages/Settings.tsx` - Components: Avatar, Backdrop, DatePicker, Footer, Layout, LocationSelectList [ ]
+- `frontend/src/pages/SignIn.tsx` - Components: Error, Footer, Layout, PasswordInput, SocialLogin [ ]
+- `frontend/src/pages/SignUp.tsx` - Components: Backdrop, DatePicker, Error, Footer, Layout, PasswordInput, SocialLogin [ ]
+- `frontend/src/pages/ToS.tsx` - Components: Footer, Layout [ ]
+**Admin Pages**
+- `admin/src/pages/About.tsx` - Components: Layout [ ]
+- `admin/src/pages/Activate.tsx` - Components: Layout, PasswordInput [ ]
+- `admin/src/pages/Agencies.tsx` - Components: AgencyList, InfoBox, Layout, Search [ ]
+- `admin/src/pages/Agency.tsx` - Components: Avatar, Backdrop, InfoBox, Layout, PropertyList [ ]
+- `admin/src/pages/Bookings.tsx` - Components: AgencyFilter, BookingFilter, BookingList, Layout, StatusFilter [ ]
+- `admin/src/pages/ChangePassword.tsx` - Components: Backdrop, Layout, PasswordInput [ ]
+- `admin/src/pages/Contact.tsx` - Components: ContactForm, Layout [ ]
+- `admin/src/pages/Countries.tsx` - Components: CountryList, InfoBox, Layout, Search [ ]
+- `admin/src/pages/CreateAgency.tsx` - Components: Avatar, Backdrop, Error, Layout, LocationSelectList [ ]
+- `admin/src/pages/CreateBooking.tsx` - Components: AgencySelectList, Backdrop, DatePicker, Layout, LocationSelectList, PropertySelectList, StatusList, UserSelectList [ ]
+- `admin/src/pages/CreateCountry.tsx` - Components: Layout [ ]
+- `admin/src/pages/CreateDevelopment.tsx` - Components: Backdrop, DeveloperSelectList, DevelopmentStatusList, Error, ImageEditor, Layout, LocationSelectList [ ]
+- `admin/src/pages/CreateLocation.tsx` - Components: Avatar, Backdrop, CountrySelectList, Layout, LocationSelectList, PositionInput [ ]
+- `admin/src/pages/CreateProperty.tsx` - Components: AgencySelectList, Backdrop, Error, ImageEditor, Layout, LocationSelectList, PositionInput, PropertyTypeList, RentalTermList [ ]
+- `admin/src/pages/CreateUser.tsx` - Components: Avatar, Backdrop, DatePicker, Error, Layout, LocationSelectList [ ]
+- `admin/src/pages/Dashboard.tsx` - Components: Layout [ ]
+- `admin/src/pages/Developers.tsx` - Components: DeveloperList, InfoBox, Layout, Search [ ]
+- `admin/src/pages/Development.tsx` - Components: ImageViewer, Layout [ ]
+- `admin/src/pages/Developments.tsx` - Components: DeveloperSelectList, DevelopmentList, DevelopmentStatusList, Layout, Search [ ]
+- `admin/src/pages/Error.tsx` - Components: none [ ]
+- `admin/src/pages/ForgotPassword.tsx` - Components: Layout [ ]
+- `admin/src/pages/Leads.tsx` - Components: Layout, LeadList, LeadStatusFilter, Search [ ]
+- `admin/src/pages/Locations.tsx` - Components: InfoBox, Layout, LocationList, Search [ ]
+- `admin/src/pages/NoMatch.tsx` - Components: Layout [ ]
+- `admin/src/pages/Notifications.tsx` - Components: Layout, NotificationList [ ]
+- `admin/src/pages/Organization.tsx` - Components: Layout [ ]
+- `admin/src/pages/Organizations.tsx` - Components: Layout, OrganizationList, Search [ ]
+- `admin/src/pages/Owners.tsx` - Components: InfoBox, Layout, Search, UserList [ ]
+- `admin/src/pages/Properties.tsx` - Components: AgencyFilter, AvailabilityFilter, BrokerSelectList, DeveloperSelectList, InfoBox, Layout, ListingStatusFilter, OwnerSelectList, PropertyList, PropertyTypeFilter, RentalTermFilter, Search [ ]
+- `admin/src/pages/Property.tsx` - Components: AgencyBadge, Backdrop, ImageViewer, Layout, PropertyInfo [ ]
+- `admin/src/pages/PropertyBookings.tsx` - Components: AgencyBadge, Backdrop, BookingList, Layout, PropertyInfo [ ]
+- `admin/src/pages/ResetPassword.tsx` - Components: Layout, PasswordInput [ ]
+- `admin/src/pages/Rfqs.tsx` - Components: Layout, RfqList, RfqStatusFilter, Search [ ]
+- `admin/src/pages/Scheduler.tsx` - Components: AgencyFilter, Layout, PropertyScheduler, PropertySchedulerFilter, StatusFilter [ ]
+- `admin/src/pages/Settings.tsx` - Components: Avatar, Backdrop, Layout, LocationSelectList [ ]
+- `admin/src/pages/SignIn.tsx` - Components: Error, Header, PasswordInput [ ]
+- `admin/src/pages/SignUp.tsx` - Components: Backdrop, Error, Layout, PasswordInput [ ]
+- `admin/src/pages/ToS.tsx` - Components: Layout [ ]
+- `admin/src/pages/UpdateAgency.tsx` - Components: Avatar, Backdrop, Error, Layout, LocationSelectList [ ]
+- `admin/src/pages/UpdateBooking.tsx` - Components: AgencySelectList, Backdrop, DatePicker, Layout, LocationSelectList, PropertyList, PropertySelectList, StatusList, UserSelectList [ ]
+- `admin/src/pages/UpdateCountry.tsx` - Components: Backdrop, Layout [ ]
+- `admin/src/pages/UpdateDevelopment.tsx` - Components: Backdrop, DeveloperSelectList, DevelopmentStatusList, Error, ImageEditor, Layout, LocationSelectList [ ]
+- `admin/src/pages/UpdateLocation.tsx` - Components: Avatar, Backdrop, CountrySelectList, Layout, LocationSelectList, PositionInput [ ]
+- `admin/src/pages/UpdateProperty.tsx` - Components: AgencySelectList, Backdrop, Error, ImageEditor, Layout, LocationSelectList, PositionInput, PropertyTypeList, RentalTermList [ ]
+- `admin/src/pages/UpdateUser.tsx` - Components: Avatar, Backdrop, DatePicker, Error, Layout, LocationSelectList [ ]
+- `admin/src/pages/User.tsx` - Components: Avatar, Backdrop, BookingList, Layout [ ]
+- `admin/src/pages/Users.tsx` - Components: Layout, Search, UserList, UserTypeFilter [ ]

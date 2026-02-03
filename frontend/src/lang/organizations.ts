@@ -4,6 +4,12 @@ import * as langHelper from '@/utils/langHelper'
 const strings = new LocalizedStrings({
   fr: {
     BROKERAGES: 'Agences',
+    BROKERAGES_TITLE: 'Courtiers de premier plan',
+    BROKERAGES_SUBTITLE: 'Découvrez {count} agences professionnelles prêtes à vous aider à trouver la maison de vos rêves.',
+    BROKERAGES_SEARCH_PLACEHOLDER: 'Rechercher par agence ou localisation...',
+    VIEW_PROFILE: 'Voir le profil',
+    ACTIVE_LISTINGS: 'Annonces actives',
+    TOP_RATED: 'Très bien noté',
     DEVELOPERS: 'Promoteurs',
     SEARCH: 'Rechercher',
     EMPTY: 'Aucune organisation trouvÃ©e.',
@@ -44,6 +50,12 @@ const strings = new LocalizedStrings({
   },
     ar: {
     BROKERAGES: 'شركات الوساطة',
+    BROKERAGES_TITLE: 'وسطاء متميزون',
+    BROKERAGES_SUBTITLE: 'اكتشف {count} وكالة احترافية جاهزة لمساعدتك في العثور على منزل أحلامك.',
+    BROKERAGES_SEARCH_PLACEHOLDER: 'ابحث باسم الوكالة أو الموقع...',
+    VIEW_PROFILE: 'عرض الملف',
+    ACTIVE_LISTINGS: 'إعلانات نشطة',
+    TOP_RATED: 'الأعلى تقييماً',
     DEVELOPERS: 'المطوّرون',
     SEARCH: 'بحث',
     EMPTY: 'لم يتم العثور على مؤسسات.',
@@ -84,6 +96,12 @@ const strings = new LocalizedStrings({
   },
   en: {
     BROKERAGES: 'Brokerages',
+    BROKERAGES_TITLE: 'Premier Brokerages',
+    BROKERAGES_SUBTITLE: 'Discover {count} professional agencies ready to help you find your dream home.',
+    BROKERAGES_SEARCH_PLACEHOLDER: 'Search by agency name or location...',
+    VIEW_PROFILE: 'View Profile',
+    ACTIVE_LISTINGS: 'Active Listings',
+    TOP_RATED: 'Top Rated',
     DEVELOPERS: 'Developers',
     SEARCH: 'Search',
     EMPTY: 'No organizations found.',

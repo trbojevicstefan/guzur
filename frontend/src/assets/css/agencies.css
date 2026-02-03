@@ -3,18 +3,66 @@ div.agencies {
   flex-direction: column;
   flex: 1 0 auto;
   align-items: stretch;
-  transform: translate3d(0, 0, 0);
   min-height: 100vh;
   width: 100%;
-  padding: 24px 20px 40px;
-  max-width: 1800px;
+  max-width: 1280px;
   margin: 0 auto;
+  padding: 32px 24px 96px;
+}
+
+.agencies-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.agencies-hero-text {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
+
+.agencies-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.agencies-breadcrumb-sep {
+  color: #e2e8f0;
+}
+
+.agencies-breadcrumb-current {
+  color: #ef4444;
 }
 
 div.agencies h1 {
-  margin-bottom: 6px;
-  font-size: 30px;
+  margin: 0 0 6px;
+  font-size: 42px;
   letter-spacing: -0.02em;
+}
+
+.agencies-subtitle {
+  color: #6b7280;
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+.agencies-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .agencies-header {
@@ -26,26 +74,14 @@ div.agencies h1 {
   margin-bottom: 16px;
 }
 
-.agencies-subtitle {
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.agencies-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 320px;
-}
-
 .agencies-toolbar .MuiFormControl-root {
   flex: 1;
   min-width: 240px;
   padding: 10px 14px;
-  border-radius: var(--radius-lg);
-  background: var(--surface-glass);
-  border: 1px solid var(--surface-border);
-  box-shadow: var(--shadow-ambient);
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
 .agencies-clear {
@@ -55,10 +91,133 @@ div.agencies h1 {
   font-weight: 600;
 }
 
+.agencies-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  min-width: 280px;
+  cursor: text;
+}
+
+.agencies-search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #0f172a;
+  min-width: 200px;
+  width: 100%;
+}
+
+.agencies-search input::placeholder {
+  color: #94a3b8;
+}
+
+.agencies-search-icon {
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.agencies-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 10px 18px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.agencies-filters:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
+}
+
+.agencies-filters-icon {
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.agencies-filters-panel {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  max-width: 520px;
+}
+
+.agencies-filter-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.agencies-filter-item input {
+  width: 16px;
+  height: 16px;
+}
+
+.agencies-filter-clear {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .agencies-empty {
   padding: 32px 0;
+  color: #64748b;
+  font-size: 14px;
 }
 
 .agencies-sentinel {
   height: 1px;
+}
+
+@media (max-width: 900px) {
+  div.agencies h1 {
+    font-size: 34px;
+  }
+
+  .agencies-toolbar {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .agencies-search {
+    flex: 1 1 260px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  div.agencies {
+    padding: 24px 16px 80px;
+  }
+
+  .agencies-filters-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

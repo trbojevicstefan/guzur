@@ -320,6 +320,13 @@ export const ADMIN_HOST = __env__('MI_ADMIN_HOST', true)
 export const FRONTEND_HOST = __env__('MI_FRONTEND_HOST', true)
 
 /**
+ * Additional allowed CORS origins (comma-separated).
+ *
+ * @type {string}
+ */
+export const CORS_ORIGINS = __env__('MI_CORS_ORIGINS', false, '')
+
+/**
  * Default language. Default is en. Available options: en, fr.
  *
  * @type {string}

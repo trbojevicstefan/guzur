@@ -17,7 +17,6 @@ import { useUserContext, UserContextType } from '@/context/UserContext'
 import Error from '@/components/Error'
 import Layout from '@/components/Layout'
 import SocialLogin from '@/components/SocialLogin'
-import Footer from '@/components/Footer'
 
 import '@/assets/css/signin.css'
 
@@ -254,7 +253,6 @@ const SignIn = () => {
             </section>
           </div>
 
-          <Footer />
         </>
       )}
     </Layout>

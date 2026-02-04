@@ -29,7 +29,6 @@ import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import DatePicker from '@/components/DatePicker'
 import SocialLogin from '@/components/SocialLogin'
-import Footer from '@/components/Footer'
 
 import '@/assets/css/signup.css'
 
@@ -503,7 +502,6 @@ const SignUp = () => {
             </section>
           </div>
 
-          <Footer />
         </>
       )}
       {loading && <Backdrop text={commonStrings.PLEASE_WAIT} />}

@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
 import {
-  OutlinedInput,
-  InputLabel,
-  FormControl,
-  FormHelperText,
-  Button,
-  Paper,
-  Checkbox,
-  Link
-} from '@mui/material'
+  MailOutline,
+  LockOutlined,
+  Visibility,
+  VisibilityOff,
+  ArrowForward,
+  AutoAwesome,
+  PersonOutline,
+  PhoneOutlined,
+  CalendarMonth,
+  WorkOutline,
+  Apartment,
+} from '@mui/icons-material'
 import validator from 'validator'
 import { intervalToDuration } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
@@ -27,7 +30,6 @@ import Backdrop from '@/components/SimpleBackdrop'
 import DatePicker from '@/components/DatePicker'
 import SocialLogin from '@/components/SocialLogin'
 import Footer from '@/components/Footer'
-import PasswordInput from '@/components/PasswordInput'
 
 import '@/assets/css/signup.css'
 
@@ -56,6 +58,7 @@ const SignUp = () => {
   const [phoneValid, setPhoneValid] = useState(true)
   const [phone, setPhone] = useState('')
   const [birthDateValid, setBirthDateValid] = useState(true)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -283,140 +286,221 @@ const SignUp = () => {
     <Layout strict={false} onLoad={onLoad}>
       {visible && (
         <>
-          <div className="signup">
-            <Paper className="signup-form" elevation={10}>
-              <h1 className="signup-form-title">
-                {' '}
-                {strings.SIGN_UP_HEADING}
-                {' '}
-              </h1>
-              <form onSubmit={handleSubmit}>
-                <div>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                    <OutlinedInput type="text" label={commonStrings.FULL_NAME} value={fullName} required onChange={handleFullNameChange} autoComplete="off" />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-                    <OutlinedInput
-                      type="text"
-                      label={commonStrings.EMAIL}
-                      error={!emailValid || emailError}
-                      value={email}
-                      onBlur={handleEmailBlur}
-                      onChange={handleEmailChange}
-                      required
-                      autoComplete="off"
-                    />
-                    <FormHelperText error={!emailValid || emailError}>
-                      {(!emailValid && commonStrings.EMAIL_NOT_VALID) || ''}
-                      {(emailError && commonStrings.EMAIL_ALREADY_REGISTERED) || ''}
-                    </FormHelperText>
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.PHONE}</InputLabel>
-                    <OutlinedInput
-                      type="text"
-                      label={commonStrings.PHONE}
-                      error={!phoneValid}
-                      value={phone}
-                      onBlur={handlePhoneBlur}
-                      onChange={handlePhoneChange}
-                      required
-                      autoComplete="off"
-                    />
-                    <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <DatePicker
-                      label={commonStrings.BIRTH_DATE}
-                      value={birthDate}
-                      variant="outlined"
-                      required
-                      onChange={(_birthDate) => {
-                        if (_birthDate) {
-                          const _birthDateValid = validateBirthDate(_birthDate)
+          <div className="signup-portal">
+            <section className="signup-hero">
+              <div className="signup-hero-media" />
+              <div className="signup-hero-gradient" />
+              <div className="signup-hero-content">
+                <div className="signup-hero-logo">
+                  <img src="/guzurlogo.png" alt="Guzur" />
+                </div>
 
-                          setBirthDate(_birthDate)
-                          setBirthDateValid(_birthDateValid)
-                        }
-                      }}
-                      language={language}
-                    />
-                    <FormHelperText error={!birthDateValid}>{(!birthDateValid && commonStrings.BIRTH_DATE_NOT_VALID) || ''}</FormHelperText>
-                  </FormControl>
+                <div className="signup-hero-body">
+                  <div className="signup-hero-badge">
+                    <AutoAwesome fontSize="inherit" />
+                    <span>{strings.HERO_BADGE}</span>
+                  </div>
+                  <h1>
+                    {strings.HERO_TITLE}
+                    <span>{strings.HERO_HIGHLIGHT}</span>
+                  </h1>
+                  <p>{strings.HERO_BODY}</p>
+                </div>
 
-                  <PasswordInput
-                    label={commonStrings.PASSWORD}
-                    variant="outlined"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    required
-                    inputProps={{
-                      autoComplete: 'new-password',
-                      form: {
-                        autoComplete: 'off',
-                      },
-                    }}
-                  />
+                <div className="signup-hero-footer">
+                  <span>{strings.HERO_FOOTER}</span>
+                  <span className="signup-hero-dot" />
+                </div>
+              </div>
+            </section>
 
-                  <PasswordInput
-                    label={commonStrings.CONFIRM_PASSWORD}
-                    variant="outlined"
-                    value={confirmPassword}
-                    onChange={handleConfirmPasswordChange}
-                    required
-                    inputProps={{
-                      autoComplete: 'new-password',
-                      form: {
-                        autoComplete: 'off',
-                      },
-                    }}
-                  />
+            <section className="signup-panel">
+              <div className="signup-panel-inner">
+                <div className="signup-panel-header">
+                  <h2>{strings.SIGN_UP_HEADING}</h2>
+                  <span className="signup-accent" />
+                  <p>{strings.SIGN_UP_SUBTITLE}</p>
+                </div>
 
-                  <div className="signup-tos">
-                    <table>
-                      <tbody>
-                        <tr>
-                          <td aria-label="tos">
-                            <Checkbox checked={tosChecked} onChange={handleTosChange} color="primary" />
-                          </td>
-                          <td>
-                            <Link href="/tos" target="_blank" rel="noreferrer">
-                              {commonStrings.TOS}
-                            </Link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                <form className="signup-form" onSubmit={handleSubmit}>
+                  <div className="signup-field">
+                    <label className="required">{commonStrings.FULL_NAME}</label>
+                    <div className="signup-input">
+                      <PersonOutline fontSize="small" />
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={handleFullNameChange}
+                        placeholder={strings.FULL_NAME_PLACEHOLDER}
+                        required
+                        autoComplete="off"
+                      />
+                    </div>
                   </div>
 
-                  <SocialLogin redirectToHomepage />
+                  <div className="signup-grid">
+                    <div className="signup-field">
+                      <label className="required">{commonStrings.EMAIL}</label>
+                      <div className={`signup-input ${(!emailValid || emailError) ? 'is-error' : ''}`}>
+                        <MailOutline fontSize="small" />
+                        <input
+                          type="email"
+                          value={email}
+                          onBlur={handleEmailBlur}
+                          onChange={handleEmailChange}
+                          placeholder={strings.EMAIL_PLACEHOLDER}
+                          required
+                          autoComplete="off"
+                        />
+                      </div>
+                      {(!emailValid || emailError) && (
+                        <span className="signup-help error">
+                          {(!emailValid && commonStrings.EMAIL_NOT_VALID) || ''}
+                          {(emailError && commonStrings.EMAIL_ALREADY_REGISTERED) || ''}
+                        </span>
+                      )}
+                    </div>
 
-                  <div className="buttons">
-                    <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom">
+                    <div className="signup-field">
+                      <label className="required">{commonStrings.PHONE}</label>
+                      <div className={`signup-input ${!phoneValid ? 'is-error' : ''}`}>
+                        <PhoneOutlined fontSize="small" />
+                        <input
+                          type="tel"
+                          value={phone}
+                          onBlur={handlePhoneBlur}
+                          onChange={handlePhoneChange}
+                          placeholder={strings.PHONE_PLACEHOLDER}
+                          required
+                          autoComplete="off"
+                        />
+                      </div>
+                      {!phoneValid && (
+                        <span className="signup-help error">{commonStrings.PHONE_NOT_VALID}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="signup-field">
+                    <label className="required">{commonStrings.BIRTH_DATE}</label>
+                    <div className="signup-date">
+                      <CalendarMonth fontSize="small" />
+                      <DatePicker
+                        label={commonStrings.BIRTH_DATE}
+                        value={birthDate}
+                        variant="outlined"
+                        required
+                        onChange={(_birthDate) => {
+                          if (_birthDate) {
+                            const _birthDateValid = validateBirthDate(_birthDate)
+
+                            setBirthDate(_birthDate)
+                            setBirthDateValid(_birthDateValid)
+                          }
+                        }}
+                        language={language}
+                      />
+                    </div>
+                    {!birthDateValid && (
+                      <span className="signup-help error">{commonStrings.BIRTH_DATE_NOT_VALID}</span>
+                    )}
+                  </div>
+
+                  <div className="signup-grid">
+                    <div className="signup-field">
+                      <label className="required">{commonStrings.PASSWORD}</label>
+                      <div className={`signup-input ${passwordError ? 'is-error' : ''}`}>
+                        <LockOutlined fontSize="small" />
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={password}
+                          onChange={handlePasswordChange}
+                          placeholder={strings.PASSWORD_PLACEHOLDER}
+                          required
+                          autoComplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          className="signup-visibility"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          aria-label={showPassword ? strings.HIDE_PASSWORD : strings.SHOW_PASSWORD}
+                        >
+                          {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="signup-field">
+                      <label className="required">{commonStrings.CONFIRM_PASSWORD}</label>
+                      <div className={`signup-input ${passwordsDontMatch ? 'is-error' : ''}`}>
+                        <LockOutlined fontSize="small" />
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={handleConfirmPasswordChange}
+                          placeholder={strings.CONFIRM_PASSWORD_PLACEHOLDER}
+                          required
+                          autoComplete="new-password"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`signup-tos ${tosError ? 'is-error' : ''}`}>
+                    <label className="signup-checkbox">
+                      <input type="checkbox" checked={tosChecked} onChange={handleTosChange} />
+                      <span>{commonStrings.TOS}</span>
+                    </label>
+                  </div>
+
+                  <div className="signup-actions">
+                    <button type="submit" className="signup-submit">
                       {strings.SIGN_UP}
-                    </Button>
-                    <Button variant="outlined" color="primary" className="btn-margin-bottom" onClick={() => navigate('/')}>
-                      {commonStrings.CANCEL}
-                    </Button>
+                      <ArrowForward fontSize="small" />
+                    </button>
+
+                    <SocialLogin
+                      className="signup-social"
+                      variant="button"
+                      separatorLabel={strings.OR_CONTINUE_WITH}
+                      googleLabel={strings.GOOGLE_ACCOUNT}
+                      redirectToHomepage
+                      onSignInError={() => setError(true)}
+                    />
                   </div>
+
                   <div className="signup-partner">
-                    <span>{strings.ROLE_SIGN_UP}</span>
-                    <Link onClick={() => navigate('/sign-up/role')}>
-                      {strings.ROLE_SIGN_UP_LINK}
-                    </Link>
+                    <div className="signup-partner-badge">
+                      <Apartment fontSize="small" />
+                      <span>{strings.PARTNER_BADGE}</span>
+                    </div>
+                    <div className="signup-partner-content">
+                      <h4>{strings.PARTNER_TITLE}</h4>
+                      <p>{strings.PARTNER_BODY}</p>
+                    </div>
+                    <button type="button" className="signup-partner-btn" onClick={() => navigate('/sign-up/role')}>
+                      <WorkOutline fontSize="small" />
+                      {strings.PARTNER_ACTION}
+                    </button>
                   </div>
-                </div>
-                <div className="form-error">
-                  {passwordError && <Error message={commonStrings.PASSWORD_ERROR} />}
-                  {passwordsDontMatch && <Error message={commonStrings.PASSWORDS_DONT_MATCH} />}
-                  {recaptchaError && <Error message={commonStrings.RECAPTCHA_ERROR} />}
-                  {tosError && <Error message={commonStrings.TOS_ERROR} />}
-                  {error && <Error message={strings.SIGN_UP_ERROR} />}
-                </div>
-              </form>
-            </Paper>
+
+                  <div className="signup-footer">
+                    <span>{strings.HAS_ACCOUNT}</span>
+                    <button type="button" onClick={() => navigate('/sign-in')}>
+                      {strings.SIGN_IN}
+                    </button>
+                  </div>
+
+                  <div className="signup-error">
+                    {passwordError && <Error message={commonStrings.PASSWORD_ERROR} />}
+                    {passwordsDontMatch && <Error message={commonStrings.PASSWORDS_DONT_MATCH} />}
+                    {recaptchaError && <Error message={commonStrings.RECAPTCHA_ERROR} />}
+                    {tosError && <Error message={commonStrings.TOS_ERROR} />}
+                    {error && <Error message={strings.SIGN_UP_ERROR} />}
+                  </div>
+                </form>
+              </div>
+            </section>
           </div>
 
           <Footer />

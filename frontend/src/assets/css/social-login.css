@@ -33,3 +33,59 @@ div.social-login img.social {
   max-height: 40px;
   cursor: pointer;
 }
+
+div.social-login.social-login--button div.separator {
+  margin: 24px 0 18px;
+}
+
+div.social-login.social-login--button div.separator span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #cbd5f0;
+}
+
+div.social-login.social-login--button div.separator hr {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+div.social-login.social-login--button div.login-buttons {
+  margin: 0;
+  justify-content: stretch;
+}
+
+div.social-login.social-login--button .social-button {
+  width: 100%;
+  display: block;
+}
+
+div.social-login.social-login--button .social-button__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 18px;
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.06);
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+div.social-login.social-login--button .social-button__content:hover {
+  transform: translateY(-2px);
+  border-color: #e2e8f0;
+  box-shadow: 0 18px 32px rgba(15, 23, 42, 0.1);
+}
+
+div.social-login.social-login--button .social-icon {
+  width: 18px;
+  height: 18px;
+}

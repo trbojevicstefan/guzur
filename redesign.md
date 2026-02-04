@@ -47,6 +47,9 @@ Serve as the single source of truth for redesign scope, rules, task tracking, an
 **Change Log**
 - 2026-02-04: Redesigned `frontend/src/pages/Messages.tsx` (Pulse UI), `frontend/src/pages/Rfq.tsx` (RFQ split layout), updated related CSS and i18n.
 - 2026-02-04: In progress: Broker/Developer dashboards and Organization screen redesign.
+- 2026-02-04: Redesigned `frontend/src/pages/SignIn.tsx`, updated `signin.css`, `sign-in.ts`, and `social-login.css` for the new sign-in layout.
+- 2026-02-04: Redesigned `frontend/src/pages/SignUp.tsx`, updated `signup.css` and `sign-up.ts` for the new registration layout.
+- 2026-02-04: Redesigned `frontend/src/pages/RoleSignUp.tsx`, updated `role-signup.css` and `sign-up-role.ts` for the partner role router + role signup layout.
 **Frontend Pages**
 - `frontend/src/pages/About.tsx` - Components: Footer, Layout [ ]
 - `frontend/src/pages/Activate.tsx` - Components: Footer, Layout, PasswordInput [ ]
@@ -91,8 +94,8 @@ Serve as the single source of truth for redesign scope, rules, task tracking, an
 - `frontend/src/pages/RoleSignUp.tsx` - Components: Backdrop, Error, Footer, Layout, PasswordInput [ ]
 - `frontend/src/pages/Search.tsx` - Components: AgencyFilter, Layout, ListingTypeFilter, Map, MapDialog, PropertyFilter, PropertyList, PropertyTypeFilter, RentalTermFilter, ViewOnMapButton [ ]
 - `frontend/src/pages/Settings.tsx` - Components: Avatar, Backdrop, DatePicker, Footer, Layout, LocationSelectList [ ]
-- `frontend/src/pages/SignIn.tsx` - Components: Error, Footer, Layout, PasswordInput, SocialLogin [ ]
-- `frontend/src/pages/SignUp.tsx` - Components: Backdrop, DatePicker, Error, Footer, Layout, PasswordInput, SocialLogin [ ]
+- `frontend/src/pages/SignIn.tsx` - Components: Error, Footer, Layout, SocialLogin [ ]
+- `frontend/src/pages/SignUp.tsx` - Components: Backdrop, DatePicker, Error, Footer, Layout, SocialLogin [ ]
 - `frontend/src/pages/ToS.tsx` - Components: Footer, Layout [ ]
 **Admin Pages**
 - `admin/src/pages/About.tsx` - Components: Layout [ ]

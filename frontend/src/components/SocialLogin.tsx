@@ -27,6 +27,9 @@ interface SocialLoginProps {
   redirectToHomepage?: boolean
   reloadPage?: boolean
   className?: string
+  variant?: 'icon' | 'button'
+  separatorLabel?: string
+  googleLabel?: string
   onError?: (error: any) => void
   onSignInError?: () => void
   onBlackListed?: () => void
@@ -39,6 +42,9 @@ const SocialLogin = ({
   redirectToHomepage,
   reloadPage,
   className,
+  variant = 'icon',
+  separatorLabel,
+  googleLabel,
   onError,
   onSignInError,
   onBlackListed }: SocialLoginProps) => {
@@ -94,11 +100,14 @@ const SocialLogin = ({
     return email
   }
 
+  const separatorText = separatorLabel || commonStrings.OR
+  const showButton = variant === 'button'
+
   return (
-    <div className={`${className ? `${className} ` : ''}social-login`}>
+    <div className={`${className ? `${className} ` : ''}social-login${showButton ? ' social-login--button' : ''}`}>
       <div className="separator">
         <hr />
-        <span>{commonStrings.OR}</span>
+        <span>{separatorText}</span>
         <hr />
       </div>
 
@@ -149,9 +158,16 @@ const SocialLogin = ({
             onReject={(err: any) => {
               loginError(err)
             }}
-            className="social"
+            className={showButton ? 'social-button' : 'social'}
           >
-            <img alt="Google" src={GoogleIcon} className="social" />
+            {showButton ? (
+              <div className="social-button__content">
+                <img alt="Google" src={GoogleIcon} className="social-icon" />
+                <span>{googleLabel || 'Google Account'}</span>
+              </div>
+            ) : (
+              <img alt="Google" src={GoogleIcon} className="social" />
+            )}
           </LoginSocialGoogle>
         )}
       </div>

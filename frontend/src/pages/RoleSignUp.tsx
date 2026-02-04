@@ -1,14 +1,19 @@
 import React, { useState } from 'react'
 import {
-  OutlinedInput,
-  InputLabel,
-  FormControl,
-  FormHelperText,
-  Button,
-  Paper,
-  Checkbox,
-  Link
-} from '@mui/material'
+  MailOutline,
+  LockOutlined,
+  Visibility,
+  VisibilityOff,
+  ArrowForward,
+  AutoAwesome,
+  WorkOutline,
+  Apartment,
+  HomeOutlined,
+  NorthEast,
+  West,
+  PersonOutline,
+  PhoneOutlined,
+} from '@mui/icons-material'
 import validator from 'validator'
 import { useNavigate, useParams } from 'react-router-dom'
 import * as movininTypes from ':movinin-types'
@@ -23,10 +28,8 @@ import { useRecaptchaContext, RecaptchaContextType } from '@/context/RecaptchaCo
 import Layout from '@/components/Layout'
 import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
-import PasswordInput from '@/components/PasswordInput'
 import Footer from '@/components/Footer'
 
-import '@/assets/css/signup.css'
 import '@/assets/css/role-signup.css'
 
 const roleMap: Record<string, movininTypes.UserType> = {
@@ -57,6 +60,7 @@ const RoleSignUp = () => {
   const [tosChecked, setTosChecked] = useState(false)
   const [tosError, setTosError] = useState(false)
   const [phoneValid, setPhoneValid] = useState(true)
+  const [showPassword, setShowPassword] = useState(false)
 
   const resolvedRole = role ? roleMap[role.toLowerCase()] : undefined
 
@@ -239,22 +243,95 @@ const RoleSignUp = () => {
       <Layout strict={false} onLoad={onLoad}>
         {visible && (
           <>
-            <div className="signup role-signup">
-              <Paper className="signup-form role-signup-form" elevation={10}>
-                <h1 className="signup-form-title">{strings.HEADING}</h1>
-                <p className="role-signup-subtitle">{strings.CHOOSE_ROLE}</p>
-                <div className="role-signup-actions">
-                  <Button variant="outlined" onClick={() => navigate('/sign-up/role/broker')}>
-                    {strings.BROKER}
-                  </Button>
-                  <Button variant="outlined" onClick={() => navigate('/sign-up/role/developer')}>
-                    {strings.DEVELOPER}
-                  </Button>
-                  <Button variant="outlined" onClick={() => navigate('/sign-up/role/owner')}>
-                    {strings.OWNER}
-                  </Button>
+            <div className="role-portal">
+              <section className="role-hero">
+                <div className="role-hero-media" />
+                <div className="role-hero-gradient" />
+                <div className="role-hero-content">
+                  <div className="role-hero-logo">
+                    <img src="/guzurlogo.png" alt="Guzur" />
+                  </div>
+                  <div className="role-hero-body">
+                    <div className="role-hero-badge">
+                      <AutoAwesome fontSize="inherit" />
+                      <span>{strings.HERO_BADGE}</span>
+                    </div>
+                    <h1>
+                      {strings.HERO_TITLE}
+                      <span>{strings.HERO_HIGHLIGHT}</span>
+                    </h1>
+                    <p>{strings.HERO_BODY}</p>
+                  </div>
+                  <div className="role-hero-footer">
+                    <span>{strings.HERO_FOOTER}</span>
+                    <span className="role-hero-dot" />
+                  </div>
                 </div>
-              </Paper>
+              </section>
+
+              <section className="role-panel">
+                <div className="role-panel-inner">
+                  <button className="role-back" onClick={() => navigate('/sign-up')}>
+                    <West fontSize="small" />
+                    {strings.BACK_TO_REGISTER}
+                  </button>
+
+                  <div className="role-panel-header">
+                    <h2>{strings.HEADING}</h2>
+                    <span className="role-accent" />
+                    <p>{strings.CHOOSE_ROLE}</p>
+                  </div>
+
+                  <div className="role-cards">
+                    <button className="role-card" onClick={() => navigate('/sign-up/role/broker')}>
+                      <div className="role-card-glow" />
+                      <div className="role-card-icon">
+                        <WorkOutline fontSize="medium" />
+                      </div>
+                      <div className="role-card-body">
+                        <div className="role-card-tag">
+                          <span>{strings.BROKER_TAG}</span>
+                          <NorthEast fontSize="small" />
+                        </div>
+                        <h3>{strings.BROKER}</h3>
+                        <p>{strings.BROKER_DESC}</p>
+                      </div>
+                    </button>
+
+                    <button className="role-card" onClick={() => navigate('/sign-up/role/developer')}>
+                      <div className="role-card-glow" />
+                      <div className="role-card-icon">
+                        <Apartment fontSize="medium" />
+                      </div>
+                      <div className="role-card-body">
+                        <div className="role-card-tag">
+                          <span>{strings.DEVELOPER_TAG}</span>
+                          <NorthEast fontSize="small" />
+                        </div>
+                        <h3>{strings.DEVELOPER}</h3>
+                        <p>{strings.DEVELOPER_DESC}</p>
+                      </div>
+                    </button>
+
+                    <button className="role-card" onClick={() => navigate('/sign-up/role/owner')}>
+                      <div className="role-card-glow" />
+                      <div className="role-card-icon">
+                        <HomeOutlined fontSize="medium" />
+                      </div>
+                      <div className="role-card-body">
+                        <div className="role-card-tag">
+                          <span>{strings.OWNER_TAG}</span>
+                          <NorthEast fontSize="small" />
+                        </div>
+                        <h3>{strings.OWNER}</h3>
+                        <p>{strings.OWNER_DESC}</p>
+                      </div>
+                    </button>
+                  </div>
+
+                  <p className="role-footer-note">{strings.FOOTER_NOTE}</p>
+                </div>
+              </section>
             </div>
             <Footer />
           </>
@@ -267,126 +344,184 @@ const RoleSignUp = () => {
     <Layout strict={false} onLoad={onLoad}>
       {visible && (
         <>
-          <div className="signup role-signup">
-            <Paper className="signup-form" elevation={10}>
-              <h1 className="signup-form-title">{strings.SIGN_UP_AS}</h1>
-              <form onSubmit={handleSubmit}>
-                <div>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                    <OutlinedInput type="text" label={commonStrings.FULL_NAME} value={fullName} required onChange={(e) => setFullName(e.target.value)} autoComplete="off" />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-                    <OutlinedInput
-                      type="text"
-                      label={commonStrings.EMAIL}
-                      error={!emailValid || emailError}
-                      value={email}
-                      onBlur={handleEmailBlur}
-                      onChange={handleEmailChange}
-                      required
-                      autoComplete="off"
-                    />
-                    <FormHelperText error={!emailValid || emailError}>
-                      {(!emailValid && commonStrings.EMAIL_NOT_VALID) || ''}
-                      {(emailError && commonStrings.EMAIL_ALREADY_REGISTERED) || ''}
-                    </FormHelperText>
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.PHONE}</InputLabel>
-                    <OutlinedInput
-                      type="text"
-                      label={commonStrings.PHONE}
-                      error={!phoneValid}
-                      value={phone}
-                      onBlur={handlePhoneBlur}
-                      onChange={(e) => {
-                        setPhone(e.target.value)
-                        if (!e.target.value) {
-                          setPhoneValid(true)
+          <div className="role-form-portal">
+            <section className="role-hero">
+              <div className="role-hero-media" />
+              <div className="role-hero-gradient" />
+              <div className="role-hero-content">
+                <div className="role-hero-logo">
+                  <img src="/guzurlogo.png" alt="Guzur" />
+                </div>
+                <div className="role-hero-body">
+                  <div className="role-hero-badge">
+                    <AutoAwesome fontSize="inherit" />
+                    <span>{strings.HERO_BADGE}</span>
+                  </div>
+                  <h1>
+                    {strings.HERO_TITLE}
+                    <span>{strings.HERO_HIGHLIGHT}</span>
+                  </h1>
+                  <p>{strings.HERO_BODY}</p>
+                </div>
+                <div className="role-hero-footer">
+                  <span>{strings.HERO_FOOTER}</span>
+                  <span className="role-hero-dot" />
+                </div>
+              </div>
+            </section>
+
+            <section className="role-panel">
+              <div className="role-panel-inner">
+                <button className="role-back" onClick={() => navigate('/sign-up/role')}>
+                  <West fontSize="small" />
+                  {strings.BACK_TO_ROLES}
+                </button>
+
+                <div className="role-panel-header">
+                  <h2>{strings.SIGN_UP_AS}</h2>
+                  <span className="role-accent" />
+                  <p>{strings.SIGN_UP_SUBTITLE}</p>
+                </div>
+
+                <form className="role-form" onSubmit={handleSubmit}>
+                  <div className="role-field">
+                    <label className="required">{commonStrings.FULL_NAME}</label>
+                    <div className="role-input">
+                      <PersonOutline fontSize="small" />
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder={strings.FULL_NAME_PLACEHOLDER}
+                        required
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="role-grid">
+                    <div className="role-field">
+                      <label className="required">{commonStrings.EMAIL}</label>
+                      <div className={`role-input ${(!emailValid || emailError) ? 'is-error' : ''}`}>
+                        <MailOutline fontSize="small" />
+                        <input
+                          type="email"
+                          value={email}
+                          onBlur={handleEmailBlur}
+                          onChange={handleEmailChange}
+                          placeholder={strings.EMAIL_PLACEHOLDER}
+                          required
+                          autoComplete="off"
+                        />
+                      </div>
+                      {(!emailValid || emailError) && (
+                        <span className="role-help error">
+                          {(!emailValid && commonStrings.EMAIL_NOT_VALID) || ''}
+                          {(emailError && commonStrings.EMAIL_ALREADY_REGISTERED) || ''}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="role-field">
+                      <label className="required">{commonStrings.PHONE}</label>
+                      <div className={`role-input ${!phoneValid ? 'is-error' : ''}`}>
+                        <PhoneOutlined fontSize="small" />
+                        <input
+                          type="tel"
+                          value={phone}
+                          onBlur={handlePhoneBlur}
+                          onChange={(e) => {
+                            setPhone(e.target.value)
+                            if (!e.target.value) {
+                              setPhoneValid(true)
+                            }
+                          }}
+                          placeholder={strings.PHONE_PLACEHOLDER}
+                          required
+                          autoComplete="off"
+                        />
+                      </div>
+                      {!phoneValid && (
+                        <span className="role-help error">{commonStrings.PHONE_NOT_VALID}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="role-grid">
+                    <div className="role-field">
+                      <label className="required">{commonStrings.PASSWORD}</label>
+                      <div className={`role-input ${passwordError ? 'is-error' : ''}`}>
+                        <LockOutlined fontSize="small" />
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value)
+                            setPasswordsDontMatch(false)
+                          }}
+                          placeholder={strings.PASSWORD_PLACEHOLDER}
+                          required
+                          autoComplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          className="role-visibility"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          aria-label={showPassword ? strings.HIDE_PASSWORD : strings.SHOW_PASSWORD}
+                        >
+                          {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="role-field">
+                      <label className="required">{commonStrings.CONFIRM_PASSWORD}</label>
+                      <div className={`role-input ${passwordsDontMatch ? 'is-error' : ''}`}>
+                        <LockOutlined fontSize="small" />
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={(e) => {
+                            setConfirmPassword(e.target.value)
+                            setPasswordsDontMatch(false)
+                          }}
+                          placeholder={strings.CONFIRM_PASSWORD_PLACEHOLDER}
+                          required
+                          autoComplete="new-password"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`role-tos ${tosError ? 'is-error' : ''}`}>
+                    <label className="role-checkbox">
+                      <input type="checkbox" checked={tosChecked} onChange={(e) => {
+                        setTosChecked(e.target.checked)
+                        if (e.target.checked) {
+                          setTosError(false)
                         }
-                      }}
-                      required
-                      autoComplete="off"
-                    />
-                    <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
-                  </FormControl>
-
-                  <PasswordInput
-                    label={commonStrings.PASSWORD}
-                    variant="outlined"
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value)
-                      setPasswordsDontMatch(false)
-                    }}
-                    required
-                    inputProps={{
-                      autoComplete: 'new-password',
-                      form: {
-                        autoComplete: 'off',
-                      },
-                    }}
-                  />
-
-                  <PasswordInput
-                    label={commonStrings.CONFIRM_PASSWORD}
-                    variant="outlined"
-                    value={confirmPassword}
-                    onChange={(e) => {
-                      setConfirmPassword(e.target.value)
-                      setPasswordsDontMatch(false)
-                    }}
-                    required
-                    inputProps={{
-                      autoComplete: 'new-password',
-                      form: {
-                        autoComplete: 'off',
-                      },
-                    }}
-                  />
-
-                  <div className="signup-tos">
-                    <table>
-                      <tbody>
-                        <tr>
-                          <td aria-label="tos">
-                            <Checkbox checked={tosChecked} onChange={(e) => {
-                              setTosChecked(e.target.checked)
-                              if (e.target.checked) {
-                                setTosError(false)
-                              }
-                            }} color="primary" />
-                          </td>
-                          <td>
-                            <Link href="/tos" target="_blank" rel="noreferrer">
-                              {commonStrings.TOS}
-                            </Link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                      }} />
+                      <span>{commonStrings.TOS}</span>
+                    </label>
                   </div>
 
-                  <div className="buttons">
-                    <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom">
+                  <div className="role-actions">
+                    <button type="submit" className="role-submit">
                       {signUpStrings.SIGN_UP}
-                    </Button>
-                    <Button variant="outlined" color="primary" className="btn-margin-bottom" onClick={() => navigate('/')}>
-                      {commonStrings.CANCEL}
-                    </Button>
+                      <ArrowForward fontSize="small" />
+                    </button>
                   </div>
-                </div>
-                <div className="form-error">
-                  {passwordError && <Error message={commonStrings.PASSWORD_ERROR} />}
-                  {passwordsDontMatch && <Error message={commonStrings.PASSWORDS_DONT_MATCH} />}
-                  {recaptchaError && <Error message={commonStrings.RECAPTCHA_ERROR} />}
-                  {tosError && <Error message={commonStrings.TOS_ERROR} />}
-                  {error && <Error message={signUpStrings.SIGN_UP_ERROR} />}
-                </div>
-              </form>
-            </Paper>
+
+                  <div className="role-error">
+                    {passwordError && <Error message={commonStrings.PASSWORD_ERROR} />}
+                    {passwordsDontMatch && <Error message={commonStrings.PASSWORDS_DONT_MATCH} />}
+                    {recaptchaError && <Error message={commonStrings.RECAPTCHA_ERROR} />}
+                    {tosError && <Error message={commonStrings.TOS_ERROR} />}
+                    {error && <Error message={signUpStrings.SIGN_UP_ERROR} />}
+                  </div>
+                </form>
+              </div>
+            </section>
           </div>
           <Footer />
         </>

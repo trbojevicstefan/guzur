@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import {
-  Paper,
-  FormControl,
-  InputLabel,
-  Input,
-  Button,
-} from '@mui/material'
+  MailOutline,
+  LockOutlined,
+  Visibility,
+  VisibilityOff,
+  ArrowForward,
+  AutoAwesome,
+} from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import * as movininTypes from ':movinin-types'
 import { strings as commonStrings } from '@/lang/common'
@@ -17,7 +18,6 @@ import Error from '@/components/Error'
 import Layout from '@/components/Layout'
 import SocialLogin from '@/components/SocialLogin'
 import Footer from '@/components/Footer'
-import PasswordInput from '@/components/PasswordInput'
 
 import '@/assets/css/signin.css'
 
@@ -30,6 +30,8 @@ const SignIn = () => {
   const [error, setError] = useState(false)
   const [visible, setVisible] = useState(false)
   const [blacklisted, setBlacklisted] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [stayConnected, setStayConnected] = useState(false)
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
@@ -81,6 +83,7 @@ const SignIn = () => {
 
   const onLoad = async (user?: movininTypes.User) => {
     UserService.setStayConnected(false)
+    setStayConnected(false)
 
     if (user) {
       const params = new URLSearchParams(window.location.search)
@@ -111,59 +114,144 @@ const SignIn = () => {
     <Layout strict={false} onLoad={onLoad}>
       {visible && (
         <>
-          <div className="signin">
-            <Paper className="signin-form" elevation={10}>
-              <form onSubmit={handleSubmit}>
-                <h1 className="signin-form-title">{strings.SIGN_IN_HEADING}</h1>
-                <FormControl fullWidth margin="dense">
-                  <InputLabel>{commonStrings.EMAIL}</InputLabel>
-                  <Input type="text" onChange={handleEmailChange} autoComplete="email" required />
-                </FormControl>
+          <div className="signin-portal">
+            <section className="signin-hero">
+              <div className="signin-hero-media" />
+              <div className="signin-hero-gradient" />
+              <div className="signin-hero-content">
+                <div className="signin-hero-logo">
+                  <img src="/guzurlogo.png" alt="Guzur" />
+                </div>
 
-                <PasswordInput
-                  label={commonStrings.PASSWORD}
-                  variant="standard"
-                  onChange={handlePasswordChange}
-                  onKeyDown={handlePasswordKeyDown}
-                  required
-                  autoComplete="password"
-                />
+                <div className="signin-hero-body">
+                  <div className="signin-hero-badge">
+                    <AutoAwesome fontSize="inherit" />
+                    <span>{strings.MEMBER_ACCESS}</span>
+                  </div>
+                  <h1>
+                    {strings.WELCOME_TITLE}
+                    <span>{strings.WELCOME_HIGHLIGHT}</span>
+                  </h1>
+                  <p>{strings.WELCOME_BODY}</p>
 
-                <div className="stay-connected">
-                  <input
-                    id="stay-connected"
-                    type="checkbox"
-                    onChange={(e) => {
-                      UserService.setStayConnected(e.currentTarget.checked)
+                  <div className="signin-hero-trust">
+                    <span>{strings.SECURE}</span>
+                    <span>{strings.ENCRYPTED}</span>
+                    <span>{strings.VERIFIED}</span>
+                  </div>
+                </div>
+
+                <div className="signin-hero-footer">
+                  <span>{strings.PORTAL_FOOTER}</span>
+                  <span className="signin-hero-dot" />
+                </div>
+              </div>
+            </section>
+
+            <section className="signin-panel">
+              <div className="signin-panel-card">
+                <div className="signin-panel-header">
+                  <h2>{strings.SIGN_IN_HEADING}</h2>
+                  <span className="signin-accent" />
+                  <p>{strings.SIGN_IN_SUBTITLE}</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="signin-form">
+                  <div className="signin-field">
+                    <label>{commonStrings.EMAIL}</label>
+                    <div className="signin-input">
+                      <MailOutline fontSize="small" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={handleEmailChange}
+                        placeholder={strings.EMAIL_PLACEHOLDER}
+                        autoComplete="email"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="signin-field">
+                    <label>{commonStrings.PASSWORD}</label>
+                    <div className="signin-input">
+                      <LockOutlined fontSize="small" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={handlePasswordChange}
+                        onKeyDown={handlePasswordKeyDown}
+                        placeholder={strings.PASSWORD_PLACEHOLDER}
+                        autoComplete="current-password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="signin-visibility"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? strings.HIDE_PASSWORD : strings.SHOW_PASSWORD}
+                      >
+                        {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="signin-meta">
+                    <label className="signin-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={stayConnected}
+                        onChange={(event) => {
+                          const checked = event.currentTarget.checked
+                          setStayConnected(checked)
+                          UserService.setStayConnected(checked)
+                        }}
+                      />
+                      <span>{strings.STAY_CONNECTED}</span>
+                    </label>
+                    <button
+                      type="button"
+                      className="signin-forgot"
+                      onClick={() => navigate('/forgot-password')}
+                    >
+                      {strings.RESET_PASSWORD}
+                    </button>
+                  </div>
+
+                  <button type="submit" className="signin-submit">
+                    {strings.SIGN_IN}
+                    <ArrowForward fontSize="small" />
+                  </button>
+
+                  <SocialLogin
+                    className="signin-social"
+                    variant="button"
+                    separatorLabel={strings.OR_CONTINUE_WITH}
+                    googleLabel={strings.GOOGLE_ACCOUNT}
+                    onSignInError={() => {
+                      setError(true)
+                      setBlacklisted(false)
+                    }}
+                    onBlackListed={() => {
+                      setError(false)
+                      setBlacklisted(true)
                     }}
                   />
-                  <label
-                    htmlFor="stay-connected"
-                  >
-                    {strings.STAY_CONNECTED}
-                  </label>
-                </div>
 
-                <div className="forgot-password-wrapper">
-                  <Button variant="text" onClick={() => navigate('/forgot-password')} className="btn-lnk">{strings.RESET_PASSWORD}</Button>
-                </div>
+                  <div className="signin-register">
+                    <span>{strings.NO_ACCOUNT}</span>
+                    <button type="button" onClick={() => navigate('/sign-up')}>
+                      {suStrings.SIGN_UP}
+                    </button>
+                  </div>
 
-                <SocialLogin />
-
-                <div className="signin-buttons">
-                  <Button variant="outlined" color="primary" onClick={() => navigate('/sign-up')} className="btn-margin btn-margin-bottom">
-                    {suStrings.SIGN_UP}
-                  </Button>
-                  <Button type="submit" variant="contained" className="btn-primary btn-margin btn-margin-bottom" disableElevation>
-                    {strings.SIGN_IN}
-                  </Button>
-                </div>
-                <div className="form-error">
-                  {error && <Error message={strings.ERROR_IN_SIGN_IN} />}
-                  {blacklisted && <Error message={strings.IS_BLACKLISTED} />}
-                </div>
-              </form>
-            </Paper>
+                  <div className="signin-error">
+                    {error && <Error message={strings.ERROR_IN_SIGN_IN} />}
+                    {blacklisted && <Error message={strings.IS_BLACKLISTED} />}
+                  </div>
+                </form>
+              </div>
+            </section>
           </div>
 
           <Footer />

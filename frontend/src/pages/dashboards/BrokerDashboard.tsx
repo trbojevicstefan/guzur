@@ -4,7 +4,7 @@ import * as movininTypes from ':movinin-types'
 import Layout from '@/components/Layout'
 import LeadTable from '@/components/LeadTable'
 import ListingTable from '@/components/ListingTable'
-import { Bolt, Add, Search, FilterList } from '@mui/icons-material'
+import { Bolt, Add, Search, FilterList, HomeWork, People } from '@mui/icons-material'
 import { strings as dashboardStrings } from '@/lang/dashboard'
 import { strings as onboardingStrings } from '@/lang/onboarding'
 import { strings as commonStrings } from '@/lang/common'
@@ -106,7 +106,7 @@ const BrokerDashboard = () => {
           <div className="dashboard-stats">
             <div className="dashboard-stat-card">
               <div className="dashboard-stat-icon">
-                <Add />
+                <HomeWork />
               </div>
               <div>
                 <p>{dashboardStrings.ACTIVE_LISTINGS}</p>
@@ -118,7 +118,7 @@ const BrokerDashboard = () => {
             </div>
             <div className="dashboard-stat-card">
               <div className="dashboard-stat-icon alt">
-                <Bolt />
+                <People />
               </div>
               <div>
                 <p>{dashboardStrings.TOTAL_LEADS}</p>

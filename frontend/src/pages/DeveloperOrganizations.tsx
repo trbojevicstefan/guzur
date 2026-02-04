@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Input, InputLabel, FormControl, Button } from '@mui/material'
+import { Search, Tune } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import * as movininTypes from ':movinin-types'
 import Layout from '@/components/Layout'
@@ -7,6 +7,7 @@ import OrganizationList from '@/components/OrganizationList'
 import Footer from '@/components/Footer'
 import { strings as orgStrings } from '@/lang/organizations'
 import { strings as commonStrings } from '@/lang/common'
+import { strings as headerStrings } from '@/lang/header'
 import * as OrganizationService from '@/services/OrganizationService'
 import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
@@ -73,28 +74,39 @@ const DeveloperOrganizations = () => {
   return (
     <Layout strict={false}>
       <div className="agencies">
-        <div className="agencies-header">
-          <div>
-            <h1>{orgStrings.DEVELOPERS}</h1>
-            <div className="agencies-subtitle">{organizations.length} {commonStrings.RESULTS}</div>
+        <div className="agencies-hero">
+          <div className="agencies-hero-text">
+            <div className="agencies-breadcrumb">
+              <span>{headerStrings.HOME}</span>
+              <span className="agencies-breadcrumb-sep">/</span>
+              <span className="agencies-breadcrumb-current">{orgStrings.DEVELOPERS}</span>
+            </div>
+            <h1>{orgStrings.DEVELOPERS_TITLE || orgStrings.DEVELOPERS}</h1>
+            <p className="agencies-subtitle">
+              {orgStrings.DEVELOPERS_SUBTITLE
+                ? orgStrings.DEVELOPERS_SUBTITLE.replace('{count}', String(organizations.length))
+                : `${organizations.length} ${commonStrings.RESULTS}`}
+            </p>
           </div>
           <div className="agencies-toolbar">
-            <FormControl fullWidth margin="dense">
-              <InputLabel>{orgStrings.SEARCH}</InputLabel>
-              <Input
+            <label className="agencies-search">
+              <Search className="agencies-search-icon" />
+              <input
                 type="text"
                 value={keyword}
                 autoComplete="off"
+                placeholder={orgStrings.DEVELOPERS_SEARCH_PLACEHOLDER || orgStrings.SEARCH}
                 onChange={(event) => setKeyword(event.target.value)}
               />
-            </FormControl>
-            <Button
-              variant="outlined"
-              className="agencies-clear"
+            </label>
+            <button
+              type="button"
+              className="agencies-filters"
               onClick={() => setKeyword('')}
             >
+              <Tune className="agencies-filters-icon" />
               {commonStrings.CLEAR}
-            </Button>
+            </button>
           </div>
         </div>
 

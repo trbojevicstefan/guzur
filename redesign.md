@@ -50,6 +50,8 @@ Serve as the single source of truth for redesign scope, rules, task tracking, an
 - 2026-02-04: Redesigned `frontend/src/pages/SignIn.tsx`, updated `signin.css`, `sign-in.ts`, and `social-login.css` for the new sign-in layout.
 - 2026-02-04: Redesigned `frontend/src/pages/SignUp.tsx`, updated `signup.css` and `sign-up.ts` for the new registration layout.
 - 2026-02-04: Redesigned `frontend/src/pages/RoleSignUp.tsx`, updated `role-signup.css` and `sign-up-role.ts` for the partner role router + role signup layout.
+- 2026-02-04: Styled developer search bar to match brokerages (`frontend/src/pages/DeveloperOrganizations.tsx`, `frontend/src/lang/organizations.ts`).
+- 2026-02-04: Redesigned `frontend/src/pages/Contact.tsx`, updated `contact.css` and `contact-form.ts` for the new contact layout.
 **Frontend Pages**
 - `frontend/src/pages/About.tsx` - Components: Footer, Layout [ ]
 - `frontend/src/pages/Activate.tsx` - Components: Footer, Layout, PasswordInput [ ]
@@ -61,7 +63,7 @@ Serve as the single source of truth for redesign scope, rules, task tracking, an
 - `frontend/src/pages/ChangePassword.tsx` - Components: Footer, Layout, PasswordInput [ ]
 - `frontend/src/pages/Checkout.tsx` - Components: Backdrop, CheckoutOptions, CheckoutStatus, DatePicker, Error, Footer, Layout, Map, MapDialog, PropertyList, SocialLogin, Unauthorized, ViewOnMapButton [ ]
 - `frontend/src/pages/CheckoutSession.tsx` - Components: CheckoutStatus, Layout [ ]
-- `frontend/src/pages/Contact.tsx` - Components: ContactForm, Footer, Layout [ ]
+- `frontend/src/pages/Contact.tsx` - Components: Footer, Layout [ ]
 - `frontend/src/pages/CookiePolicy.tsx` - Components: Footer, Layout [ ]
 - `frontend/src/pages/Dashboard.tsx` - Components: Layout [ ]
 - `frontend/src/pages/dashboards/BrokerDashboard.tsx` - Components: Layout, LeadTable, ListingTable [ ]

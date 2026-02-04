@@ -1,7 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Button, FormControl, Input, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material'
+import { MenuItem, Select, SelectChangeEvent } from '@mui/material'
+import {
+  Add,
+  AttachFile,
+  MoreHoriz,
+  OpenInNew,
+  Search,
+  Send,
+} from '@mui/icons-material'
 import * as movininTypes from ':movinin-types'
+import * as movininHelper from ':movinin-helper'
 import Layout from '@/components/Layout'
 import Footer from '@/components/Footer'
 import * as MessageService from '@/services/MessageService'
@@ -30,28 +39,6 @@ const getThreadKey = (thread: movininTypes.MessageThread) => {
   return thread._id || propertyKey || thread.lastMessage?._id
 }
 
-const getThreadTypeLabel = (type?: movininTypes.MessageThreadType) => {
-  switch (type) {
-    case movininTypes.MessageThreadType.Broadcast:
-      return strings.THREAD_BROADCAST
-    case movininTypes.MessageThreadType.Group:
-      return strings.THREAD_GROUP
-    default:
-      return strings.THREAD_DIRECT
-  }
-}
-
-const getThreadTypeClass = (type?: movininTypes.MessageThreadType) => {
-  switch (type) {
-    case movininTypes.MessageThreadType.Broadcast:
-      return 'message-thread-type message-thread-type-broadcast'
-    case movininTypes.MessageThreadType.Group:
-      return 'message-thread-type message-thread-type-group'
-    default:
-      return 'message-thread-type message-thread-type-direct'
-  }
-}
-
 const Messages = () => {
   const [searchParams] = useSearchParams()
   const [property, setProperty] = useState<movininTypes.Property>()
@@ -72,6 +59,8 @@ const Messages = () => {
   const [broadcastTitle, setBroadcastTitle] = useState('')
   const [broadcastBody, setBroadcastBody] = useState('')
   const [pulseNote, setPulseNote] = useState('')
+  const [toolsOpen, setToolsOpen] = useState(false)
+  const [threadTab, setThreadTab] = useState<'active' | 'archived' | 'starred'>('active')
 
   const propertyId = searchParams.get('propertyId') || ''
   const threadId = searchParams.get('threadId') || ''
@@ -171,10 +160,68 @@ const Messages = () => {
     return lastMessageTime > new Date(lastRead).getTime()
   }
 
-  const unreadThreadCount = useMemo(
-    () => filteredThreads.filter((thread) => isThreadUnread(thread)).length,
-    [filteredThreads, readMap],
-  )
+  const activeProperty = useMemo(() => {
+    if (property) {
+      return property
+    }
+    if (typeof currentThread?.property === 'object') {
+      return currentThread.property
+    }
+    return undefined
+  }, [property, currentThread])
+
+  const formatThreadTime = (thread: movininTypes.MessageThread) => {
+    const time = getLastMessageTime(thread)
+    if (!time) {
+      return ''
+    }
+    const date = new Date(time)
+    const now = new Date()
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000)
+    if (diffDays === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+    if (diffDays === 1) {
+      return strings.YESTERDAY
+    }
+    if (diffDays < 7) {
+      return date.toLocaleDateString([], { weekday: 'short' })
+    }
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+  }
+
+  const formatMessageDate = (value?: string | Date) => {
+    if (!value) {
+      return ''
+    }
+    const date = new Date(value)
+    return date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()
+  }
+
+  const getThreadAvatar = (thread: movininTypes.MessageThread) => {
+    const name = thread.otherUser?.fullName || getOrgName(thread.brokerageOrg) || getOrgName(thread.developerOrg) || thread.title || 'G'
+    return name
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase()
+  }
+
+  const getThreadTitle = (thread: movininTypes.MessageThread) => {
+    const propertyName = typeof thread.property === 'object' ? thread.property.name : ''
+    const developerName = getOrgName(thread.developerOrg)
+    const brokerageName = getOrgName(thread.brokerageOrg)
+    return thread.title
+      || (thread.type === movininTypes.MessageThreadType.Broadcast
+        ? `${developerName || 'Developer'} -> ${brokerageName || 'Brokerage'}`
+        : propertyName || thread.otherUser?.fullName || strings.INBOX)
+  }
+
+  const getThreadSubtitle = (thread: movininTypes.MessageThread) => {
+    const propertyName = typeof thread.property === 'object' ? thread.property.name : ''
+    return propertyName || thread.title || ''
+  }
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -418,126 +465,107 @@ const Messages = () => {
 
   return (
     <Layout strict={false}>
-      <div className="messages-page">
-        <div className="messages-header">
-          <h1>{strings.HEADING}</h1>
-        </div>
-        {property && (
-          <div className="messages-meta">
-            <strong>{strings.PROPERTY}:</strong> {property.name}
+      <div className="messages-page pulse-shell">
+        <aside className="pulse-sidebar">
+          <div className="pulse-sidebar-header">
+            <div className="pulse-brand">
+              <span className="pulse-brand-mark">G</span>
+              <span className="pulse-brand-title">{strings.HEADING}</span>
+            </div>
+            <button
+              type="button"
+              className="pulse-add"
+              onClick={() => setToolsOpen((prev) => !prev)}
+              aria-label={strings.NEW_MESSAGE}
+            >
+              <Add />
+            </button>
           </div>
-        )}
 
-        {(propertyId || threadId) ? (
-          <div className="messages-list">
-            {messages.length === 0 && !loading && (
-              <div>{strings.EMPTY}</div>
-            )}
-            {messages.map((row) => (
-              <div key={row._id} className="message-item">
-                <div className="message-item-header">
-                  {typeof row.sender === 'object' ? row.sender.fullName : ''}
-                </div>
-                <div>{row.message}</div>
-              </div>
-            ))}
-            {hasMoreMessages && !loading && (
-              <div className="messages-actions">
-                <Button
-                  variant="outlined"
-                  onClick={() => setMessagesPage((prev) => prev + 1)}
-                >
-                  {strings.LOAD_MORE}
-                </Button>
-              </div>
-            )}
+          <div className="pulse-search">
+            <Search className="pulse-search-icon" />
+            <input
+              value={threadSearch}
+              onChange={(e) => setThreadSearch(e.target.value)}
+              placeholder={strings.SEARCH_PLACEHOLDER}
+              disabled={loading}
+            />
           </div>
-        ) : (
-          <div className="messages-list">
-            <div className="message-item-header">{strings.INBOX}</div>
-            {primaryOrgId && (
-              <div className="messages-actions pulse-actions">
-                <FormControl margin="dense">
-                  <InputLabel>{strings.GROUP_TITLE}</InputLabel>
-                  <Input
+
+          <div className="pulse-tabs">
+            {(['active', 'archived', 'starred'] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                className={`pulse-tab ${threadTab === tab ? 'is-active' : ''}`}
+                onClick={() => setThreadTab(tab)}
+              >
+                {tab === 'active' ? strings.ACTIVE : tab === 'archived' ? strings.ARCHIVED : strings.STARRED}
+              </button>
+            ))}
+            <Select
+              value={threadListingType}
+              onChange={handleListingTypeChange}
+              variant="standard"
+              className="pulse-type-select"
+              disableUnderline
+            >
+              <MenuItem value="">{commonStrings.ALL}</MenuItem>
+              {Object.values(movininTypes.ListingType).map((value) => (
+                <MenuItem key={value} value={value}>
+                  {helper.getListingType(value)}
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+
+          {toolsOpen && (
+            <div className="pulse-tools">
+              {primaryOrgId && (
+                <div className="pulse-tool">
+                  <input
                     value={groupTitle}
                     onChange={(e) => setGroupTitle(e.target.value)}
+                    placeholder={strings.GROUP_TITLE}
                     disabled={loading}
                   />
-                </FormControl>
-                <Button
-                  variant="outlined"
-                  onClick={handleCreateOrgGroup}
-                  disabled={loading || activeOrgMembers.length === 0}
-                >
-                  {strings.CREATE_GROUP}
-                </Button>
-              </div>
-            )}
-            {orgInfo?.type === movininTypes.OrganizationType.Developer && (
-              <div className="messages-actions pulse-actions">
-                <FormControl margin="dense">
-                  <InputLabel>{strings.BROADCAST_TITLE}</InputLabel>
-                  <Input
+                  <button
+                    type="button"
+                    onClick={handleCreateOrgGroup}
+                    disabled={loading || activeOrgMembers.length === 0}
+                  >
+                    {strings.CREATE_GROUP}
+                  </button>
+                </div>
+              )}
+              {orgInfo?.type === movininTypes.OrganizationType.Developer && (
+                <div className="pulse-tool pulse-tool-broadcast">
+                  <input
                     value={broadcastTitle}
                     onChange={(e) => setBroadcastTitle(e.target.value)}
+                    placeholder={strings.BROADCAST_TITLE}
                     disabled={loading}
                   />
-                </FormControl>
-                <FormControl margin="dense" fullWidth>
-                  <InputLabel>{strings.BROADCAST_BODY}</InputLabel>
-                  <Input
+                  <input
                     value={broadcastBody}
                     onChange={(e) => setBroadcastBody(e.target.value)}
+                    placeholder={strings.BROADCAST_BODY}
                     disabled={loading}
                   />
-                </FormControl>
-                <Button
-                  variant="contained"
-                  onClick={handleBroadcast}
-                  disabled={loading || !broadcastBody.trim()}
-                >
-                  {strings.BROADCAST}
-                </Button>
-                {pulseNote && <div className="messages-hint">{pulseNote}</div>}
-              </div>
-            )}
-            <div className="messages-filters">
-              <FormControl margin="dense">
-                <InputLabel>{strings.SEARCH}</InputLabel>
-                <Input
-                  value={threadSearch}
-                  onChange={(e) => setThreadSearch(e.target.value)}
-                  disabled={loading}
-                />
-              </FormControl>
-              <FormControl margin="dense">
-                <InputLabel>{strings.LISTING_TYPE}</InputLabel>
-                <Select
-                  value={threadListingType}
-                  onChange={handleListingTypeChange}
-                  variant="standard"
-                >
-                  <MenuItem value="">{commonStrings.ALL}</MenuItem>
-                  {Object.values(movininTypes.ListingType).map((value) => (
-                    <MenuItem key={value} value={value}>
-                      {helper.getListingType(value)}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  <button
+                    type="button"
+                    onClick={handleBroadcast}
+                    disabled={loading || !broadcastBody.trim()}
+                  >
+                    {strings.BROADCAST}
+                  </button>
+                  {pulseNote && <div className="pulse-note">{pulseNote}</div>}
+                </div>
+              )}
             </div>
-            {unreadThreadCount > 0 && (
-              <div className="messages-top-actions">
-                <Button
-                  variant="text"
-                  onClick={markAllThreadsRead}
-                  disabled={loading}
-                >
-                  {strings.MARK_ALL_READ}
-                </Button>
-              </div>
-            )}
+          )}
+
+          <div className="pulse-thread-list">
             {threads.length === 0 && !loading && (
               <div className="messages-empty-state">
                 <div className="messages-empty-card">
@@ -553,95 +581,152 @@ const Messages = () => {
               const threadKey = getThreadKey(thread)
               const key = threadKey || thread.lastMessage?._id
               const isUnread = isThreadUnread(thread)
-
-              const propertyName = typeof thread.property === 'object' ? thread.property.name : ''
-              const developerName = getOrgName(thread.developerOrg)
-              const brokerageName = getOrgName(thread.brokerageOrg)
-              const computedTitle = thread.title
-                || (thread.type === movininTypes.MessageThreadType.Broadcast
-                  ? `${developerName || 'Developer'} -> ${brokerageName || 'Brokerage'}`
-                  : propertyName || thread.otherUser?.fullName || strings.INBOX)
+              const subtitle = getThreadSubtitle(thread)
               return (
-              <div key={key} className="message-item">
-                <div className="message-item-header">
-                  {computedTitle}
-                  <span className={getThreadTypeClass(thread.type)}>{getThreadTypeLabel(thread.type)}</span>
-                  {isUnread && <span className="message-unread">{strings.UNREAD}</span>}
+                <button
+                  key={key}
+                  type="button"
+                  className={`pulse-thread ${threadId === thread._id ? 'is-selected' : ''}`}
+                  onClick={() => {
+                    if (thread._id) {
+                      navigate(`/messages?threadId=${thread._id}${propertyKey ? `&propertyId=${propertyKey}` : ''}`)
+                      markThreadRead(threadKey)
+                    } else if (propertyKey) {
+                      navigate(`/messages?propertyId=${propertyKey}`)
+                      markThreadRead(threadKey)
+                    }
+                  }}
+                >
+                  <span className="pulse-avatar">{getThreadAvatar(thread)}</span>
+                  <div className="pulse-thread-body">
+                    <div className="pulse-thread-row">
+                      <span className="pulse-thread-title">{getThreadTitle(thread)}</span>
+                      <span className="pulse-thread-time">{formatThreadTime(thread)}</span>
+                    </div>
+                    {subtitle && <div className="pulse-thread-subject">{subtitle}</div>}
+                    <div className="pulse-thread-preview">{thread.lastMessage?.message || strings.EMPTY}</div>
+                  </div>
+                  {isUnread && <span className="pulse-unread">1</span>}
+                </button>
+              )
+            })}
+            {hasMoreThreads && !loading && (
+              <button
+                type="button"
+                className="pulse-load"
+                onClick={() => setThreadsPage((prev) => prev + 1)}
+              >
+                {strings.LOAD_MORE}
+              </button>
+            )}
+          </div>
+        </aside>
+
+        <section className="pulse-chat">
+          <div className="pulse-chat-header">
+            <div className="pulse-chat-person">
+              <span className="pulse-chat-avatar">
+                {currentThread ? getThreadAvatar(currentThread) : 'G'}
+              </span>
+              <div>
+                <div className="pulse-chat-name">{currentThread ? getThreadTitle(currentThread) : strings.INBOX}</div>
+                <div className="pulse-chat-status">
+                  <span className="pulse-status-dot" />
+                  {strings.ACTIVE_NOW}
                 </div>
-                <div className="messages-meta">
-                  <strong>{strings.RECIPIENT}:</strong>{' '}
-                  {thread.otherUser?.fullName || brokerageName || developerName || '-'}
+              </div>
+            </div>
+            {activeProperty && (
+              <div className="pulse-linked">
+                <div className="pulse-linked-icon">
+                  <OpenInNew />
                 </div>
-                <div>{thread.lastMessage?.message}</div>
-                <div className="messages-actions">
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      if (thread._id) {
-                        navigate(`/messages?threadId=${thread._id}${propertyKey ? `&propertyId=${propertyKey}` : ''}`)
-                      } else if (propertyKey) {
-                        navigate(`/messages?propertyId=${propertyKey}`)
-                      }
-                    }}
-                  >
-                    {strings.OPEN}
-                  </Button>
-                  {isUnread && (
-                    <Button
-                      variant="text"
-                      onClick={() => {
-                        markThreadRead(threadKey)
-                      }}
-                    >
-                      {strings.MARK_READ}
-                    </Button>
+                <div className="pulse-linked-body">
+                  <div className="pulse-linked-label">{strings.LINKED_PROPERTY}</div>
+                  <div className="pulse-linked-title">{activeProperty.name}</div>
+                  {(activeProperty.salePrice || activeProperty.price) && (
+                    <div className="pulse-linked-price">
+                      {movininHelper.formatPrice(
+                        Number(activeProperty.salePrice ?? activeProperty.price ?? 0),
+                        commonStrings.CURRENCY,
+                        user?.language || env.DEFAULT_LANGUAGE,
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
-            )})}
-            {hasMoreThreads && !loading && (
-              <div className="messages-actions">
-                <Button
-                  variant="outlined"
-                  onClick={() => setThreadsPage((prev) => prev + 1)}
-                >
-                  {strings.LOAD_MORE}
-                </Button>
-              </div>
+            )}
+            <button type="button" className="pulse-chat-more" aria-label={strings.MORE}>
+              <MoreHoriz />
+            </button>
+          </div>
+
+          <div className="pulse-chat-body">
+            {messages.length === 0 && !loading && (
+              <div className="pulse-empty">{strings.EMPTY}</div>
+            )}
+            {messages.length > 0 && (
+              <div className="pulse-date-pill">{formatMessageDate(messages[messages.length - 1]?.createdAt)}</div>
+            )}
+            <div className="pulse-bubbles">
+              {messages.map((row) => {
+                const senderId = getId(row.sender)
+                const isMine = senderId === user?._id
+                return (
+                  <div key={row._id} className={`pulse-bubble ${isMine ? 'is-mine' : 'is-theirs'}`}>
+                    <div className="pulse-bubble-text">{row.message}</div>
+                    <div className="pulse-bubble-time">
+                      {row.createdAt
+                        ? new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : ''}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            {hasMoreMessages && !loading && (
+              <button
+                type="button"
+                className="pulse-load"
+                onClick={() => setMessagesPage((prev) => prev + 1)}
+              >
+                {strings.LOAD_MORE}
+              </button>
             )}
           </div>
-        )}
 
-        {!user && <div>{strings.SIGN_IN_REQUIRED}</div>}
-
-        {user && recipientId && (
-          <div className="message-form">
-            <FormControl fullWidth margin="dense">
-              <InputLabel>{strings.TYPE_MESSAGE}</InputLabel>
-              <Input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                disabled={loading || !canSend}
-              />
-            </FormControl>
-            <Button
-              variant="contained"
+          <div className="pulse-composer">
+            <button type="button" className="pulse-attach" aria-label={strings.ATTACH}>
+              <AttachFile />
+            </button>
+            <input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              disabled={loading || !canSend}
+              placeholder={strings.TYPE_MESSAGE}
+            />
+            <button type="button" className="pulse-attach" aria-label={strings.PROFILE}>
+              {user?.fullName?.charAt(0).toUpperCase() || 'U'}
+            </button>
+            <button
+              type="button"
+              className="pulse-send"
               onClick={handleSend}
-              size="small"
               disabled={!message.trim() || loading || !canSend}
-              className="message-send"
             >
-              {strings.SEND}
-            </Button>
+              <Send />
+            </button>
           </div>
-        )}
+          <div className="pulse-footer-note">{strings.VERIFIED_CHANNEL}</div>
 
-        {user && propertyId && !threadId && !recipientId && !loading && messages.length === 0 && (
-          <div>{strings.NO_RECIPIENT}</div>
-        )}
-        {user && propertyId && !threadId && recipientId && !canSend && (
-          <div className="messages-hint">{strings.OWNER_INITIATES}</div>
-        )}
+          {!user && <div className="pulse-empty">{strings.SIGN_IN_REQUIRED}</div>}
+          {user && propertyId && !threadId && !recipientId && !loading && messages.length === 0 && (
+            <div className="pulse-empty">{strings.NO_RECIPIENT}</div>
+          )}
+          {user && propertyId && !threadId && recipientId && !canSend && (
+            <div className="pulse-empty">{strings.OWNER_INITIATES}</div>
+          )}
+        </section>
       </div>
       <Footer />
     </Layout>

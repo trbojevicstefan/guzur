@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from 'react'
+import { MenuItem, Select, CircularProgress } from '@mui/material'
 import {
-  Paper,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  Select,
-  MenuItem,
-  Button,
-  CircularProgress,
-} from '@mui/material'
+  Add,
+  Remove,
+  ArrowForward,
+  Close,
+  EmailOutlined,
+  PhoneOutlined,
+  PlaceOutlined,
+  PersonOutline,
+  ExpandMore,
+  KingBed,
+  Bathtub,
+  AccountBalanceWalletOutlined,
+  Security,
+  Bolt,
+  Star,
+} from '@mui/icons-material'
 import * as movininTypes from ':movinin-types'
 import * as movininHelper from ':movinin-helper'
 import Layout from '@/components/Layout'
@@ -18,6 +26,7 @@ import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/rfq'
 import * as helper from '@/utils/helper'
 import * as RfqService from '@/services/RfqService'
+import { useNavigate } from 'react-router-dom'
 
 import '@/assets/css/rfq.css'
 
@@ -29,11 +38,12 @@ const Rfq = () => {
   const [selectedLocation, setSelectedLocation] = useState<movininTypes.Option | undefined>(undefined)
   const [listingType, setListingType] = useState<movininTypes.ListingType>(movininTypes.ListingType.Sale)
   const [propertyType, setPropertyType] = useState<movininTypes.PropertyType>(movininTypes.PropertyType.Apartment)
-  const [bedrooms, setBedrooms] = useState('')
-  const [bathrooms, setBathrooms] = useState('')
+  const [bedrooms, setBedrooms] = useState(0)
+  const [bathrooms, setBathrooms] = useState(0)
   const [budget, setBudget] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -56,8 +66,8 @@ const Rfq = () => {
         location: location.trim() || selectedLocation?.name || selectedLocation?._id || undefined,
         listingType,
         propertyType,
-        bedrooms: bedrooms ? Number.parseInt(bedrooms, 10) : undefined,
-        bathrooms: bathrooms ? Number.parseInt(bathrooms, 10) : undefined,
+        bedrooms: bedrooms || undefined,
+        bathrooms: bathrooms || undefined,
         budget: budget ? Number.parseInt(budget, 10) : undefined,
         message: message.trim() || undefined,
       }
@@ -69,8 +79,8 @@ const Rfq = () => {
       setPhone('')
       setLocation('')
       setSelectedLocation(undefined)
-      setBedrooms('')
-      setBathrooms('')
+      setBedrooms(0)
+      setBathrooms(0)
       setBudget('')
       setMessage('')
       helper.info(strings.SUCCESS)
@@ -81,152 +91,252 @@ const Rfq = () => {
     }
   }
 
+  const InputWrapper = ({
+    icon: Icon,
+    label,
+    required,
+    children,
+  }: {
+    icon?: React.ElementType
+    label: string
+    required?: boolean
+    children: React.ReactNode
+  }) => (
+    <div className="rfq-field">
+      <label className={`rfq-label ${required ? 'required' : ''}`}>{label}</label>
+      <div className="rfq-input">
+        {Icon && (
+          <span className="rfq-icon">
+            <Icon fontSize="small" />
+          </span>
+        )}
+        {children}
+      </div>
+    </div>
+  )
+
+  const StepperInput = ({
+    icon: Icon,
+    label,
+    value,
+    onIncrement,
+    onDecrement,
+  }: {
+    icon: React.ElementType
+    label: string
+    value: number
+    onIncrement: () => void
+    onDecrement: () => void
+  }) => (
+    <div className="rfq-stepper">
+      <label className="rfq-label">{label}</label>
+      <div className="rfq-stepper-inner">
+        <span className="rfq-stepper-icon">
+          <Icon fontSize="small" />
+        </span>
+        <button type="button" onClick={onDecrement} aria-label={`${label} -`}>
+          <Remove fontSize="small" />
+        </button>
+        <span className="rfq-stepper-value">{value}</span>
+        <button type="button" onClick={onIncrement} aria-label={`${label} +`}>
+          <Add fontSize="small" />
+        </button>
+      </div>
+    </div>
+  )
+
   return (
     <Layout strict={false}>
       <div className="rfq">
-        <Paper className="rfq-card" elevation={8}>
-          <div className="rfq-title">{strings.HEADING}</div>
-          <div className="rfq-subtitle">{strings.SUBHEADING}</div>
-
-          <form onSubmit={handleSubmit}>
-            <div className="rfq-grid">
-              <FormControl fullWidth margin="dense" className="rfq-full">
-                <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                <OutlinedInput
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  label={commonStrings.FULL_NAME}
-                  required
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.EMAIL}</InputLabel>
-                <OutlinedInput
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  label={commonStrings.EMAIL}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.PHONE}</InputLabel>
-                <OutlinedInput
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  label={commonStrings.PHONE}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense" className="rfq-full">
-                <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                <LocationSelectList
-                  label={commonStrings.LOCATION}
-                  variant="outlined"
-                  value={selectedLocation as movininTypes.Location}
-                  onChange={(values) => {
-                    const selected = values[0]
-                    setSelectedLocation(selected)
-                    setLocation(selected?.name || selected?._id || '')
-                  }}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{strings.LISTING_TYPE}</InputLabel>
-                <Select
-                  value={listingType}
-                  label={strings.LISTING_TYPE}
-                  onChange={(event) => setListingType(event.target.value as movininTypes.ListingType)}
-                >
-                  {movininHelper.getAllListingTypes().map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {helper.getListingType(type)}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{strings.PROPERTY_TYPE}</InputLabel>
-                <Select
-                  value={propertyType}
-                  label={strings.PROPERTY_TYPE}
-                  onChange={(event) => setPropertyType(event.target.value as movininTypes.PropertyType)}
-                >
-                  {movininHelper.getAllPropertyTypes().map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {helper.getPropertyType(type)}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{strings.BEDROOMS}</InputLabel>
-                <OutlinedInput
-                  type="number"
-                  value={bedrooms}
-                  onChange={(event) => setBedrooms(event.target.value)}
-                  label={strings.BEDROOMS}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{strings.BATHROOMS}</InputLabel>
-                <OutlinedInput
-                  type="number"
-                  value={bathrooms}
-                  onChange={(event) => setBathrooms(event.target.value)}
-                  label={strings.BATHROOMS}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{strings.BUDGET}</InputLabel>
-                <OutlinedInput
-                  type="number"
-                  value={budget}
-                  onChange={(event) => setBudget(event.target.value)}
-                  label={strings.BUDGET}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense" className="rfq-full">
-                <InputLabel>{strings.MESSAGE}</InputLabel>
-                <OutlinedInput
-                  value={message}
-                  onChange={(event) => setMessage(event.target.value)}
-                  label={strings.MESSAGE}
-                  multiline
-                  minRows={4}
-                />
-              </FormControl>
+        <div className="rfq-shell">
+          <section className="rfq-aside">
+            <div className="rfq-aside-bg" />
+            <div className="rfq-aside-content">
+              <div className="rfq-brand">
+                <img src="/guzurlogo.png" alt="Guzur" />
+              </div>
+              <div className="rfq-aside-body">
+                <h1>{strings.HERO_TITLE}</h1>
+                <p>{strings.HERO_SUBTITLE}</p>
+                <div className="rfq-aside-list">
+                  <div className="rfq-aside-item">
+                    <Security fontSize="small" />
+                    <span>{strings.HERO_FEATURE_ONE}</span>
+                  </div>
+                  <div className="rfq-aside-item">
+                    <Bolt fontSize="small" />
+                    <span>{strings.HERO_FEATURE_TWO}</span>
+                  </div>
+                  <div className="rfq-aside-item">
+                    <Star fontSize="small" />
+                    <span>{strings.HERO_FEATURE_THREE}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="rfq-aside-footer">
+                <span>{strings.HERO_FOOTER}</span>
+                <span>{strings.HERO_FOOTER_DETAIL}</span>
+              </div>
             </div>
+          </section>
 
-            <div className="rfq-actions">
-              <Button type="submit" variant="contained" className="btn-primary" disabled={loading}>
-                {loading ? <CircularProgress size={20} color="inherit" /> : strings.SUBMIT}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setName('')
-                  setEmail('')
-                  setPhone('')
-                  setLocation('')
-                  setSelectedLocation(undefined)
-                  setBedrooms('')
-                  setBathrooms('')
-                  setBudget('')
-                  setMessage('')
-                }}
-              >
-                {commonStrings.CANCEL}
-              </Button>
+          <section className="rfq-form">
+            <div className="rfq-form-inner">
+              <div className="rfq-form-header">
+                <div>
+                  <h2>{strings.HEADING}</h2>
+                  <span className="rfq-accent" />
+                  <p>{strings.SUBHEADING}</p>
+                </div>
+                <button type="button" className="rfq-close" onClick={() => navigate(-1)}>
+                  <Close />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="rfq-form-body">
+                <InputWrapper icon={PersonOutline} label={commonStrings.FULL_NAME} required>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder={strings.NAME_PLACEHOLDER}
+                    required
+                  />
+                </InputWrapper>
+
+                <div className="rfq-row">
+                  <InputWrapper icon={EmailOutlined} label={commonStrings.EMAIL}>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder={strings.EMAIL_PLACEHOLDER}
+                    />
+                  </InputWrapper>
+                  <InputWrapper icon={PhoneOutlined} label={commonStrings.PHONE}>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      placeholder={strings.PHONE_PLACEHOLDER}
+                    />
+                  </InputWrapper>
+                </div>
+
+                <div className="rfq-section">
+                  <InputWrapper icon={PlaceOutlined} label={commonStrings.LOCATION}>
+                    <div className="rfq-location">
+                      <LocationSelectList
+                        label={commonStrings.LOCATION}
+                        variant="outlined"
+                        hidePopupIcon
+                        value={selectedLocation as movininTypes.Location}
+                        onChange={(values) => {
+                          const selected = values[0]
+                          setSelectedLocation(selected)
+                          setLocation(selected?.name || selected?._id || '')
+                        }}
+                      />
+                      <ExpandMore className="rfq-chevron" />
+                    </div>
+                  </InputWrapper>
+
+                  <div className="rfq-row">
+                    <InputWrapper label={strings.LISTING_TYPE}>
+                      <div className="rfq-toggle">
+                        {[movininTypes.ListingType.Sale, movininTypes.ListingType.Rent].map((option) => (
+                          <button
+                            key={option}
+                            type="button"
+                            className={listingType === option ? 'is-active' : ''}
+                            onClick={() => setListingType(option)}
+                          >
+                            {option === movininTypes.ListingType.Sale ? strings.BUY : strings.RENT}
+                          </button>
+                        ))}
+                      </div>
+                    </InputWrapper>
+                    <InputWrapper label={strings.PROPERTY_TYPE}>
+                      <div className="rfq-select">
+                        <Select
+                          value={propertyType}
+                          onChange={(event) => setPropertyType(event.target.value as movininTypes.PropertyType)}
+                          variant="standard"
+                          disableUnderline
+                        >
+                          {movininHelper.getAllPropertyTypes().map((type) => (
+                            <MenuItem key={type} value={type}>
+                              {helper.getPropertyType(type)}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        <ExpandMore className="rfq-chevron" />
+                      </div>
+                    </InputWrapper>
+                  </div>
+
+                  <div className="rfq-row rfq-row-3">
+                    <StepperInput
+                      icon={KingBed}
+                      label={strings.BEDROOMS}
+                      value={bedrooms}
+                      onIncrement={() => setBedrooms((prev) => prev + 1)}
+                      onDecrement={() => setBedrooms((prev) => Math.max(0, prev - 1))}
+                    />
+                    <StepperInput
+                      icon={Bathtub}
+                      label={strings.BATHROOMS}
+                      value={bathrooms}
+                      onIncrement={() => setBathrooms((prev) => prev + 1)}
+                      onDecrement={() => setBathrooms((prev) => Math.max(0, prev - 1))}
+                    />
+                    <InputWrapper icon={AccountBalanceWalletOutlined} label={strings.BUDGET}>
+                      <input
+                        type="text"
+                        value={budget}
+                        onChange={(event) => setBudget(event.target.value)}
+                        placeholder={strings.BUDGET_PLACEHOLDER}
+                      />
+                    </InputWrapper>
+                  </div>
+
+                  <InputWrapper label={strings.MESSAGE}>
+                    <textarea
+                      value={message}
+                      onChange={(event) => setMessage(event.target.value)}
+                      placeholder={strings.MESSAGE_PLACEHOLDER}
+                      rows={4}
+                    />
+                  </InputWrapper>
+                </div>
+
+                <div className="rfq-actions">
+                  <button type="submit" disabled={loading} className="rfq-submit">
+                    {loading ? <CircularProgress size={18} color="inherit" /> : strings.SUBMIT}
+                    <ArrowForward fontSize="small" />
+                  </button>
+                  <button
+                    type="button"
+                    className="rfq-cancel"
+                    onClick={() => {
+                      setName('')
+                      setEmail('')
+                      setPhone('')
+                      setLocation('')
+                      setSelectedLocation(undefined)
+                      setBedrooms(0)
+                      setBathrooms(0)
+                      setBudget('')
+                      setMessage('')
+                    }}
+                  >
+                    {commonStrings.CANCEL}
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
-        </Paper>
+          </section>
+        </div>
       </div>
       <Footer />
     </Layout>

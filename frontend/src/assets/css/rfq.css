@@ -1,57 +1,440 @@
 .rfq {
-  padding: 32px 16px 48px;
+  padding: 24px 16px 80px;
 }
 
-.rfq .rfq-card {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 24px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.08);
+.rfq-shell {
+  display: grid;
+  grid-template-columns: minmax(320px, 40%) minmax(0, 1fr);
+  border-radius: 26px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.14);
 }
 
-.rfq .rfq-title {
+.rfq-aside {
+  position: relative;
+  background: #0a0c10;
+  color: #ffffff;
+  min-height: 720px;
+}
+
+.rfq-aside-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+.rfq-aside::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 12, 16, 0.2) 0%, rgba(10, 12, 16, 0.85) 75%);
+}
+
+.rfq-aside-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 56px;
+}
+
+.rfq-brand img {
+  height: 48px;
+  filter: brightness(0) invert(1);
+}
+
+.rfq-aside-body {
+  margin-top: auto;
+  max-width: 360px;
+}
+
+.rfq-aside-body h1 {
   font-family: var(--font-heading);
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.rfq .rfq-subtitle {
-  color: #555;
+  font-size: 48px;
+  line-height: 1.1;
   margin-bottom: 20px;
 }
 
-.rfq .rfq-grid {
+.rfq-aside-body p {
+  color: #94a3b8;
+  line-height: 1.7;
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.rfq-aside-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rfq-aside-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: #e2e8f0;
+}
+
+.rfq-aside-item svg {
+  color: #fb7185;
+}
+
+.rfq-aside-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.rfq-form {
+  background: #fdfdfd;
+  position: relative;
+}
+
+.rfq-form::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(251, 113, 133, 0.12), transparent 55%);
+  pointer-events: none;
+}
+
+.rfq-form-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 64px 56px;
+}
+
+.rfq-form-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.rfq-form-header h2 {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  margin: 0 0 8px;
+}
+
+.rfq-accent {
+  display: inline-block;
+  height: 4px;
+  width: 48px;
+  background: #e11d48;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.rfq-form-header p {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.rfq-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: #f8fafc;
+  color: #cbd5f5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rfq-close:hover {
+  background: #fee2e2;
+  color: #e11d48;
+}
+
+.rfq-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rfq-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rfq-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  margin-left: 4px;
+}
+
+.rfq-input {
+  position: relative;
+}
+
+.rfq-input input,
+.rfq-input textarea,
+.rfq-select,
+.rfq-location .MuiInputBase-root {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+}
+
+.rfq-input textarea {
+  padding-left: 20px;
+  resize: none;
+}
+
+.rfq-input input:focus,
+.rfq-input textarea:focus,
+.rfq-select:focus-within,
+.rfq-location .MuiInputBase-root.Mui-focused {
+  border-color: rgba(225, 29, 72, 0.3);
+  box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.08);
+}
+
+.rfq-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #cbd5f5;
+  display: inline-flex;
+}
+
+.rfq-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 18px;
 }
 
-.rfq .rfq-grid .rfq-full {
-  grid-column: span 2;
+.rfq-row-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.rfq .rfq-actions {
+.rfq-section {
+  padding-top: 18px;
+  border-top: 1px solid #f8fafc;
   display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rfq-location {
+  position: relative;
+}
+
+.rfq-location .MuiInputBase-root {
+  padding-left: 44px;
+  padding-right: 44px;
+}
+
+.rfq-location .MuiOutlinedInput-notchedOutline {
+  border: none;
+}
+
+.rfq-location input {
+  padding-left: 0;
+}
+
+.rfq-toggle {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+}
+
+.rfq-toggle button {
+  flex: 1;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.rfq-toggle button.is-active {
+  background: #ffffff;
+  color: #e11d48;
+  border: 1px solid rgba(225, 29, 72, 0.12);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.rfq-select {
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+}
+
+.rfq-select .MuiSelect-select {
+  padding-left: 0;
+}
+
+.rfq-chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #cbd5f5;
+  pointer-events: none;
+}
+
+.rfq-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rfq-stepper-inner {
+  display: flex;
+  align-items: center;
   gap: 10px;
-  margin-top: 16px;
-  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
 }
 
-.rfq .btn-primary {
-  min-width: 140px;
+.rfq-stepper-icon {
+  color: #cbd5f5;
 }
 
-@media (width <= 720px) {
-  .rfq .rfq-grid {
+.rfq-stepper-inner button {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.rfq-stepper-inner button:hover {
+  background: #fee2e2;
+  color: #e11d48;
+}
+
+.rfq-stepper-value {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+  color: #475569;
+}
+
+.rfq-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.rfq-submit {
+  flex: 1;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 20px;
+  background: #e11d48;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 18px 40px rgba(225, 29, 72, 0.24);
+}
+
+.rfq-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.rfq-cancel {
+  border-radius: 16px;
+  padding: 16px 24px;
+  border: 1px solid #f1f5f9;
+  background: #ffffff;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  cursor: pointer;
+}
+
+@media (max-width: 1100px) {
+  .rfq-shell {
     grid-template-columns: 1fr;
   }
 
-  .rfq .rfq-grid .rfq-full {
-    grid-column: span 1;
+  .rfq-aside {
+    min-height: 420px;
+  }
+
+  .rfq-aside-content {
+    padding: 36px;
+  }
+}
+
+@media (max-width: 720px) {
+  .rfq-form-inner {
+    padding: 40px 24px;
+  }
+
+  .rfq-row {
+    grid-template-columns: 1fr;
+  }
+
+  .rfq-row-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .rfq-actions {
+    flex-direction: column;
+  }
+
+  .rfq-submit,
+  .rfq-cancel {
+    width: 100%;
   }
 }

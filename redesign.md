@@ -44,6 +44,9 @@ Serve as the single source of truth for redesign scope, rules, task tracking, an
 - Run functional regression on account/auth flows.
 - Update i18n strings if any UI text changes.
 - Capture any deltas or exceptions explicitly in this document.
+**Change Log**
+- 2026-02-04: Redesigned `frontend/src/pages/Messages.tsx` (Pulse UI), `frontend/src/pages/Rfq.tsx` (RFQ split layout), updated related CSS and i18n.
+- 2026-02-04: In progress: Broker/Developer dashboards and Organization screen redesign.
 **Frontend Pages**
 - `frontend/src/pages/About.tsx` - Components: Footer, Layout [ ]
 - `frontend/src/pages/Activate.tsx` - Components: Footer, Layout, PasswordInput [ ]

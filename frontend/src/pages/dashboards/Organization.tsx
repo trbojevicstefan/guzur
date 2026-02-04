@@ -220,20 +220,39 @@ const Organization = () => {
 
   return (
     <Layout strict onLoad={onLoad}>
-      <div className="organization-admin">
-        <h1>{orgStrings.ORGANIZATION}</h1>
+      <div className="organization-admin org-portal">
+        <div className="org-hero">
+          <div>
+            <h1>{orgStrings.ORGANIZATION}</h1>
+            <p>{orgStrings.ORGANIZATION_PROFILE}</p>
+          </div>
+          <Button
+            variant="contained"
+            disabled={saving || !orgName}
+            onClick={handleSaveProfile}
+            className="org-save"
+          >
+            {orgStrings.SAVE_PROFILE}
+          </Button>
+        </div>
         {loading ? (
           <div className="organization-loading">{commonStrings.LOADING}</div>
         ) : organization ? (
           <>
-            <div className="organization-card">
-              <div className="organization-name">{organization.name}</div>
-              {organization.description && <div className="organization-desc">{organization.description}</div>}
+            <div className="org-card">
+              <div>
+                <div className="org-card-title">{organization.name}</div>
+                {organization.description && <div className="org-card-desc">{organization.description}</div>}
+              </div>
+              <div className="org-card-meta">
+                <span>{organization.approved ? commonStrings.VERIFIED : commonStrings.UNVERIFIED}</span>
+                <span>{organization.active ? orgStrings.APPROVED : orgStrings.PENDING}</span>
+              </div>
             </div>
 
-            <div className="organization-section">
+            <div className="org-section">
               <h2>{orgStrings.ORGANIZATION_PROFILE}</h2>
-              <div className="organization-form">
+              <div className="organization-form org-form-card">
                 <div className="organization-media-grid">
                   <div className="organization-media-card">
                     <div className="organization-media-label">{orgStrings.LOGO}</div>
@@ -313,19 +332,12 @@ const Organization = () => {
                     minRows={3}
                   />
                 </FormControl>
-                <Button
-                  variant="contained"
-                  disabled={saving || !orgName}
-                  onClick={handleSaveProfile}
-                >
-                  {orgStrings.SAVE_PROFILE}
-                </Button>
               </div>
             </div>
 
-            <div className="organization-section">
+            <div className="org-section">
               <h2>{orgStrings.INVITE_MEMBER}</h2>
-              <div className="organization-form">
+              <div className="organization-form org-form-card">
                 <div className="organization-form-grid">
                   <FormControl fullWidth margin="dense">
                     <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
@@ -362,7 +374,7 @@ const Organization = () => {
               </div>
             </div>
 
-            <div className="organization-section">
+            <div className="org-section">
               <h2>{orgStrings.MEMBERS}</h2>
               {members.length === 0 ? (
                 <div className="organization-empty">{orgStrings.NO_MEMBERS}</div>
@@ -381,7 +393,7 @@ const Organization = () => {
               )}
             </div>
 
-            <div className="organization-section">
+            <div className="org-section">
               <h2>{orgStrings.PARTNERSHIPS}</h2>
               {partnershipLoading ? (
                 <div className="organization-loading">{commonStrings.LOADING}</div>

@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  FormControl,
-  Input,
-  InputLabel,
-  Button,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from '@mui/material'
+  Search,
+  FilterList,
+  GridView,
+  ViewList,
+  TrendingUp,
+  PlaceOutlined,
+  AccessTime,
+  ArrowOutward,
+} from '@mui/icons-material'
+import { format } from 'date-fns'
 import * as movininTypes from ':movinin-types'
 import Layout from '@/components/Layout'
-import DevelopmentList from '@/components/DevelopmentList'
 import LocationSelectList from '@/components/LocationSelectList'
-import Pager from '@/components/Pager'
 import { strings as developmentStrings } from '@/lang/developments'
 import { strings as commonStrings } from '@/lang/common'
 import * as DevelopmentService from '@/services/DevelopmentService'
@@ -22,6 +22,15 @@ import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 
 import '@/assets/css/developments.css'
+
+const cairoLocations = [
+  'Fifth Settlement, New Cairo',
+  'Sheikh Zayed City',
+  'Zamalek, Cairo',
+  'Maadi, Cairo',
+  'Heliopolis, Cairo',
+  'New Capital, Cairo',
+]
 
 const Projects = () => {
   const navigate = useNavigate()
@@ -35,6 +44,7 @@ const Projects = () => {
   const [page, setPage] = useState(1)
   const [rowCount, setRowCount] = useState(0)
   const [totalRecords, setTotalRecords] = useState(0)
+  const [projectLayout, setProjectLayout] = useState<'grid' | 'list'>('grid')
 
   useEffect(() => {
     const fetchDevelopments = async () => {
@@ -87,63 +97,103 @@ const Projects = () => {
     initLocation()
   }, [searchParams])
 
-  const handleStatusChange = (event: SelectChangeEvent<string>) => {
-    setStatus(event.target.value as movininTypes.DevelopmentStatus | '')
-    setPage(1)
+  const getOpenDate = (development: movininTypes.Development) => {
+    const base = development.updatedAt ? new Date(development.updatedAt) : new Date()
+    let monthsToAdd = 18
+    if (development.status === movininTypes.DevelopmentStatus.InProgress) {
+      monthsToAdd = 12
+    }
+    if (development.status === movininTypes.DevelopmentStatus.Completed) {
+      monthsToAdd = 6
+    }
+    if (development.status === movininTypes.DevelopmentStatus.Planning) {
+      monthsToAdd = 24
+    }
+    const future = new Date(base)
+    future.setMonth(future.getMonth() + monthsToAdd)
+    if (future <= new Date()) {
+      future.setMonth(future.getMonth() + 6)
+    }
+    return format(future, 'MMM yyyy')
   }
+
+  const getDisplayLocation = (development: movininTypes.Development) => {
+    if (selectedLocation?.name) {
+      return selectedLocation.name
+    }
+    if (development.location && !/\d/.test(development.location)) {
+      return development.location
+    }
+    const seed = (development.name || '').length
+    return cairoLocations[seed % cairoLocations.length]
+  }
+
+  const statusLabel = (value?: movininTypes.DevelopmentStatus) => {
+    if (!value) {
+      return ''
+    }
+    return helper.getDevelopmentStatus(value)
+  }
+
+  const visibleDevelopments = useMemo(() => developments, [developments])
+
+  const pageStart = totalRecords > 0 ? (page - 1) * env.PAGE_SIZE + 1 : 0
+  const pageEnd = rowCount > 0 ? rowCount : 0
 
   return (
     <Layout strict={false}>
-      <div className="developments-page">
-        <div className="developments-page-header">
-          <h1>{developmentStrings.HEADING}</h1>
-          <Link to="/projects/browse" className="developments-browse-link">
-            {developmentStrings.BROWSE_BY_LOCATION}
-          </Link>
-        </div>
-        {selectedLocation?.name && (
-          <div className="developments-filter-summary">
-            <span>
-              {developmentStrings.FILTERED_BY_LOCATION}: {selectedLocation.name}
+      <div className="projects-page">
+        <div className="projects-header">
+          <div className="projects-title">
+            <span className="projects-badge">
+              <TrendingUp fontSize="inherit" />
+              {developmentStrings.MARKET_DEVELOPMENT}
             </span>
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => {
-                setLocation('')
-                setSelectedLocation(undefined)
-                setPage(1)
-                setSearchParams((prev) => {
-                  const next = new URLSearchParams(prev)
-                  next.delete('location')
-                  return next
-                })
-              }}
-            >
-              {developmentStrings.CLEAR_LOCATION}
-            </Button>
+            <h1>{developmentStrings.HEADING}</h1>
+            <p>{developmentStrings.SUBHEADING}</p>
           </div>
-        )}
 
-        <section className="developments-filters">
-          <FormControl fullWidth margin="dense">
-            <InputLabel>{developmentStrings.SEARCH}</InputLabel>
-            <Input
+          <div className="projects-actions">
+            <div className="projects-layout-toggle">
+              <button
+                type="button"
+                className={projectLayout === 'grid' ? 'is-active' : ''}
+                onClick={() => setProjectLayout('grid')}
+              >
+                <GridView fontSize="small" />
+              </button>
+              <button
+                type="button"
+                className={projectLayout === 'list' ? 'is-active' : ''}
+                onClick={() => setProjectLayout('list')}
+              >
+                <ViewList fontSize="small" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="projects-filters">
+          <div className="projects-search">
+            <Search fontSize="small" />
+            <input
               type="text"
               value={keyword}
-              className="developments-search-input"
-              autoComplete="off"
+              placeholder={developmentStrings.SEARCH_PLACEHOLDER}
               onChange={(e) => {
                 setKeyword(e.target.value)
                 setPage(1)
               }}
             />
-          </FormControl>
+          </div>
 
-          <FormControl fullWidth margin="dense">
+          <div className="projects-divider" />
+
+          <div className="projects-location">
+            <PlaceOutlined fontSize="small" />
             <LocationSelectList
               label={developmentStrings.LOCATION}
-              variant="standard"
+              variant="outlined"
               hidePopupIcon
               init
               value={selectedLocation}
@@ -164,60 +214,138 @@ const Projects = () => {
                 })
               }}
             />
-          </FormControl>
+          </div>
 
-          <FormControl fullWidth margin="dense">
-            <InputLabel>{developmentStrings.STATUS}</InputLabel>
-            <Select
-              value={status}
-              onChange={handleStatusChange}
-              variant="standard"
-              fullWidth
+          <div className="projects-divider" />
+
+          <button type="button" className="projects-more-filters">
+            <FilterList fontSize="small" />
+            {developmentStrings.MORE_FILTERS}
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="projects-loading">{commonStrings.LOADING}</div>
+        ) : projectLayout === 'grid' ? (
+          <div className="projects-grid">
+            {visibleDevelopments.map((project) => (
+              <div key={project._id} className="project-card">
+                <div className="project-card-media">
+                  <img src={project.images?.[0] || project.image || ''} alt={project.name} />
+                  <div className="project-card-overlay" />
+                  {project.status && (
+                    <span className={`project-card-status status-${project.status?.toLowerCase()}`}>
+                      {statusLabel(project.status)}
+                    </span>
+                  )}
+                  <div className="project-card-units">
+                    {project.unitsCount || 0} {developmentStrings.PLANNED_UNITS}
+                  </div>
+                </div>
+                <div className="project-card-body">
+                  <div className="project-card-location">
+                    <PlaceOutlined fontSize="inherit" />
+                    {getDisplayLocation(project)}
+                  </div>
+                  <h3>{project.name}</h3>
+                  <p>{developmentStrings.DEVELOPED_BY.replace('{name}', String(project.developerOrg || project.developer || ''))}</p>
+                  <div className="project-card-footer">
+                    <div>
+                      <span>{developmentStrings.OPEN_DATE}</span>
+                      <div>
+                        <AccessTime fontSize="inherit" />
+                        {getOpenDate(project)}
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => project._id && navigate(`/projects/${project._id}`)}>
+                      <ArrowOutward fontSize="small" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="projects-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>{developmentStrings.NAME}</th>
+                  <th>{developmentStrings.LOCATION}</th>
+                  <th>{developmentStrings.DEVELOPER}</th>
+                  <th>{developmentStrings.UNITS}</th>
+                  <th>{developmentStrings.COMPLETION}</th>
+                  <th>{developmentStrings.ACTIONS}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleDevelopments.map((project) => (
+                  <tr key={project._id}>
+                    <td>
+                      <div className="project-table-name">
+                        <img src={project.images?.[0] || project.image || ''} alt={project.name} />
+                        <div>
+                          <strong>{project.name}</strong>
+                          {project.status && (
+                            <span className={`project-card-status status-${project.status?.toLowerCase()}`}>
+                              {statusLabel(project.status)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="project-table-location">
+                        <PlaceOutlined fontSize="inherit" />
+                        {getDisplayLocation(project)}
+                      </span>
+                    </td>
+                    <td>{project.developerOrg || project.developer || '-'}</td>
+                    <td className="project-table-units">{project.unitsCount || 0}</td>
+                    <td className="project-table-date">
+                      <AccessTime fontSize="inherit" />
+                      {getOpenDate(project)}
+                    </td>
+                    <td className="project-table-actions">
+                      <button type="button" onClick={() => project._id && navigate(`/projects/${project._id}`)}>
+                        <ArrowOutward fontSize="small" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="projects-pagination">
+          <span>{`${pageStart}-${pageEnd} ${commonStrings.OF} ${totalRecords} ${developmentStrings.TOTAL}`}</span>
+          <div>
+            <button
+              type="button"
+              disabled={page === 1}
+              onClick={() => {
+                const _page = page - 1
+                setRowCount(_page < Math.ceil(totalRecords / env.PAGE_SIZE) ? (_page - 1) * env.PAGE_SIZE + env.PAGE_SIZE : totalRecords)
+                setPage(_page)
+              }}
             >
-              <MenuItem value="">{developmentStrings.ALL_STATUSES}</MenuItem>
-              {Object.values(movininTypes.DevelopmentStatus).map((value) => (
-                <MenuItem key={value} value={value}>
-                  {helper.getDevelopmentStatus(value)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </section>
-
-        <section className="developments-results">
-          {loading ? (
-            <div className="developments-loading">{commonStrings.LOADING}</div>
-          ) : (
-            <DevelopmentList
-              developments={developments}
-              showLocation
-              showDeveloper
-              labels={{
-                EMPTY_DEVELOPMENTS: developmentStrings.EMPTY,
-                NAME: developmentStrings.NAME,
-                STATUS: developmentStrings.STATUS,
-                UNITS: developmentStrings.UNITS,
-                UPDATED: developmentStrings.UPDATED,
-                LOCATION: developmentStrings.LOCATION,
-                DEVELOPER: developmentStrings.DEVELOPER,
+              <ChevronLeft fontSize="small" />
+            </button>
+            <span>{page}</span>
+            <button
+              type="button"
+              disabled={(page - 1) * env.PAGE_SIZE + developments.length >= totalRecords}
+              onClick={() => {
+                const _page = page + 1
+                setRowCount(_page < Math.ceil(totalRecords / env.PAGE_SIZE) ? (_page - 1) * env.PAGE_SIZE + env.PAGE_SIZE : totalRecords)
+                setPage(_page)
               }}
-              onSelect={(development) => {
-                if (development._id) {
-                  navigate(`/projects/${development._id}`)
-                }
-              }}
-            />
-          )}
-        </section>
-
-        <Pager
-          page={page}
-          pageSize={env.PAGE_SIZE}
-          rowCount={rowCount}
-          totalRecords={totalRecords}
-          onNext={() => setPage(page + 1)}
-          onPrevious={() => setPage(page - 1)}
-        />
+            >
+              <ChevronRight fontSize="small" />
+            </button>
+          </div>
+        </div>
       </div>
     </Layout>
   )

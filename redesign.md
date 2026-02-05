@@ -16,6 +16,7 @@ Serve as the single source of truth for redesign scope, rules, task tracking, an
 - Open the browser, compare implementation to the design, and adjust until pixel perfect.
 - Mark a page with `[ x ]` only when it matches the design and passes functional checks.
 - Leave `[ ]` for any page not yet completed.
+- Use provided design code as a reference only; adjust to match the existing frontend architecture and the approved design system.
 **Task Breakdown**
 - Collect and label all design screenshots per page.
 - Record target viewport sizes and breakpoints from the designs.
@@ -54,6 +55,10 @@ Serve as the single source of truth for redesign scope, rules, task tracking, an
 - 2026-02-04: Redesigned `frontend/src/pages/Contact.tsx`, updated `contact.css` and `contact-form.ts` for the new contact layout.
 - 2026-02-04: Updated Sign In hero image and frontend title (`frontend/src/assets/css/signin.css`, `frontend/index.html`).
 - 2026-02-04: Removed Footer from Sign In and Sign Up (`frontend/src/pages/SignIn.tsx`, `frontend/src/pages/SignUp.tsx`).
+- 2026-02-05: Redesigned `frontend/src/pages/Settings.tsx`, updated `settings.css` and `settings.ts` for the new profile layout.
+- 2026-02-05: Redesigned notifications (`frontend/src/components/NotificationList.tsx`, `frontend/src/assets/css/notification-list.css`, `frontend/src/lang/notifications.ts`).
+- 2026-02-05: Redesigned organization edit screen (`frontend/src/pages/dashboards/Organization.tsx`, `frontend/src/assets/css/organization-admin.css`).
+- 2026-02-05: Redesigned projects screen with grid/list layouts (`frontend/src/pages/Projects.tsx`, `frontend/src/assets/css/developments.css`, `frontend/src/lang/developments.ts`).
 **Frontend Pages**
 - `frontend/src/pages/About.tsx` - Components: Footer, Layout [ ]
 - `frontend/src/pages/Activate.tsx` - Components: Footer, Layout, PasswordInput [ ]

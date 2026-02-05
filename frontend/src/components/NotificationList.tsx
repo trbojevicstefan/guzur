@@ -1,24 +1,23 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Button,
-  Card,
-  CardContent,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
-  Tooltip,
-  Typography
 } from '@mui/material'
 import {
-  Visibility as ViewIcon,
-  Drafts as MarkReadIcon,
-  Markunread as MarkUnreadIcon,
-  Delete as DeleteIcon,
-  ArrowBackIos as PreviousPageIcon,
-  ArrowForwardIos as NextPageIcon,
+  CheckCircle,
+  Search,
+  FilterList,
+  Visibility,
+  Archive,
+  Delete,
+  ChevronLeft,
+  ChevronRight,
+  NotificationsActive,
+  ChatBubbleOutline,
+  Bolt,
 } from '@mui/icons-material'
 import { format } from 'date-fns'
 import { fr, enUS } from 'date-fns/locale'
@@ -50,11 +49,12 @@ const NotificationList = ({ user }: NotificationListProps) => {
   const [totalRecords, setTotalRecords] = useState(-1)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [selectedRows, setSelectedRows] = useState<movininTypes.Notification[]>([])
+  const [search, setSearch] = useState('')
   const notificationsListRef = useRef<HTMLDivElement>(null)
 
   const _fr = user && user.language === 'fr'
   const _locale = _fr ? fr : enUS
-  const _format = _fr ? 'eee d LLLL, kk:mm' : 'eee, d LLLL, kk:mm'
+  const _format = _fr ? 'eee d LLLL • kk:mm' : 'eee, d LLLL • kk:mm'
 
   const fetch = useCallback(async () => {
     if (user && user._id) {
@@ -94,64 +94,256 @@ const NotificationList = ({ user }: NotificationListProps) => {
 
   const checkedRows = rows.filter((row) => row.checked)
   const allChecked = rows.length > 0 && checkedRows.length === rows.length
-  const indeterminate = checkedRows.length > 0 && checkedRows.length < rows.length
+
+  const handleSelectAll = () => {
+    const _rows = movininHelper.clone(rows) as movininTypes.Notification[]
+    const nextChecked = !allChecked
+    for (const row of _rows) {
+      row.checked = nextChecked
+    }
+    setRows(_rows)
+  }
+
+  const toggleSelect = (id: string) => {
+    const _rows = movininHelper.clone(rows) as movininTypes.Notification[]
+    const target = _rows.find((row) => row._id === id)
+    if (target) {
+      target.checked = !target.checked
+      setRows(_rows)
+    }
+  }
+
+  const markSelectedAsRead = async () => {
+    try {
+      if (!user || !user._id) {
+        helper.error()
+        return
+      }
+      const _rows = checkedRows.filter((row) => !row.isRead)
+      const ids = _rows.map((row) => row._id)
+      if (!ids.length) {
+        return
+      }
+      const status = await NotificationService.markAsRead(user._id, ids)
+      if (status === 200) {
+        const __rows = movininHelper.clone(rows) as movininTypes.Notification[]
+        __rows.filter((row) => ids.includes(row._id)).forEach((row) => {
+          row.isRead = true
+        })
+        setRows(__rows)
+        setNotificationCount((prev) => prev - _rows.length)
+      } else {
+        helper.error()
+      }
+    } catch (err) {
+      helper.error(err)
+    }
+  }
+
+  const markSelectedAsUnread = async () => {
+    try {
+      if (!user || !user._id) {
+        helper.error()
+        return
+      }
+      const _rows = checkedRows.filter((row) => row.isRead)
+      const ids = _rows.map((row) => row._id)
+      if (!ids.length) {
+        return
+      }
+      const status = await NotificationService.markAsUnread(user._id, ids)
+      if (status === 200) {
+        const __rows = movininHelper.clone(rows) as movininTypes.Notification[]
+        __rows.filter((row) => ids.includes(row._id)).forEach((row) => {
+          row.isRead = false
+        })
+        setRows(__rows)
+        setNotificationCount((prev) => prev + _rows.length)
+      } else {
+        helper.error()
+      }
+    } catch (err) {
+      helper.error(err)
+    }
+  }
+
+  const handleDeleteSelected = () => {
+    setSelectedRows(checkedRows)
+    setOpenDeleteDialog(true)
+  }
+
+  const getNotificationIcon = (row: movininTypes.Notification) => {
+    if (row.type === movininTypes.NotificationType.Message) {
+      return <ChatBubbleOutline fontSize="small" />
+    }
+    if (row.message?.toLowerCase().includes('lead')) {
+      return <Bolt fontSize="small" />
+    }
+    return <NotificationsActive fontSize="small" />
+  }
+
+  const visibleRows = rows.filter((row) =>
+    row.message?.toLowerCase().includes(search.trim().toLowerCase()),
+  )
+
+  const pageStart = totalRecords > 0 ? (page - 1) * env.PAGE_SIZE + 1 : 0
+  const pageEnd = rowCount > 0 ? rowCount : 0
 
   return (
     <>
       <div className="notifications">
-        {totalRecords === 0 && (
-          <Card variant="outlined" className="empty-list">
-            <CardContent>
-              <Typography color="textSecondary">{strings.EMPTY_LIST}</Typography>
-            </CardContent>
-          </Card>
+        <div className="notifications-header">
+          <span className="notifications-badge">{strings.LIVE_ACTIVITY}</span>
+          <h1>{strings.HEADING}</h1>
+          <p>{strings.SUBHEADING}</p>
+        </div>
+
+        {totalRecords === 0 && !loading && (
+          <div className="notifications-empty">{strings.EMPTY_LIST}</div>
         )}
 
         {totalRecords > 0 && (
-          <>
-            <div className="header-container">
-              <div className="header">
-                <div className="header-checkbox">
-                  <Checkbox
-                    checked={allChecked}
-                    indeterminate={indeterminate}
-                    onChange={(event) => {
-                      const _rows = movininHelper.clone(rows) as movininTypes.Notification[]
-                      if (indeterminate) {
-                        for (const row of _rows) {
-                          row.checked = false
-                        }
-                      } else {
-                        for (const row of _rows) {
-                          row.checked = event.target.checked
-                        }
-                      }
-                      setRows(_rows)
-                    }}
-                  />
+          <div className="notifications-card">
+            <div className="notifications-toolbar">
+              <div className="notifications-select" onClick={handleSelectAll}>
+                <input type="checkbox" checked={allChecked} readOnly />
+                <span>
+                  {checkedRows.length > 0
+                    ? strings.SELECTED.replace('{count}', String(checkedRows.length))
+                    : strings.SELECT_ALL}
+                </span>
+              </div>
+
+              {checkedRows.length > 0 ? (
+                <div className="notifications-actions">
+                  <button type="button" onClick={markSelectedAsRead} title={strings.MARK_ALL_AS_READ}>
+                    <Visibility fontSize="small" />
+                  </button>
+                  <button type="button" onClick={markSelectedAsUnread} title={strings.MARK_ALL_AS_UNREAD}>
+                    <Archive fontSize="small" />
+                  </button>
+                  <button type="button" onClick={handleDeleteSelected} title={strings.DELETE_ALL}>
+                    <Delete fontSize="small" />
+                  </button>
                 </div>
-                {checkedRows.length > 0 && (
-                  <div className="header-actions">
-                    {checkedRows.some((row) => !row.isRead) && (
-                      <Tooltip title={strings.MARK_ALL_AS_READ}>
-                        <IconButton
+              ) : (
+                <div className="notifications-search">
+                  <div className="notifications-search-input">
+                    <Search fontSize="small" />
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(event) => setSearch(event.target.value)}
+                      placeholder={strings.SEARCH_PLACEHOLDER}
+                    />
+                  </div>
+                  <button type="button" className="notifications-filter">
+                    <FilterList fontSize="small" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div ref={notificationsListRef} className="notifications-list">
+              {visibleRows.map((row) => {
+                const unread = !row.isRead
+                return (
+                  <div
+                    key={row._id}
+                    className={`notification-row${row.checked ? ' is-selected' : ''}${unread ? ' is-unread' : ''}`}
+                    onClick={() => toggleSelect(row._id)}
+                  >
+                    {unread && <span className="notification-unread" />}
+                    <div className="notification-checkbox">
+                      <input type="checkbox" checked={row.checked} readOnly />
+                    </div>
+                    <div className="notification-icon">
+                      {getNotificationIcon(row)}
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-meta">
+                        <span>
+                          {row.createdAt && movininHelper.capitalize(
+                            format(new Date(row.createdAt), _format, {
+                              locale: _locale,
+                            }),
+                          )}
+                        </span>
+                        {unread && <span className="notification-new">{strings.NEW}</span>}
+                      </div>
+                      <p>{row.message}</p>
+                    </div>
+                    <div className="notification-row-actions" onClick={(event) => event.stopPropagation()}>
+                      {(row.booking || row.link) && (
+                        <button
+                          type="button"
+                          title={strings.VIEW}
                           onClick={async () => {
                             try {
                               if (!user || !user._id) {
                                 helper.error()
                                 return
                               }
-                              const _rows = checkedRows.filter((row) => !row.isRead)
-                              const ids = _rows.map((row) => row._id)
-                              const status = await NotificationService.markAsRead(user._id, ids)
+
+                              const __navigate__ = () => {
+                                const link = row.link || (row.booking ? `/booking?b=${row.booking}` : '')
+                                if (!link) {
+                                  return
+                                }
+                                if (link.startsWith('http')) {
+                                  window.location.href = link
+                                  return
+                                }
+                                navigate(link)
+                              }
+
+                              if (!row.isRead) {
+                                const status = await NotificationService.markAsRead(user._id, [row._id])
+
+                                if (status === 200) {
+                                  const _rows = movininHelper.cloneArray(rows) as movininTypes.Notification[]
+                                  const target = _rows.find((item) => item._id === row._id)
+                                  if (target) {
+                                    target.isRead = true
+                                  }
+                                  setRows(_rows)
+                                  setNotificationCount((prev) => prev - 1)
+                                  __navigate__()
+                                } else {
+                                  helper.error()
+                                }
+                              } else {
+                                __navigate__()
+                              }
+                            } catch (err) {
+                              helper.error(err)
+                            }
+                          }}
+                        >
+                          <Visibility fontSize="small" />
+                        </button>
+                      )}
+                      {!row.isRead ? (
+                        <button
+                          type="button"
+                          title={strings.MARK_AS_READ}
+                          onClick={async () => {
+                            try {
+                              if (!user || !user._id) {
+                                helper.error()
+                                return
+                              }
+
+                              const status = await NotificationService.markAsRead(user._id, [row._id])
 
                               if (status === 200) {
-                                const __rows = movininHelper.clone(rows) as movininTypes.Notification[]
-                                __rows.filter((row) => ids.includes(row._id)).forEach((row) => {
-                                  row.isRead = true
-                                })
-                                setRows(__rows)
-                                setNotificationCount((prev) => prev - _rows.length)
+                                const _rows = movininHelper.cloneArray(rows) as movininTypes.Notification[]
+                                const target = _rows.find((item) => item._id === row._id)
+                                if (target) {
+                                  target.isRead = true
+                                }
+                                setRows(_rows)
+                                setNotificationCount((prev) => prev - 1)
                               } else {
                                 helper.error()
                               }
@@ -160,30 +352,29 @@ const NotificationList = ({ user }: NotificationListProps) => {
                             }
                           }}
                         >
-                          <MarkReadIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    {checkedRows.some((row) => row.isRead) && (
-                      <Tooltip title={strings.MARK_ALL_AS_UNREAD}>
-                        <IconButton
+                          <Archive fontSize="small" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          title={strings.MARK_AS_UNREAD}
                           onClick={async () => {
                             try {
                               if (!user || !user._id) {
                                 helper.error()
                                 return
                               }
-                              const _rows = checkedRows.filter((row) => row.isRead)
-                              const ids = _rows.map((row) => row._id)
-                              const status = await NotificationService.markAsUnread(user._id, ids)
+
+                              const status = await NotificationService.markAsUnread(user._id, [row._id])
 
                               if (status === 200) {
-                                const __rows = movininHelper.clone(rows) as movininTypes.Notification[]
-                                __rows.filter((row) => ids.includes(row._id)).forEach((row) => {
-                                  row.isRead = false
-                                })
-                                setRows(__rows)
-                                setNotificationCount((prev) => prev + _rows.length)
+                                const _rows = movininHelper.cloneArray(rows) as movininTypes.Notification[]
+                                const target = _rows.find((item) => item._id === row._id)
+                                if (target) {
+                                  target.isRead = false
+                                }
+                                setRows(_rows)
+                                setNotificationCount((prev) => prev + 1)
                               } else {
                                 helper.error()
                               }
@@ -192,171 +383,30 @@ const NotificationList = ({ user }: NotificationListProps) => {
                             }
                           }}
                         >
-                          <MarkUnreadIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    <Tooltip title={strings.DELETE_ALL}>
-                      <IconButton
+                          <Archive fontSize="small" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        title={commonStrings.DELETE}
                         onClick={() => {
-                          setSelectedRows(checkedRows)
+                          setSelectedRows([row])
                           setOpenDeleteDialog(true)
                         }}
                       >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div ref={notificationsListRef} className="notifications-list">
-              {rows.map((row, index) => (
-                <div key={row._id} className="notification-container">
-                  <div className="notification-checkbox">
-                    <Checkbox
-                      checked={row.checked}
-                      onChange={(event) => {
-                        row.checked = event.target.checked
-                        setRows(movininHelper.clone(rows))
-                      }}
-                    />
-                  </div>
-                  <div className={`notification${!row.isRead ? ' unread' : ''}`}>
-                    <div className="date">
-                      {row.createdAt && movininHelper.capitalize(
-                        format(new Date(row.createdAt), _format, {
-                          locale: _locale,
-                        }),
-                      )}
-                    </div>
-                    <div className="message-container">
-                      <div className="message">{row.message}</div>
-                      <div className="actions">
-                        {(row.booking || row.link) && (
-                          <Tooltip title={strings.VIEW}>
-                            <IconButton
-                              onClick={async () => {
-                                try {
-                                  if (!user || !user._id) {
-                                    helper.error()
-                                    return
-                                  }
-
-                                  const __navigate__ = () => {
-                                    const link = row.link || (row.booking ? `/booking?b=${row.booking}` : '')
-                                    if (!link) {
-                                      return
-                                    }
-                                    if (link.startsWith('http')) {
-                                      window.location.href = link
-                                      return
-                                    }
-                                    navigate(link)
-                                  }
-
-                                  if (!row.isRead) {
-                                    const status = await NotificationService.markAsRead(user._id, [row._id])
-
-                                    if (status === 200) {
-                                      const _rows = movininHelper.cloneArray(rows) as movininTypes.Notification[]
-                                      _rows[index].isRead = true
-                                      setRows(_rows)
-                                      setNotificationCount((prev) => prev - 1)
-                                      __navigate__()
-                                    } else {
-                                      helper.error()
-                                    }
-                                  } else {
-                                    __navigate__()
-                                  }
-                                } catch (err) {
-                                  helper.error(err)
-                                }
-                              }}
-                            >
-                              <ViewIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        {!row.isRead ? (
-                          <Tooltip title={strings.MARK_AS_READ}>
-                            <IconButton
-                              onClick={async () => {
-                                try {
-                                  if (!user || !user._id) {
-                                    helper.error()
-                                    return
-                                  }
-
-                                  const status = await NotificationService.markAsRead(user._id, [row._id])
-
-                                  if (status === 200) {
-                                    const _rows = movininHelper.cloneArray(rows) as movininTypes.Notification[]
-                                    _rows[index].isRead = true
-                                    setRows(_rows)
-                                    setNotificationCount((prev) => prev - 1)
-                                  } else {
-                                    helper.error()
-                                  }
-                                } catch (err) {
-                                  helper.error(err)
-                                }
-                              }}
-                            >
-                              <MarkReadIcon />
-                            </IconButton>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title={strings.MARK_AS_UNREAD}>
-                            <IconButton
-                              onClick={async () => {
-                                try {
-                                  if (!user || !user._id) {
-                                    helper.error()
-                                    return
-                                  }
-
-                                  const status = await NotificationService.markAsUnread(user._id, [row._id])
-
-                                  if (status === 200) {
-                                    const _rows = movininHelper.cloneArray(rows) as movininTypes.Notification[]
-                                    _rows[index].isRead = false
-                                    setRows(_rows)
-                                    setNotificationCount((prev) => prev + 1)
-                                  } else {
-                                    helper.error()
-                                  }
-                                } catch (err) {
-                                  helper.error(err)
-                                }
-                              }}
-                            >
-                              <MarkUnreadIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        <Tooltip title={commonStrings.DELETE}>
-                          <IconButton
-                            onClick={() => {
-                              setSelectedRows([row])
-                              setOpenDeleteDialog(true)
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </div>
+                        <Delete fontSize="small" />
+                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
+
             <div className="notifications-footer">
-              {rowCount > -1 && <div className="row-count">{`${(page - 1) * env.PAGE_SIZE + 1}-${rowCount} ${commonStrings.OF} ${totalRecords}`}</div>}
-
-              <div className="actions">
-                <IconButton
+              <span>{`${pageStart}-${pageEnd} ${commonStrings.OF} ${totalRecords} ${strings.TOTAL}`}</span>
+              <div className="notifications-pagination">
+                <button
+                  type="button"
                   disabled={page === 1}
                   onClick={() => {
                     const _page = page - 1
@@ -364,9 +414,11 @@ const NotificationList = ({ user }: NotificationListProps) => {
                     setPage(_page)
                   }}
                 >
-                  <PreviousPageIcon className="icon" />
-                </IconButton>
-                <IconButton
+                  <ChevronLeft fontSize="small" />
+                </button>
+                <span className="notifications-page">{page}</span>
+                <button
+                  type="button"
                   disabled={(page - 1) * env.PAGE_SIZE + rows.length >= totalRecords}
                   onClick={() => {
                     const _page = page + 1
@@ -374,70 +426,69 @@ const NotificationList = ({ user }: NotificationListProps) => {
                     setPage(_page)
                   }}
                 >
-                  <NextPageIcon className="icon" />
-                </IconButton>
+                  <ChevronRight fontSize="small" />
+                </button>
               </div>
             </div>
-
-            <Dialog disableEscapeKeyDown maxWidth="xs" open={openDeleteDialog}>
-              <DialogTitle className="dialog-header">{commonStrings.CONFIRM_TITLE}</DialogTitle>
-              <DialogContent>{selectedRows.length > 1 ? strings.DELETE_NOTIFICATIONS : strings.DELETE_NOTIFICATION}</DialogContent>
-              <DialogActions className="dialog-actions">
-                <Button
-                  onClick={() => {
-                    setOpenDeleteDialog(false)
-                  }}
-                  variant="outlined"
-                >
-                  {commonStrings.CANCEL}
-                </Button>
-                <Button
-                  onClick={async () => {
-                    try {
-                      if (!user || !user._id) {
-                        helper.error()
-                        return
-                      }
-
-                      const ids = selectedRows.map((row) => row._id)
-                      const status = await NotificationService.deleteNotifications(user._id, ids)
-
-                      if (status === 200) {
-                        if (selectedRows.length === rows.length) {
-                          const _page = 1
-                          const _totalRecords = totalRecords - selectedRows.length
-                          setRowCount(_page < Math.ceil(_totalRecords / env.PAGE_SIZE) ? (_page - 1) * env.PAGE_SIZE + env.PAGE_SIZE : _totalRecords)
-
-                          if (page > 1) {
-                            setPage(1)
-                          } else {
-                            fetch()
-                          }
-                        } else {
-                          const _rows = movininHelper.clone(rows) as movininTypes.Notification[]
-                          setRows(_rows.filter((row) => !ids.includes(row._id)))
-                          setRowCount(rowCount - selectedRows.length)
-                          setTotalRecords(totalRecords - selectedRows.length)
-                        }
-                        setNotificationCount((prev) => prev - selectedRows.filter((row) => !row.isRead).length)
-                        console.log(selectedRows.length)
-                        setOpenDeleteDialog(false)
-                      } else {
-                        helper.error()
-                      }
-                    } catch (err) {
-                      helper.error(err)
-                    }
-                  }}
-                  variant="contained"
-                  color="primary"
-                >
-                  {commonStrings.DELETE}
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </>
+          </div>
         )}
+
+        <Dialog disableEscapeKeyDown maxWidth="xs" open={openDeleteDialog}>
+          <DialogTitle className="dialog-header">{commonStrings.CONFIRM_TITLE}</DialogTitle>
+          <DialogContent>{selectedRows.length > 1 ? strings.DELETE_NOTIFICATIONS : strings.DELETE_NOTIFICATION}</DialogContent>
+          <DialogActions className="dialog-actions">
+            <Button
+              onClick={() => {
+                setOpenDeleteDialog(false)
+              }}
+              variant="outlined"
+            >
+              {commonStrings.CANCEL}
+            </Button>
+            <Button
+              onClick={async () => {
+                try {
+                  if (!user || !user._id) {
+                    helper.error()
+                    return
+                  }
+
+                  const ids = selectedRows.map((row) => row._id)
+                  const status = await NotificationService.deleteNotifications(user._id, ids)
+
+                  if (status === 200) {
+                    if (selectedRows.length === rows.length) {
+                      const _page = 1
+                      const _totalRecords = totalRecords - selectedRows.length
+                      setRowCount(_page < Math.ceil(_totalRecords / env.PAGE_SIZE) ? (_page - 1) * env.PAGE_SIZE + env.PAGE_SIZE : _totalRecords)
+
+                      if (page > 1) {
+                        setPage(1)
+                      } else {
+                        fetch()
+                      }
+                    } else {
+                      const _rows = movininHelper.clone(rows) as movininTypes.Notification[]
+                      setRows(_rows.filter((row) => !ids.includes(row._id)))
+                      setRowCount(rowCount - selectedRows.length)
+                      setTotalRecords(totalRecords - selectedRows.length)
+                    }
+                    setNotificationCount((prev) => prev - selectedRows.filter((row) => !row.isRead).length)
+                    setOpenDeleteDialog(false)
+                  } else {
+                    helper.error()
+                  }
+                } catch (err) {
+                  helper.error(err)
+                }
+              }}
+              variant="contained"
+              color="primary"
+            >
+              {commonStrings.DELETE}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
       {loading && <Backdrop text={commonStrings.LOADING} />}
     </>

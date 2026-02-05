@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import {
   Button,
-  FormControl,
-  InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
-  OutlinedInput,
 } from '@mui/material'
+import {
+  Business,
+  Language,
+  EmailOutlined,
+  PlaceOutlined,
+  ImageOutlined,
+  PhotoCamera,
+  Save,
+  CheckCircle,
+  PersonAddAlt,
+  MoreVert,
+  DeleteOutline,
+} from '@mui/icons-material'
 import * as movininTypes from ':movinin-types'
 import Layout from '@/components/Layout'
 import LocationSelectList from '@/components/LocationSelectList'
@@ -220,245 +230,291 @@ const Organization = () => {
 
   return (
     <Layout strict onLoad={onLoad}>
-      <div className="organization-admin org-portal">
-        <div className="org-hero">
-          <div>
-            <h1>{orgStrings.ORGANIZATION}</h1>
-            <p>{orgStrings.ORGANIZATION_PROFILE}</p>
-          </div>
-          <Button
-            variant="contained"
-            disabled={saving || !orgName}
-            onClick={handleSaveProfile}
-            className="org-save"
-          >
-            {orgStrings.SAVE_PROFILE}
-          </Button>
+      <div className="org-profile">
+        <div className="org-profile-header">
+          <span className="org-badge">
+            <Business fontSize="inherit" />
+            {orgStrings.ORGANIZATION_PROFILE}
+          </span>
+          <h1>{orgStrings.ORGANIZATION}</h1>
+          <p>{orgStrings.ORGANIZATION_PROFILE}</p>
         </div>
+
         {loading ? (
-          <div className="organization-loading">{commonStrings.LOADING}</div>
+          <div className="org-loading">{commonStrings.LOADING}</div>
         ) : organization ? (
-          <>
-            <div className="org-card">
-              <div>
-                <div className="org-card-title">{organization.name}</div>
-                {organization.description && <div className="org-card-desc">{organization.description}</div>}
-              </div>
-              <div className="org-card-meta">
-                <span>{organization.approved ? commonStrings.VERIFIED : commonStrings.UNVERIFIED}</span>
-                <span>{organization.active ? orgStrings.APPROVED : orgStrings.PENDING}</span>
-              </div>
-            </div>
+          <div className="org-card">
+            <div className="org-cover">
+              {coverPreview ? (
+                <img src={coverPreview} alt={orgStrings.COVER} />
+              ) : (
+                <div className="org-cover-placeholder" />
+              )}
+              <div className="org-cover-overlay" />
+              <label className="org-cover-upload">
+                <ImageOutlined fontSize="small" />
+                {coverUploading ? commonStrings.LOADING : orgStrings.UPLOAD_COVER}
+                <input
+                  type="file"
+                  accept="image/*"
+                  disabled={coverUploading}
+                  onChange={(event) => handleCoverUpload(event.target.files?.[0])}
+                />
+              </label>
 
-            <div className="org-section">
-              <h2>{orgStrings.ORGANIZATION_PROFILE}</h2>
-              <div className="organization-form org-form-card">
-                <div className="organization-media-grid">
-                  <div className="organization-media-card">
-                    <div className="organization-media-label">{orgStrings.LOGO}</div>
-                    <div className="organization-media-preview org-logo-preview">
-                      {logoPreview ? (
-                        <img src={logoPreview} alt={orgStrings.LOGO} />
-                      ) : (
-                        <span className="organization-media-placeholder">{orgStrings.NO_LOGO}</span>
-                      )}
-                    </div>
-                    <label className="organization-media-upload">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        disabled={logoUploading}
-                        onChange={(event) => handleLogoUpload(event.target.files?.[0])}
-                      />
-                      {logoUploading ? commonStrings.LOADING : orgStrings.UPLOAD_LOGO}
-                    </label>
-                  </div>
-                  <div className="organization-media-card">
-                    <div className="organization-media-label">{orgStrings.COVER}</div>
-                    <div className="organization-media-preview org-cover-preview">
-                      {coverPreview ? (
-                        <img src={coverPreview} alt={orgStrings.COVER} />
-                      ) : (
-                        <span className="organization-media-placeholder">{orgStrings.NO_COVER}</span>
-                      )}
-                    </div>
-                    <label className="organization-media-upload">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        disabled={coverUploading}
-                        onChange={(event) => handleCoverUpload(event.target.files?.[0])}
-                      />
-                      {coverUploading ? commonStrings.LOADING : orgStrings.UPLOAD_COVER}
-                    </label>
-                  </div>
+              <div className="org-logo">
+                <div className="org-logo-inner">
+                  {logoPreview ? (
+                    <img src={logoPreview} alt={orgStrings.LOGO} />
+                  ) : (
+                    <span>{orgStrings.NO_LOGO}</span>
+                  )}
                 </div>
-                <div className="organization-form-grid">
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{orgStrings.ORGANIZATION_NAME}</InputLabel>
-                    <OutlinedInput value={orgName} label={orgStrings.ORGANIZATION_NAME} onChange={(e) => setOrgName(e.target.value)} />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel>{orgStrings.WEBSITE}</InputLabel>
-                    <OutlinedInput value={orgWebsite} label={orgStrings.WEBSITE} onChange={(e) => setOrgWebsite(e.target.value)} />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel>{orgStrings.EMAIL}</InputLabel>
-                    <OutlinedInput value={orgEmail} label={orgStrings.EMAIL} onChange={(e) => setOrgEmail(e.target.value)} />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel>{orgStrings.PHONE}</InputLabel>
-                    <OutlinedInput value={orgPhone} label={orgStrings.PHONE} onChange={(e) => setOrgPhone(e.target.value)} />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <LocationSelectList
-                      label={orgStrings.LOCATION}
-                      value={selectedLocation}
-                      onChange={handleLocationSelect}
-                    />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel>{orgStrings.SERVICE_AREAS}</InputLabel>
-                    <OutlinedInput value={orgServiceAreas} label={orgStrings.SERVICE_AREAS} onChange={(e) => setOrgServiceAreas(e.target.value)} />
-                  </FormControl>
-                </div>
-                <FormControl fullWidth margin="dense">
-                  <InputLabel>{orgStrings.DESCRIPTION}</InputLabel>
-                  <OutlinedInput
-                    value={orgDescription}
-                    label={orgStrings.DESCRIPTION}
-                    onChange={(e) => setOrgDescription(e.target.value)}
-                    multiline
-                    minRows={3}
+                <label className="org-logo-upload">
+                  <PhotoCamera fontSize="small" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={logoUploading}
+                    onChange={(event) => handleLogoUpload(event.target.files?.[0])}
                   />
-                </FormControl>
+                </label>
               </div>
             </div>
 
-            <div className="org-section">
-              <h2>{orgStrings.INVITE_MEMBER}</h2>
-              <div className="organization-form org-form-card">
-                <div className="organization-form-grid">
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                    <OutlinedInput value={fullName} label={commonStrings.FULL_NAME} onChange={(e) => setFullName(e.target.value)} />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-                    <OutlinedInput value={email} label={commonStrings.EMAIL} onChange={(e) => setEmail(e.target.value)} />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel>{commonStrings.PHONE}</InputLabel>
-                    <OutlinedInput value={phone} label={commonStrings.PHONE} onChange={(e) => setPhone(e.target.value)} />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel>{orgStrings.ROLE}</InputLabel>
-                    <Select value={role} label={orgStrings.ROLE} onChange={handleRoleChange}>
-                      {Object.values(movininTypes.OrgMemberRole).map((value) => (
-                        <MenuItem value={value} key={value}>{value}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel>{orgStrings.TITLE}</InputLabel>
-                    <OutlinedInput value={title} label={orgStrings.TITLE} onChange={(e) => setTitle(e.target.value)} />
-                  </FormControl>
+            <div className="org-card-body">
+              <div className="org-card-head">
+                <div>
+                  <h3>{organization.name}</h3>
+                  <div className="org-status">
+                    {organization.approved && (
+                      <span>
+                        <CheckCircle fontSize="inherit" />
+                        {commonStrings.VERIFIED}
+                      </span>
+                    )}
+                    <span>{organization.active ? orgStrings.APPROVED : orgStrings.PENDING}</span>
+                  </div>
                 </div>
-                <Button
-                  variant="contained"
-                  disabled={inviteLoading || !email || !fullName}
-                  onClick={handleInvite}
-                >
-                  {orgStrings.SEND_INVITE}
-                </Button>
+                <button type="button" className="org-save" onClick={handleSaveProfile} disabled={saving || !orgName}>
+                  <Save fontSize="small" />
+                  {orgStrings.SAVE_PROFILE}
+                </button>
               </div>
-            </div>
 
-            <div className="org-section">
-              <h2>{orgStrings.MEMBERS}</h2>
-              {members.length === 0 ? (
-                <div className="organization-empty">{orgStrings.NO_MEMBERS}</div>
-              ) : (
-                <div className="organization-members">
-                  {members.map((member) => {
-                    const memberUser = member.user as movininTypes.User
-                    return (
-                      <div className="organization-member" key={member._id}>
-                        <div className="member-name">{memberUser?.fullName || '-'}</div>
-                        <div className="member-role">{member.title || member.role}</div>
-                      </div>
-                    )
-                  })}
+              <form className="org-form" onSubmit={(event) => event.preventDefault()}>
+                <div className="org-grid">
+                  <div className="org-field">
+                    <label className="required">{orgStrings.ORGANIZATION_NAME}</label>
+                    <div className="org-input">
+                      <Business fontSize="small" />
+                      <input
+                        type="text"
+                        value={orgName}
+                        onChange={(e) => setOrgName(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="org-field">
+                    <label>{orgStrings.WEBSITE}</label>
+                    <div className="org-input">
+                      <Language fontSize="small" />
+                      <input
+                        type="text"
+                        value={orgWebsite}
+                        onChange={(e) => setOrgWebsite(e.target.value)}
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
 
-            <div className="org-section">
-              <h2>{orgStrings.PARTNERSHIPS}</h2>
-              {partnershipLoading ? (
-                <div className="organization-loading">{commonStrings.LOADING}</div>
-              ) : partnerships.length === 0 ? (
-                <div className="organization-empty">{orgStrings.NO_PARTNERSHIPS}</div>
-              ) : (
-                <div className="organization-members">
-                  {partnerships.map((partnership) => {
-                    const isDeveloperOrg = organization.type === movininTypes.OrganizationType.Developer
-                    const otherOrg = isDeveloperOrg ? partnership.brokerOrg : partnership.developerOrg
-                    const otherName = typeof otherOrg === 'string' ? otherOrg : otherOrg?.name
-                    const canReview = isDeveloperOrg && partnership.status === movininTypes.OrgPartnershipStatus.Pending
-                    return (
-                      <div className="organization-member" key={partnership._id}>
-                        <div className="member-name">{otherName || '-'}</div>
-                        <div className="member-role">
-                          {orgStrings.PARTNERSHIP_STATUS}: {orgStrings[partnership.status as keyof typeof orgStrings] || partnership.status}
-                        </div>
-                        {canReview && (
-                          <div className="organization-actions">
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              onClick={async () => {
-                                try {
-                                  await OrgPartnershipService.updatePartnership({
-                                    _id: partnership._id as string,
-                                    status: movininTypes.OrgPartnershipStatus.Approved,
-                                  })
-                                  await loadPartnerships()
-                                } catch (err) {
-                                  helper.error(err)
-                                }
-                              }}
-                            >
-                              {orgStrings.APPROVE}
-                            </Button>
-                            <Button
-                              variant="text"
-                              size="small"
-                              onClick={async () => {
-                                try {
-                                  await OrgPartnershipService.updatePartnership({
-                                    _id: partnership._id as string,
-                                    status: movininTypes.OrgPartnershipStatus.Rejected,
-                                  })
-                                  await loadPartnerships()
-                                } catch (err) {
-                                  helper.error(err)
-                                }
-                              }}
-                            >
-                              {orgStrings.REJECT}
-                            </Button>
+                <div className="org-grid">
+                  <div className="org-field">
+                    <label>{orgStrings.EMAIL}</label>
+                    <div className="org-input">
+                      <EmailOutlined fontSize="small" />
+                      <input
+                        type="email"
+                        value={orgEmail}
+                        onChange={(e) => setOrgEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="org-field">
+                    <label>{orgStrings.SERVICE_AREAS}</label>
+                    <div className="org-input">
+                      <PlaceOutlined fontSize="small" />
+                      <input
+                        type="text"
+                        value={orgServiceAreas}
+                        onChange={(e) => setOrgServiceAreas(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="org-field">
+                  <label>{orgStrings.DESCRIPTION}</label>
+                  <div className="org-textarea">
+                    <textarea
+                      rows={3}
+                      value={orgDescription}
+                      onChange={(e) => setOrgDescription(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="org-team">
+                  <div className="org-team-header">
+                    <span>{orgStrings.INVITE_MEMBER}</span>
+                  </div>
+                  <div className="org-team-grid">
+                    <div className="org-invite">
+                      <h4>
+                        <PersonAddAlt fontSize="small" />
+                        {orgStrings.INVITE_MEMBER}
+                      </h4>
+                      <input
+                        type="text"
+                        placeholder={commonStrings.FULL_NAME}
+                        value={fullName}
+                        onChange={(event) => setFullName(event.target.value)}
+                      />
+                      <input
+                        type="email"
+                        placeholder={commonStrings.EMAIL}
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                      />
+                      <input
+                        type="text"
+                        placeholder={commonStrings.PHONE}
+                        value={phone}
+                        onChange={(event) => setPhone(event.target.value)}
+                      />
+                      <Select value={role} onChange={handleRoleChange} variant="standard" disableUnderline>
+                        {Object.values(movininTypes.OrgMemberRole).map((value) => (
+                          <MenuItem value={value} key={value}>{value}</MenuItem>
+                        ))}
+                      </Select>
+                      <input
+                        type="text"
+                        placeholder={orgStrings.TITLE}
+                        value={title}
+                        onChange={(event) => setTitle(event.target.value)}
+                      />
+                      <button type="button" onClick={handleInvite} disabled={inviteLoading || !email || !fullName}>
+                        {orgStrings.SEND_INVITE}
+                      </button>
+                    </div>
+                    <div className="org-members">
+                      {members.length === 0 ? (
+                        <div className="org-empty">{orgStrings.NO_MEMBERS}</div>
+                      ) : (
+                        members.map((member) => {
+                          const memberUser = member.user as movininTypes.User
+                          return (
+                            <div className="org-member" key={member._id}>
+                              <div className="org-member-info">
+                                <div className="org-member-avatar">
+                                  {(memberUser?.fullName || '-').charAt(0)}
+                                </div>
+                                <div>
+                                  <p>{memberUser?.fullName || '-'}</p>
+                                  <span>{member.title || member.role}</span>
+                                </div>
+                              </div>
+                              <div className="org-member-actions">
+                                <button type="button">
+                                  <MoreVert fontSize="small" />
+                                </button>
+                                <button type="button">
+                                  <DeleteOutline fontSize="small" />
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="org-partnerships">
+                  <h4>{orgStrings.PARTNERSHIPS}</h4>
+                  {partnershipLoading ? (
+                    <div className="org-empty">{commonStrings.LOADING}</div>
+                  ) : partnerships.length === 0 ? (
+                    <div className="org-empty">{orgStrings.NO_PARTNERSHIPS}</div>
+                  ) : (
+                    <div className="org-partnership-list">
+                      {partnerships.map((partnership) => {
+                        const isDeveloperOrg = organization.type === movininTypes.OrganizationType.Developer
+                        const otherOrg = isDeveloperOrg ? partnership.brokerOrg : partnership.developerOrg
+                        const otherName = typeof otherOrg === 'string' ? otherOrg : otherOrg?.name
+                        const canReview = isDeveloperOrg && partnership.status === movininTypes.OrgPartnershipStatus.Pending
+                        return (
+                          <div className="org-member" key={partnership._id}>
+                            <div className="org-member-info">
+                              <div className="org-member-avatar">
+                                {(otherName || '-').charAt(0)}
+                              </div>
+                              <div>
+                                <p>{otherName || '-'}</p>
+                                <span>
+                                  {orgStrings.PARTNERSHIP_STATUS}: {orgStrings[partnership.status as keyof typeof orgStrings] || partnership.status}
+                                </span>
+                              </div>
+                            </div>
+                            {canReview && (
+                              <div className="org-partnership-actions">
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  onClick={async () => {
+                                    try {
+                                      await OrgPartnershipService.updatePartnership({
+                                        _id: partnership._id as string,
+                                        status: movininTypes.OrgPartnershipStatus.Approved,
+                                      })
+                                      await loadPartnerships()
+                                    } catch (err) {
+                                      helper.error(err)
+                                    }
+                                  }}
+                                >
+                                  {orgStrings.APPROVE}
+                                </Button>
+                                <Button
+                                  variant="text"
+                                  size="small"
+                                  onClick={async () => {
+                                    try {
+                                      await OrgPartnershipService.updatePartnership({
+                                        _id: partnership._id as string,
+                                        status: movininTypes.OrgPartnershipStatus.Rejected,
+                                      })
+                                      await loadPartnerships()
+                                    } catch (err) {
+                                      helper.error(err)
+                                    }
+                                  }}
+                                >
+                                  {orgStrings.REJECT}
+                                </Button>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    )
-                  })}
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
+              </form>
             </div>
-          </>
+          </div>
         ) : (
-          <div className="organization-empty">{orgStrings.EMPTY}</div>
+          <div className="org-empty">{orgStrings.EMPTY}</div>
         )}
       </div>
     </Layout>

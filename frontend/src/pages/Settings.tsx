@@ -1,15 +1,21 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Input,
-  InputLabel,
-  FormHelperText,
-  FormControl,
   FormControlLabel,
   Switch,
-  Button,
-  Paper
 } from '@mui/material'
+import {
+  PersonOutline,
+  MailOutline,
+  PhoneOutlined,
+  CalendarMonth,
+  PlaceOutlined,
+  ExpandMore,
+  CameraAlt,
+  LockOutlined,
+  Save,
+  CheckCircle,
+} from '@mui/icons-material'
 import validator from 'validator'
 import { intervalToDuration } from 'date-fns'
 import * as movininTypes from ':movinin-types'
@@ -176,108 +182,204 @@ const Settings = () => {
     }
   }
 
+  const memberSince = user?.createdAt ? new Date(user.createdAt).getFullYear() : new Date().getFullYear()
+
   return (
     <Layout onLoad={onLoad} strict>
       {visible && user && (
         <>
-          <div className="settings">
-            <Paper className="settings-form settings-form-wrapper" elevation={10}>
-              <form onSubmit={handleSubmit}>
-                <Avatar
-                  loggedUser={user}
-                  user={user}
-                  size="large"
-                  readonly={false}
-                  onBeforeUpload={onBeforeUpload}
-                  onChange={onAvatarChange}
-                  color="disabled"
-                  className="avatar-ctn"
-                />
-                <FormControl fullWidth margin="dense">
-                  <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                  <Input type="text" required onChange={handleFullNameChange} autoComplete="off" value={fullName} />
-                </FormControl>
-                <FormControl fullWidth margin="dense">
-                  <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-                  <Input type="text" value={user.email} disabled />
-                </FormControl>
-                <FormControl fullWidth margin="dense">
-                  <InputLabel className="required">{commonStrings.PHONE}</InputLabel>
-                  <Input type="text" required error={!phoneValid} onChange={handlePhoneChange} autoComplete="off" value={phone} />
-                  <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
-                </FormControl>
-                <FormControl fullWidth margin="dense">
-                  <DatePicker
-                    label={commonStrings.BIRTH_DATE}
-                    value={birthDate}
-                    variant="standard"
-                    required
-                    onChange={(_birthDate) => {
-                      if (_birthDate) {
-                        const _birthDateValid = validateBirthDate(_birthDate)
+          <div className="settings-portal">
+            <div className="settings-header">
+              {user.verified && (
+                <span className="settings-verified">
+                  <CheckCircle fontSize="small" />
+                  {strings.VERIFIED_ACCOUNT}
+                </span>
+              )}
+              <h1>{strings.PROFILE_TITLE}</h1>
+              <p>{strings.PROFILE_SUBTITLE}</p>
+            </div>
 
-                        setBirthDate(_birthDate)
-                        setBirthDateValid(_birthDateValid)
-                      }
-                    }}
-                    language={user.language}
-                  />
-                  <FormHelperText error={!birthDateValid}>{(!birthDateValid && commonStrings.BIRTH_DATE_NOT_VALID) || ''}</FormHelperText>
-                </FormControl>
-                <FormControl fullWidth margin="dense">
-                  <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                  <LocationSelectList
-                    label={commonStrings.LOCATION}
-                    variant="standard"
-                    value={selectedLocation as movininTypes.Location}
-                    onChange={(values) => {
-                      const selected = values[0]
-                      setSelectedLocation(selected)
-                      setLocation(selected?.name || selected?._id || '')
-                    }}
-                  />
-                </FormControl>
-                <FormControl fullWidth margin="dense">
-                  <InputLabel>{commonStrings.BIO}</InputLabel>
-                  <Input id="bio" type="text" onChange={handleBioChange} autoComplete="off" value={bio} />
-                </FormControl>
-                <div className="buttons">
-                  <Button
-                    variant="contained"
-                    className="btn-primary btn-margin btn-margin-bottom"
-                    size="small"
-                    onClick={() => {
-                      navigate('/change-password')
-                    }}
-                  >
-                    {commonStrings.RESET_PASSWORD}
-                  </Button>
-                  <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
-                    {commonStrings.SAVE}
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    className="btn-margin-bottom"
-                    size="small"
-                    onClick={() => {
-                      navigate('/')
-                    }}
-                  >
-                    {commonStrings.CANCEL}
-                  </Button>
+            <div className="settings-card">
+              <div className="settings-card-inner">
+                <div className="settings-avatar-row">
+                  <div className="settings-avatar">
+                    <Avatar
+                      loggedUser={user}
+                      user={user}
+                      size="large"
+                      readonly={false}
+                      onBeforeUpload={onBeforeUpload}
+                      onChange={onAvatarChange}
+                      color="disabled"
+                      className="settings-avatar-img"
+                    />
+                    <button type="button" className="settings-avatar-button">
+                      <CameraAlt fontSize="small" />
+                    </button>
+                  </div>
+                  <div className="settings-avatar-meta">
+                    <h3>{user.fullName}</h3>
+                    <p>{strings.MEMBER_SINCE.replace('{year}', String(memberSince))}</p>
+                    <button type="button" className="settings-avatar-link">{strings.CHANGE_AVATAR}</button>
+                  </div>
                 </div>
-              </form>
-            </Paper>
-            <Paper className="settings-net settings-net-wrapper" elevation={10}>
-              <h1 className="settings-form-title">
-                {' '}
-                {strings.NETWORK_SETTINGS}
-                {' '}
-              </h1>
-              <FormControl component="fieldset">
-                <FormControlLabel control={<Switch checked={enableEmailNotifications} onChange={handleEmailNotificationsChange} />} label={strings.SETTINGS_EMAIL_NOTIFICATIONS} />
-              </FormControl>
-            </Paper>
+
+                <form className="settings-form" onSubmit={handleSubmit}>
+                  <div className="settings-section">
+                    <div className="settings-section-header">
+                      <span className="settings-section-index">01</span>
+                      <span className="settings-section-title">{strings.SECTION_PERSONAL}</span>
+                      <div className="settings-section-line" />
+                    </div>
+
+                    <div className="settings-field">
+                      <label>{commonStrings.FULL_NAME}</label>
+                      <div className="settings-input">
+                        <PersonOutline fontSize="small" />
+                        <input
+                          type="text"
+                          value={fullName}
+                          onChange={handleFullNameChange}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="settings-grid">
+                      <div className="settings-field">
+                        <label>{commonStrings.EMAIL}</label>
+                        <div className="settings-input is-disabled">
+                          <MailOutline fontSize="small" />
+                          <input type="email" value={user.email} disabled />
+                        </div>
+                      </div>
+                      <div className="settings-field">
+                        <label>{commonStrings.PHONE}</label>
+                        <div className={`settings-input ${!phoneValid ? 'is-error' : ''}`}>
+                          <PhoneOutlined fontSize="small" />
+                          <input
+                            type="tel"
+                            value={phone}
+                            onChange={handlePhoneChange}
+                            required
+                          />
+                        </div>
+                        {!phoneValid && (
+                          <span className="settings-help error">{commonStrings.PHONE_NOT_VALID}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="settings-grid">
+                      <div className="settings-field">
+                        <label>{commonStrings.BIRTH_DATE}</label>
+                        <div className={`settings-date ${!birthDateValid ? 'is-error' : ''}`}>
+                          <CalendarMonth fontSize="small" />
+                          <DatePicker
+                            label={commonStrings.BIRTH_DATE}
+                            value={birthDate}
+                            variant="outlined"
+                            required
+                            onChange={(_birthDate) => {
+                              if (_birthDate) {
+                                const _birthDateValid = validateBirthDate(_birthDate)
+                                setBirthDate(_birthDate)
+                                setBirthDateValid(_birthDateValid)
+                              }
+                            }}
+                            language={user.language}
+                          />
+                        </div>
+                        {!birthDateValid && (
+                          <span className="settings-help error">{commonStrings.BIRTH_DATE_NOT_VALID}</span>
+                        )}
+                      </div>
+                      <div className="settings-field">
+                        <label>{commonStrings.LOCATION}</label>
+                        <div className="settings-select">
+                          <PlaceOutlined fontSize="small" />
+                          <LocationSelectList
+                            label={commonStrings.LOCATION}
+                            variant="outlined"
+                            value={selectedLocation as movininTypes.Location}
+                            onChange={(values) => {
+                              const selected = values[0]
+                              setSelectedLocation(selected)
+                              setLocation(selected?.name || selected?._id || '')
+                            }}
+                          />
+                          <ExpandMore className="settings-select-arrow" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="settings-field">
+                      <label>{commonStrings.BIO}</label>
+                      <div className="settings-textarea">
+                        <textarea
+                          rows={3}
+                          value={bio}
+                          onChange={handleBioChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="settings-section">
+                    <div className="settings-section-header">
+                      <span className="settings-section-index">02</span>
+                      <span className="settings-section-title">{strings.SECTION_SECURITY}</span>
+                      <div className="settings-section-line" />
+                    </div>
+
+                    <div className="settings-security">
+                      <div>
+                        <h4>{strings.SECURITY_TITLE}</h4>
+                        <p>{strings.SECURITY_SUBTITLE}</p>
+                      </div>
+                      <button type="button" onClick={() => navigate('/change-password')}>
+                        <LockOutlined fontSize="small" />
+                        {commonStrings.RESET_PASSWORD}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="settings-section">
+                    <div className="settings-section-header">
+                      <span className="settings-section-index">03</span>
+                      <span className="settings-section-title">{strings.SECTION_NOTIFICATIONS}</span>
+                      <div className="settings-section-line" />
+                    </div>
+                    <div className="settings-notifications">
+                      <div>
+                        <h4>{strings.NOTIFICATIONS_TITLE}</h4>
+                        <p>{strings.NOTIFICATIONS_SUBTITLE}</p>
+                      </div>
+                      <FormControlLabel
+                        control={<Switch checked={enableEmailNotifications} onChange={handleEmailNotificationsChange} />}
+                        label={strings.SETTINGS_EMAIL_NOTIFICATIONS}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="settings-actions">
+                    <button type="submit" className="settings-save">
+                      {strings.UPDATE_PROFILE}
+                      <Save fontSize="small" />
+                    </button>
+                    <button type="button" className="settings-cancel" onClick={() => navigate('/')}
+                    >
+                      {commonStrings.CANCEL}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div className="settings-footer-note">
+              {strings.FOOTER_NOTE}
+            </div>
           </div>
 
           <Footer />

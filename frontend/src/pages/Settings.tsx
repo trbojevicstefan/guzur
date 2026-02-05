@@ -88,7 +88,7 @@ const Settings = () => {
     return true
   }
 
-  const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setBio(e.target.value)
   }
 

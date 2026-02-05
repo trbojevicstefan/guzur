@@ -9,6 +9,8 @@ import {
   PlaceOutlined,
   AccessTime,
   ArrowOutward,
+  ChevronLeft,
+  ChevronRight,
 } from '@mui/icons-material'
 import { format } from 'date-fns'
 import * as movininTypes from ':movinin-types'
@@ -20,6 +22,7 @@ import * as DevelopmentService from '@/services/DevelopmentService'
 import * as LocationService from '@/services/LocationService'
 import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
+import * as movininHelper from ':movinin-helper'
 
 import '@/assets/css/developments.css'
 
@@ -135,6 +138,29 @@ const Projects = () => {
     return helper.getDevelopmentStatus(value)
   }
 
+  const getDevelopmentName = (development: movininTypes.Development) => {
+    if (development.developerOrg && typeof development.developerOrg === 'object') {
+      return development.developerOrg.name || ''
+    }
+    if (development.developer && typeof development.developer === 'object') {
+      return development.developer.fullName || ''
+    }
+    return ''
+  }
+
+  const resolveImage = (value?: string) => {
+    if (!value) {
+      return ''
+    }
+    if (value.startsWith('http')) {
+      return value
+    }
+    return movininHelper.joinURL(env.CDN_PROPERTIES, value)
+  }
+
+  const getDevelopmentImage = (development: movininTypes.Development) =>
+    resolveImage(development.images?.[0] || development.masterPlan || development.floorPlans?.[0])
+
   const visibleDevelopments = useMemo(() => developments, [developments])
 
   const pageStart = totalRecords > 0 ? (page - 1) * env.PAGE_SIZE + 1 : 0
@@ -231,7 +257,7 @@ const Projects = () => {
             {visibleDevelopments.map((project) => (
               <div key={project._id} className="project-card">
                 <div className="project-card-media">
-                  <img src={project.images?.[0] || project.image || ''} alt={project.name} />
+                  <img src={getDevelopmentImage(project)} alt={project.name} />
                   <div className="project-card-overlay" />
                   {project.status && (
                     <span className={`project-card-status status-${project.status?.toLowerCase()}`}>
@@ -248,7 +274,7 @@ const Projects = () => {
                     {getDisplayLocation(project)}
                   </div>
                   <h3>{project.name}</h3>
-                  <p>{developmentStrings.DEVELOPED_BY.replace('{name}', String(project.developerOrg || project.developer || ''))}</p>
+                  <p>{developmentStrings.DEVELOPED_BY.replace('{name}', getDevelopmentName(project) || '-')}</p>
                   <div className="project-card-footer">
                     <div>
                       <span>{developmentStrings.OPEN_DATE}</span>
@@ -283,7 +309,7 @@ const Projects = () => {
                   <tr key={project._id}>
                     <td>
                       <div className="project-table-name">
-                        <img src={project.images?.[0] || project.image || ''} alt={project.name} />
+                        <img src={getDevelopmentImage(project)} alt={project.name} />
                         <div>
                           <strong>{project.name}</strong>
                           {project.status && (
@@ -300,7 +326,7 @@ const Projects = () => {
                         {getDisplayLocation(project)}
                       </span>
                     </td>
-                    <td>{project.developerOrg || project.developer || '-'}</td>
+                    <td>{getDevelopmentName(project) || '-'}</td>
                     <td className="project-table-units">{project.unitsCount || 0}</td>
                     <td className="project-table-date">
                       <AccessTime fontSize="inherit" />

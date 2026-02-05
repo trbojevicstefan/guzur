@@ -122,6 +122,13 @@ const Project = () => {
     return movininHelper.joinURL(env.CDN_PROPERTIES, value)
   }
 
+  const summary = (development?.description || '').trim()
+  const heroSummary = summary.length > 180 ? `${summary.slice(0, 177)}...` : summary
+  const statusLabel = development ? helper.getDevelopmentStatus(development.status) : ''
+  const heroImage = development
+    ? resolveImage(development.images?.[0] || development.masterPlan || development.floorPlans?.[0])
+    : ''
+
   return (
     <Layout strict={false}>
       {loading && <Progress />}
@@ -129,46 +136,83 @@ const Project = () => {
       {!loading && development && (
         <>
           <div className="project-page">
-            <div className="project-header">
-              <h1>{development.name || projectStrings.HEADING}</h1>
-            </div>
+            <div className="project-hero">
+              <div className="project-hero-media">
+                {heroImage ? (
+                  <img src={heroImage} alt={development.name} />
+                ) : (
+                  <div className="project-hero-placeholder">{development.name?.charAt(0) || 'P'}</div>
+                )}
+                <div className="project-hero-overlay" />
+                <div className="project-hero-badges">
+                  {statusLabel && (
+                    <span className={`project-hero-badge status-${development.status?.toLowerCase()}`}>
+                      {statusLabel}
+                    </span>
+                  )}
+                  {development.location && (
+                    <span className="project-hero-badge">{development.location}</span>
+                  )}
+                  <span className="project-hero-badge">
+                    {development.unitsCount ?? 0} {projectStrings.UNITS}
+                  </span>
+                </div>
+              </div>
 
-            <h2>{projectStrings.DETAILS}</h2>
-            <div className="project-meta">
-              <div className="project-meta-item">
-                <strong>{projectStrings.LOCATION}:</strong>{' '}
-                {development.location ? (
-                  <Link to={`/projects?location=${encodeURIComponent(development.location)}`}>
-                    {development.location}
-                  </Link>
-                ) : (
-                  '-'
-                )}
-              </div>
-              <div className="project-meta-item">
-                <strong>{projectStrings.STATUS}:</strong>{' '}
-                {helper.getDevelopmentStatus(development.status) || '-'}
-              </div>
-              <div className="project-meta-item">
-                <strong>{projectStrings.UNITS}:</strong> {development.unitsCount ?? '-'}
-              </div>
-              <div className="project-meta-item">
-                <strong>{projectStrings.DEVELOPER}:</strong>{' '}
-                {developer ? (
-                  <Link to={`/developers/${developer._id}`} className="project-developer-link">
-                    {developer.avatar && (
-                      <span className="project-developer-avatar">
-                        <img
-                          src={developer.avatar.startsWith('http') ? developer.avatar : movininHelper.joinURL(env.CDN_USERS, developer.avatar)}
-                          alt={developer.fullName}
-                        />
-                      </span>
+              <div className="project-hero-content">
+                <span className="project-hero-kicker">{projectStrings.HEADING}</span>
+                <h1>{development.name || projectStrings.HEADING}</h1>
+                {heroSummary && <p className="project-hero-summary">{heroSummary}</p>}
+                <div className="project-hero-actions">
+                  {developer ? (
+                    <Link to={`/developers/${developer._id}`} className="project-hero-link">
+                      {projectStrings.VIEW_DEVELOPER}
+                      {developer.fullName ? `: ${developer.fullName}` : ''}
+                    </Link>
+                  ) : (
+                    <span className="project-hero-muted">{projectStrings.DEVELOPER}: -</span>
+                  )}
+                  <a href="#project-units" className="project-hero-cta">{projectStrings.UNITS}</a>
+                </div>
+
+                <div className="project-meta">
+                  <div className="project-meta-item">
+                    <span>{projectStrings.LOCATION}</span>
+                    {development.location ? (
+                      <Link to={`/projects?location=${encodeURIComponent(development.location)}`}>
+                        {development.location}
+                      </Link>
+                    ) : (
+                      <strong>-</strong>
                     )}
-                    {developer.fullName}
-                  </Link>
-                ) : (
-                  '-'
-                )}
+                  </div>
+                  <div className="project-meta-item">
+                    <span>{projectStrings.STATUS}</span>
+                    <strong>{statusLabel || '-'}</strong>
+                  </div>
+                  <div className="project-meta-item">
+                    <span>{projectStrings.UNITS}</span>
+                    <strong>{development.unitsCount ?? '-'}</strong>
+                  </div>
+                  <div className="project-meta-item">
+                    <span>{projectStrings.DEVELOPER}</span>
+                    {developer ? (
+                      <div className="project-developer">
+                        {developer.avatar && (
+                          <span className="project-developer-avatar">
+                            <img
+                              src={developer.avatar.startsWith('http') ? developer.avatar : movininHelper.joinURL(env.CDN_USERS, developer.avatar)}
+                              alt={developer.fullName}
+                            />
+                          </span>
+                        )}
+                        <strong>{developer.fullName}</strong>
+                      </div>
+                    ) : (
+                      <strong>-</strong>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -224,7 +268,7 @@ const Project = () => {
               </div>
             )}
 
-            <div className="project-section">
+            <div className="project-section" id="project-units">
               <h2>{projectStrings.UNITS}</h2>
               <div className="project-units-filters">
                 <FormControl fullWidth margin="dense">

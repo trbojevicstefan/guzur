@@ -373,6 +373,8 @@ export interface User {
   serviceAreas?: string[]
   website?: string
   onboardingCompleted?: boolean
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export interface Organization {

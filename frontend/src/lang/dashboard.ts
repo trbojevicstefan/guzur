@@ -41,6 +41,11 @@ const strings = new LocalizedStrings({
     BROKER_LABEL: 'Courtier',
     DEVELOPER_LABEL: 'Promoteur',
     BROKERAGE_LABEL: 'Courtage',
+    INVENTORY_EMPTY_TITLE: 'Aucun inventaire pour le moment.',
+    INVENTORY_EMPTY_BODY: 'Ajoutez une unite pour commencer a construire votre catalogue.',
+    DEVELOPMENTS_EMPTY_TITLE: 'Aucun developpement pour le moment.',
+    DEVELOPMENTS_EMPTY_BODY: 'Creez votre premier projet pour gerer votre inventaire.',
+    DELETE_DEVELOPMENT_CONFIRM: 'Supprimer ce developpement ? Cette action est irreversible.',
   },
   ar: {
     DASHBOARD: 'لوحة التحكم',
@@ -81,6 +86,11 @@ const strings = new LocalizedStrings({
     BROKER_LABEL: 'وسيط',
     DEVELOPER_LABEL: 'مطوّر',
     BROKERAGE_LABEL: 'الوساطة',
+    INVENTORY_EMPTY_TITLE: 'لا يوجد مخزون بعد.',
+    INVENTORY_EMPTY_BODY: 'أضف وحدة لبدء بناء الكتالوج.',
+    DEVELOPMENTS_EMPTY_TITLE: 'لا توجد مشاريع بعد.',
+    DEVELOPMENTS_EMPTY_BODY: 'أنشئ مشروعك الأول لإدارة المخزون.',
+    DELETE_DEVELOPMENT_CONFIRM: 'حذف هذا المشروع؟ لا يمكن التراجع عن ذلك.',
   },
   en: {
     DASHBOARD: 'Dashboard',
@@ -121,6 +131,11 @@ const strings = new LocalizedStrings({
     BROKER_LABEL: 'Broker',
     DEVELOPER_LABEL: 'Developer',
     BROKERAGE_LABEL: 'Brokerage',
+    INVENTORY_EMPTY_TITLE: 'No inventory yet.',
+    INVENTORY_EMPTY_BODY: 'Add a unit to start building your catalog.',
+    DEVELOPMENTS_EMPTY_TITLE: 'No developments yet.',
+    DEVELOPMENTS_EMPTY_BODY: 'Create your first project to manage inventory.',
+    DELETE_DEVELOPMENT_CONFIRM: 'Delete this development? This cannot be undone.',
   },
 })
 

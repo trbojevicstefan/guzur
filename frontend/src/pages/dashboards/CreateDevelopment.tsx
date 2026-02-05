@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Input,
   InputLabel,
@@ -22,6 +22,7 @@ import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/create-development'
 import * as DevelopmentService from '@/services/DevelopmentService'
 import * as PropertyService from '@/services/PropertyService'
+import * as LocationService from '@/services/LocationService'
 import * as helper from '@/utils/helper'
 
 import '@/assets/css/listing-form.css'
@@ -30,6 +31,7 @@ const CreateDevelopment = () => {
   const MAX_FLOOR_PLANS = 10
   const MAX_GALLERY_IMAGES = 10
   const navigate = useNavigate()
+  const locationState = useLocation()
   const [user, setUser] = useState<movininTypes.User>()
   const [loading, setLoading] = useState(false)
   const [formError, setFormError] = useState(false)
@@ -46,6 +48,7 @@ const CreateDevelopment = () => {
   const [tempUploads, setTempUploads] = useState<string[]>([])
   const [latitude, setLatitude] = useState('')
   const [longitude, setLongitude] = useState('')
+  const [editingId, setEditingId] = useState<string | undefined>()
   const mainImageInputRef = useRef<HTMLInputElement>(null)
   const galleryImagesInputRef = useRef<HTMLInputElement>(null)
   const masterPlanInputRef = useRef<HTMLInputElement>(null)
@@ -67,6 +70,50 @@ const CreateDevelopment = () => {
     }
     setUser(currentUser)
   }
+
+  useEffect(() => {
+    const state = locationState.state as { developmentId?: string } | null
+    if (state?.developmentId) {
+      setEditingId(state.developmentId)
+    }
+  }, [locationState.state])
+
+  useEffect(() => {
+    const loadDevelopment = async () => {
+      if (!editingId) {
+        return
+      }
+      try {
+        setLoading(true)
+        const development = await DevelopmentService.getDevelopment(editingId)
+        setName(development.name || '')
+        setDescription(development.description || '')
+        if (development.location) {
+          try {
+            const loc = await LocationService.getLocation(development.location)
+            setLocation(loc)
+          } catch {
+            setLocation({ _id: development.location, name: development.location })
+          }
+        }
+        setUnitsCount(development.unitsCount ? String(development.unitsCount) : '')
+        setStatus(development.status || movininTypes.DevelopmentStatus.Planning)
+        const images = development.images || []
+        setMainImage(images[0] || '')
+        setGalleryImages(images.slice(1))
+        setMasterPlan(development.masterPlan || '')
+        setFloorPlans(development.floorPlans || [])
+        setLatitude(typeof development.latitude === 'number' ? development.latitude.toFixed(6) : '')
+        setLongitude(typeof development.longitude === 'number' ? development.longitude.toFixed(6) : '')
+      } catch (err) {
+        helper.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDevelopment()
+  }, [editingId])
 
   const handleStatusChange = (event: SelectChangeEvent<string>) => {
     setStatus(event.target.value as movininTypes.DevelopmentStatus)
@@ -214,7 +261,15 @@ const CreateDevelopment = () => {
         longitude: longitude ? Number.parseFloat(longitude) : undefined,
       }
 
-      await DevelopmentService.create(payload)
+      if (editingId) {
+        const updatePayload: movininTypes.UpdateDevelopmentPayload = {
+          ...payload,
+          _id: editingId,
+        }
+        await DevelopmentService.update(updatePayload)
+      } else {
+        await DevelopmentService.create(payload)
+      }
       setTempUploads([])
       navigate('/dashboard/developer')
     } catch (err) {

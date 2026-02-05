@@ -104,6 +104,36 @@ const Property = () => {
       : ''
   const finishingLabel = property?.furnished ? strings.FINISHED : strings.UNFINISHED
   const deliveryYear = (development as any)?.deliveryYear || (property as any)?.deliveryYear || ''
+  const isRentListing = property?.listingType === movininTypes.ListingType.Rent
+    || property?.listingType === movininTypes.ListingType.Both
+  const isSaleListing = property?.listingType === movininTypes.ListingType.Sale
+    || property?.listingType === movininTypes.ListingType.Both
+  const locationName = property
+    ? (typeof property.location === 'object' ? property.location?.name : property.location)
+    : ''
+  const sizeLabel = property?.size
+    ? `${movininHelper.formatNumber(property.size, language)} ${env.SIZE_UNIT}`
+    : '-'
+  const galleryIndex = images.length > 1 ? 1 : 0
+  const galleryImage = images[galleryIndex] || image
+  const contactLabel = developerOrg || developer
+    ? strings.CONTACT_DEVELOPER
+    : brokerageOrg || brokerUser
+      ? strings.CONTACT_BROKER
+      : ownerUser
+        ? strings.CONTACT_OWNER
+        : strings.CONTACT_SELLER
+  const fallbackPrice = property
+    ? (property.listingType === movininTypes.ListingType.Sale
+      ? (property.salePrice ?? property.price)
+      : property.listingType === movininTypes.ListingType.Both && property.salePrice
+        ? property.salePrice
+        : property.price)
+    : undefined
+  const displayPrice = priceLabel
+    || (typeof fallbackPrice === 'number'
+      ? `${movininHelper.formatPrice(fallbackPrice, commonStrings.CURRENCY, language)}${isRentListing ? `/${helper.rentalTermUnit(property?.rentalTerm as movininTypes.RentalTerm)}` : ''}`
+      : '')
 
   useEffect(() => {
     const src = (_image: string) => movininHelper.joinURL(env.CDN_PROPERTIES, _image)
@@ -153,22 +183,21 @@ const Property = () => {
 
       if (_property) {
         setProperty(_property)
-        const isRentListing = _property.listingType === movininTypes.ListingType.Rent
+        const rentListing = _property.listingType === movininTypes.ListingType.Rent
           || _property.listingType === movininTypes.ListingType.Both
-        const isSaleListing = _property.listingType === movininTypes.ListingType.Sale
+        const saleListing = _property.listingType === movininTypes.ListingType.Sale
           || _property.listingType === movininTypes.ListingType.Both
 
-        if (isRentListing && _from && _to) {
-          const _priceLabel = await helper.priceLabel(_property, _language)
-          setPriceLabel(_priceLabel)
-        } else if (isSaleListing) {
-          const _salePriceLabel = await helper.salePriceLabel(_property, _language)
-          setPriceLabel(_salePriceLabel)
-        } else {
-          setPriceLabel('')
+        let nextPriceLabel = ''
+        if (saleListing) {
+          nextPriceLabel = await helper.salePriceLabel(_property, _language)
         }
+        if (!nextPriceLabel && rentListing) {
+          nextPriceLabel = await helper.priceLabel(_property, _language)
+        }
+        setPriceLabel(nextPriceLabel)
 
-        setHideAction(!isRentListing)
+        setHideAction(!rentListing)
       } else {
         setNoMatch(true)
       }
@@ -189,176 +218,224 @@ const Property = () => {
     setHasUnread(!readMap[property._id])
   }, [currentUser?._id, property?._id])
 
+  const handleContactSeller = () => {
+    if (!property) {
+      return
+    }
+    const subject = strings.CONTACT_SUBJECT.replace('{name}', property.name || commonStrings.PROPERTY)
+    const message = strings.CONTACT_MESSAGE
+      .replace('{name}', property.name || commonStrings.PROPERTY)
+      .replace('{location}', locationName || property.address || commonStrings.LOCATION)
+      .replace('{price}', displayPrice || '')
+    navigate('/contact', { state: { subject, message } })
+  }
+
   return (
     <Layout onLoad={onLoad}>
       {
         !loading && property && image
         && (
           <>
-            <div className="main-page">
-              <div className="property-card">
-                <div className="property">
-                  <div className="images-container">
-                    {/* Main image */}
-                    <div className="main-image">
-                      <img
-                        className="main-image"
-                        alt=""
-                        src={image}
-                        onClick={() => setOpenImageDialog(true)}
-                      />
-                    </div>
+            <div className="property-showcase">
+              <div className="property-showcase-bar">
+                <button
+                  type="button"
+                  className="property-back"
+                  onClick={() => navigate(-1)}
+                >
+                  {strings.BACK_TO_LISTINGS}
+                </button>
+              </div>
 
-                    {/* Additional images */}
-                    <div className="images">
-                      {
-                        images.map((_image, index) => (
-                          <div
-                            key={_image}
-                            className={`image${currentIndex === index ? ' selected' : ''}`}
-                            onClick={() => {
-                              setCurrentIndex(index)
-                              setImage(_image)
-                            }}
-                            role="button"
-                            tabIndex={0}
-                            aria-label="image"
-                          >
-                            <img alt="" className="image" src={_image} />
-                          </div>
-                        ))
-                      }
+              <div className="property-showcase-grid">
+                <section className="property-showcase-main">
+                  <div className="property-hero">
+                    <button
+                      type="button"
+                      className="property-hero-main"
+                      onClick={() => {
+                        setCurrentIndex(0)
+                        setOpenImageDialog(true)
+                      }}
+                    >
+                      <img src={image} alt={property.name} />
+                      <span className="property-hero-overlay" />
+                      <div className="property-hero-title">
+                        {saleTypeLabel && <span className="property-hero-tag">{saleTypeLabel}</span>}
+                        <h1>{property.name}</h1>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="property-hero-gallery"
+                      onClick={() => {
+                        setCurrentIndex(galleryIndex)
+                        setOpenImageDialog(true)
+                      }}
+                    >
+                      <span className="property-hero-gallery-label">{strings.GALLERY}</span>
+                      <img src={galleryImage} alt={property.name} />
+                      <span className="property-hero-gallery-overlay">
+                        <span className="property-hero-plus">+</span>
+                        <span>{strings.VIEW_ALL_PHOTOS.replace('{count}', String(images.length))}</span>
+                      </span>
+                    </button>
+                  </div>
+
+                  <div className="property-stats">
+                    <div className="property-stat highlight">
+                      <span>{strings.PRICE}</span>
+                      <strong>{displayPrice || '-'}</strong>
+                    </div>
+                    <div className="property-stat">
+                      <span>{strings.BEDROOMS_LABEL}</span>
+                      <strong>{property.bedrooms ?? '-'}</strong>
+                    </div>
+                    <div className="property-stat">
+                      <span>{strings.BATHROOMS_LABEL}</span>
+                      <strong>{property.bathrooms ?? '-'}</strong>
+                    </div>
+                    <div className="property-stat">
+                      <span>{strings.SIZE}</span>
+                      <strong>{sizeLabel}</strong>
                     </div>
                   </div>
 
-                  {/* Property info */}
-                  <div className="right-panel">
-                    <div className="right-panel-header">
-                      <div className="name"><h2>{property.name}</h2></div>
-                      {priceLabel && <div className="price">{priceLabel}</div>}
+                  <div className="property-section property-overview">
+                    <h2>{strings.OVERVIEW}</h2>
+                    <div className="property-description" dangerouslySetInnerHTML={{ __html: descriptionHtml || '' }} />
+                  </div>
+
+                  <div className="property-info-grid">
+                    <div className="property-info-card">
+                      <span>{strings.PROPERTY_TYPE}</span>
+                      <strong>{helper.getPropertyType(property.type)}</strong>
                     </div>
-                    {sellerName && (
-                      <div className="seller-card">
-                        <div className="seller-meta">
-                          <div className="seller-label">{strings.SELLER}</div>
-                          <div className="seller-row">
-                            {sellerLogo && (
-                              <span className="seller-avatar">
-                                <img
-                                  src={sellerLogo.startsWith('http') ? sellerLogo : movininHelper.joinURL(env.CDN_USERS, sellerLogo)}
-                                  alt={sellerName}
-                                />
-                              </span>
-                            )}
-                            <div>
-                              <div className="seller-name">{sellerName}</div>
-                              {sellerType && <div className="seller-type">{sellerType}</div>}
-                            </div>
-                          </div>
-                        </div>
-                        {sellerLink && (
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            className="seller-action"
-                            onClick={() => navigate(sellerLink)}
-                          >
-                            {strings.VIEW_SELLER}
-                          </Button>
-                        )}
-                      </div>
-                    )}
+                    <div className="property-info-card">
+                      <span>{strings.DELIVERY_STATUS}</span>
+                      <strong>{finishingLabel || '-'}</strong>
+                    </div>
+                    <div className="property-info-card">
+                      <span>{commonStrings.LOCATION}</span>
+                      <strong>{locationName || property.address || '-'}</strong>
+                    </div>
+                    <div className="property-info-card">
+                      <span>{strings.COMPOUND}</span>
+                      <strong>{compoundName || '-'}</strong>
+                    </div>
+                  </div>
+
+                  <div className="property-amenities">
                     <PropertyInfo
                       property={property}
                       language={language}
+                      className="showcase"
                     />
-                    <div className="property-details">
-                      <h3>{strings.DETAILS}</h3>
-                      <div className="property-details-grid">
-                        <div className="property-detail-row">
-                          <span>{strings.BEDROOMS_LABEL}</span>
-                          <strong>{property.bedrooms ?? '-'}</strong>
-                        </div>
-                        <div className="property-detail-row">
-                          <span>{strings.BATHROOMS_LABEL}</span>
-                          <strong>{property.bathrooms ?? '-'}</strong>
-                        </div>
-                        <div className="property-detail-row">
-                          <span>{strings.DELIVERY_IN}</span>
-                          <strong>{deliveryYear || '-'}</strong>
-                        </div>
-                        <div className="property-detail-row">
-                          <span>{strings.COMPOUND}</span>
-                          <strong>{compoundName || '-'}</strong>
-                        </div>
-                        <div className="property-detail-row">
-                          <span>{strings.SALE_TYPE}</span>
-                          <strong>{saleTypeLabel || '-'}</strong>
-                        </div>
-                        <div className="property-detail-row">
-                          <span>{strings.FINISHING}</span>
-                          <strong>{finishingLabel || '-'}</strong>
-                        </div>
+                  </div>
+
+                  {(developmentId || developerId || currentUser) && (
+                    <div className="property-links">
+                      {developmentId && (
+                        <button
+                          type="button"
+                          className="property-link"
+                          onClick={() => navigate(`/projects/${developmentId}`)}
+                        >
+                          {strings.VIEW_PROJECT}{development?.name ? `: ${development.name}` : ''}
+                        </button>
+                      )}
+                      {developerId && (
+                        <button
+                          type="button"
+                          className="property-link"
+                          onClick={() => navigate(developerOrg?.slug ? `/developers/org/${developerOrg.slug}` : `/developers/${developerId}`)}
+                        >
+                          {strings.VIEW_DEVELOPER}{(developerOrg?.name || developer?.fullName) ? `: ${developerOrg?.name || developer?.fullName}` : ''}
+                        </button>
+                      )}
+                      {currentUser && (
+                        <button
+                          type="button"
+                          className="property-link"
+                          onClick={() => navigate(`/messages?propertyId=${property._id}`)}
+                        >
+                          {commonStrings.SEND_MESSAGE}{hasUnread ? ` (${messagesStrings.UNREAD})` : ''}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {property.latitude && property.longitude && (
+                    <div className="property-section">
+                      <h2>{commonStrings.LOCATION}</h2>
+                      <div className="property-map-card">
+                        <Map
+                          position={[property.latitude, property.longitude]}
+                          initialZoom={13}
+                          showTileToggle
+                          className="property-map"
+                          properties={[property]}
+                          onSelectProperty={() => property._id && navigate(`/property/${property._id}`)}
+                        />
                       </div>
                     </div>
-                    {(developmentId || developerId) && (
-                      <div className="property-links">
-                        {developmentId && (
-                          <button
-                            type="button"
-                            className="property-link"
-                            onClick={() => navigate(`/projects/${developmentId}`)}
-                          >
-                            {strings.VIEW_PROJECT}{development?.name ? `: ${development.name}` : ''}
-                          </button>
-                        )}
-                        {developerId && (
-                          <button
-                            type="button"
-                            className="property-link"
-                            onClick={() => navigate(developerOrg?.slug ? `/developers/org/${developerOrg.slug}` : `/developers/${developerId}`)}
-                          >
-                            {strings.VIEW_DEVELOPER}{(developerOrg?.name || developer?.fullName) ? `: ${developerOrg?.name || developer?.fullName}` : ''}
-                          </button>
-                        )}
-                        {currentUser && (
-                          <button
-                            type="button"
-                            className="property-link"
-                            onClick={() => navigate(`/messages?propertyId=${property._id}`)}
-                          >
-                            {commonStrings.SEND_MESSAGE}{hasUnread ? ` (${messagesStrings.UNREAD})` : ''}
-                          </button>
-                        )}
+                  )}
+                </section>
+
+                <aside className="property-showcase-side">
+                  {sellerName && (
+                    <div className="property-seller-card">
+                      <div className="property-seller-header">
+                        <span className="property-seller-label">{strings.SELLER}</span>
+                        <div className="property-seller-row">
+                          {sellerLogo && (
+                            <span className="property-seller-avatar">
+                              <img
+                                src={sellerLogo.startsWith('http') ? sellerLogo : movininHelper.joinURL(env.CDN_USERS, sellerLogo)}
+                                alt={sellerName}
+                              />
+                            </span>
+                          )}
+                          <div>
+                            <div className="property-seller-name">{sellerName}</div>
+                            {sellerType && <div className="property-seller-type">{sellerType}</div>}
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
+                      <button
+                        type="button"
+                        className="property-contact"
+                        onClick={handleContactSeller}
+                      >
+                        {contactLabel}
+                      </button>
+                      {sellerLink && (
+                        <button
+                          type="button"
+                          className="property-profile"
+                          onClick={() => navigate(sellerLink)}
+                        >
+                          {strings.VIEW_SELLER}
+                        </button>
+                      )}
+                      {currentUser && (
+                        <button
+                          type="button"
+                          className="property-profile muted"
+                          onClick={() => navigate(`/messages?propertyId=${property._id}`)}
+                        >
+                          {commonStrings.SEND_MESSAGE}{hasUnread ? ` (${messagesStrings.UNREAD})` : ''}
+                        </button>
+                      )}
+                    </div>
+                  )}
 
-                {/* Property description */}
-                <div className="description">
-                  <div dangerouslySetInnerHTML={{ __html: descriptionHtml || '' }} />
-                </div>
-
-                {property.latitude && property.longitude && (
-                  <div className="property-map">
-                    <Map
-                      position={[property.latitude, property.longitude]}
-                      initialZoom={13}
-                      showTileToggle
-                      className="map"
-                    />
-                  </div>
-                )}
-
-                <div className="property-footer">
-                  {env.HIDE_AGENCIES ? <div /> : <AgencyBadge agency={property.agency} />}
-
-                  {
-                    !hideAction
-                    && (
+                  {!hideAction && (
+                    <div className="property-booking-card">
+                      <h3>{strings.AVAILABILITY}</h3>
                       <form
-                        className="action"
+                        className="property-booking-form"
                         onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                           e.preventDefault()
 
@@ -372,7 +449,7 @@ const Property = () => {
                           })
                         }}
                       >
-                        <FormControl className="from">
+                        <FormControl className="property-booking-field">
                           <DatePicker
                             label={commonStrings.FROM}
                             value={from}
@@ -398,7 +475,7 @@ const Property = () => {
                             language={UserService.getLanguage()}
                           />
                         </FormControl>
-                        <FormControl className="to">
+                        <FormControl className="property-booking-field">
                           <DatePicker
                             label={commonStrings.TO}
                             value={to}
@@ -422,27 +499,30 @@ const Property = () => {
                         <Button
                           type="submit"
                           variant="contained"
-                          className="btn-action btn-book"
+                          className="property-booking-submit"
                         >
                           {strings.BOOK}
                         </Button>
                       </form>
-                    )
-                  }
+                      {env.HIDE_AGENCIES ? null : (
+                        <div className="property-agency-card">
+                          <AgencyBadge agency={property.agency} />
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                </div>
-
-                {property.listingType !== movininTypes.ListingType.Rent && (
-                  <div className="property-lead">
-                    <LeadForm
-                      propertyId={property._id}
-                      listingType={property.listingType === movininTypes.ListingType.Both
-                        ? movininTypes.ListingType.Sale
-                        : (property.listingType ?? movininTypes.ListingType.Sale)}
-                    />
-                  </div>
-                )}
-
+                  {property.listingType !== movininTypes.ListingType.Rent && (
+                    <div className="property-lead-card">
+                      <LeadForm
+                        propertyId={property._id}
+                        listingType={property.listingType === movininTypes.ListingType.Both
+                          ? movininTypes.ListingType.Sale
+                          : (property.listingType ?? movininTypes.ListingType.Sale)}
+                      />
+                    </div>
+                  )}
+                </aside>
               </div>
 
               {

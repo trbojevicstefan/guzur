@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   AutoAwesome,
   Schedule,
@@ -7,7 +7,7 @@ import {
   EditOutlined,
   Send,
 } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import validator from 'validator'
 import * as movininTypes from ':movinin-types'
 import env from '@/config/env.config'
@@ -23,6 +23,7 @@ import '@/assets/css/contact.css'
 
 const Contact = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { reCaptchaLoaded, generateReCaptchaToken } = useRecaptchaContext() as RecaptchaContextType
 
   const [user, setUser] = useState<movininTypes.User>()
@@ -32,6 +33,7 @@ const Contact = () => {
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
+  const prefillDone = useRef(false)
 
   useEffect(() => {
     if (user) {
@@ -39,6 +41,26 @@ const Contact = () => {
       setEmail(user.email || '')
     }
   }, [user])
+
+  useEffect(() => {
+    if (prefillDone.current) {
+      return
+    }
+    const state = location.state as { subject?: string; message?: string } | null
+    const params = new URLSearchParams(location.search)
+    const subjectValue = state?.subject || params.get('subject') || ''
+    const messageValue = state?.message || params.get('message') || ''
+
+    if (subjectValue && !subject) {
+      setSubject(subjectValue)
+    }
+    if (messageValue && !message) {
+      setMessage(messageValue)
+    }
+    if (subjectValue || messageValue) {
+      prefillDone.current = true
+    }
+  }, [location.search, location.state, message, subject])
 
   const onLoad = (_user?: movininTypes.User) => {
     setUser(_user)

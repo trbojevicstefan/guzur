@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MenuItem, Select, SelectChangeEvent } from '@mui/material'
-import { Bolt, Add, Search, FilterList } from '@mui/icons-material'
+import { MenuItem, Select, SelectChangeEvent, IconButton, Tooltip } from '@mui/material'
+import { Bolt, Add, Search, FilterList, VisibilityOutlined, EditOutlined, DeleteOutline } from '@mui/icons-material'
 import * as movininTypes from ':movinin-types'
 import Layout from '@/components/Layout'
 import LeadTable from '@/components/LeadTable'
-import DevelopmentList from '@/components/DevelopmentList'
 import ListingTable from '@/components/ListingTable'
 import { strings as dashboardStrings } from '@/lang/dashboard'
 import { strings as onboardingStrings } from '@/lang/onboarding'
@@ -122,6 +121,37 @@ const DeveloperDashboard = () => {
 
   const handleInventoryStatusChange = (event: SelectChangeEvent<string>) => {
     setInventoryStatus(event.target.value as movininTypes.ListingStatus | '')
+  }
+
+  const getDevelopmentLocation = (value?: string) => {
+    if (!value) {
+      return '-'
+    }
+    if (/^[a-f0-9]{24}$/i.test(value)) {
+      return '-'
+    }
+    return value
+  }
+
+  const handleDeleteDevelopment = async (development: movininTypes.Development) => {
+    if (!development._id) {
+      return
+    }
+    const confirmed = window.confirm(dashboardStrings.DELETE_DEVELOPMENT_CONFIRM)
+    if (!confirmed) {
+      return
+    }
+    try {
+      const status = await DevelopmentService.remove(development._id as string)
+      if (status === 200) {
+        setDevelopments((prev) => prev.filter((item) => item._id !== development._id))
+        helper.info(commonStrings.UPDATED)
+      } else {
+        helper.error()
+      }
+    } catch (err) {
+      helper.error(err)
+    }
   }
 
   return (
@@ -251,45 +281,60 @@ const DeveloperDashboard = () => {
                   <Search fontSize="small" />
                   <input placeholder={dashboardStrings.SEARCH_LISTINGS} />
                 </div>
-                <button type="button" className="dashboard-filter">
-                  <FilterList fontSize="small" /> {dashboardStrings.FILTER_SORT}
-                </button>
               </div>
 
-              <div className="dashboard-note">{dashboardStrings.LISTINGS_VIA_INVENTORY}</div>
-              <div className="dashboard-inventory-filters">
-                <Select
-                  value={inventoryDevelopmentId}
-                  onChange={handleDevelopmentChange}
-                  variant="standard"
-                  fullWidth
-                  disableUnderline
-                >
-                  <MenuItem value="">{commonStrings.ALL}</MenuItem>
-                  {developments.map((development) => (
-                    <MenuItem key={development._id as string} value={development._id as string}>
-                      {development.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <Select
-                  value={inventoryStatus}
-                  onChange={handleInventoryStatusChange}
-                  variant="standard"
-                  fullWidth
-                  disableUnderline
-                >
-                  <MenuItem value="">{commonStrings.ALL}</MenuItem>
-                  {Object.values(movininTypes.ListingStatus).map((value) => (
-                    <MenuItem key={value} value={value}>
-                      {helper.getListingStatus(value)}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <div className="dashboard-filter-row">
+                <div className="dashboard-filter-label">
+                  <FilterList fontSize="small" /> {dashboardStrings.FILTER_SORT}
+                </div>
+                <div className="dashboard-filter-controls">
+                  <Select
+                    value={inventoryDevelopmentId}
+                    onChange={handleDevelopmentChange}
+                    variant="standard"
+                    fullWidth
+                    disableUnderline
+                  >
+                    <MenuItem value="">{commonStrings.ALL}</MenuItem>
+                    {developments.map((development) => (
+                      <MenuItem key={development._id as string} value={development._id as string}>
+                        {development.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <Select
+                    value={inventoryStatus}
+                    onChange={handleInventoryStatusChange}
+                    variant="standard"
+                    fullWidth
+                    disableUnderline
+                  >
+                    <MenuItem value="">{commonStrings.ALL}</MenuItem>
+                    {Object.values(movininTypes.ListingStatus).map((value) => (
+                      <MenuItem key={value} value={value}>
+                        {helper.getListingStatus(value)}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </div>
               </div>
+              <div className="dashboard-note">{dashboardStrings.LISTINGS_VIA_INVENTORY}</div>
 
               {loadingInventory ? (
                 <div className="dashboard-loading">{commonStrings.LOADING}</div>
+              ) : inventory.length === 0 ? (
+                <div className="dashboard-empty-state">
+                  <div className="dashboard-empty-icon" />
+                  <h4>{dashboardStrings.INVENTORY_EMPTY_TITLE}</h4>
+                  <p>{dashboardStrings.INVENTORY_EMPTY_BODY}</p>
+                  <button
+                    type="button"
+                    className="dashboard-primary"
+                    onClick={() => navigate('/dashboard/listings/new')}
+                  >
+                    <Add fontSize="small" /> {dashboardStrings.CREATE_UNIT}
+                  </button>
+                </div>
               ) : (
                 <ListingTable
                   listings={inventory}
@@ -345,13 +390,88 @@ const DeveloperDashboard = () => {
             </div>
             {loadingDevelopments ? (
               <div className="dashboard-loading">{commonStrings.LOADING}</div>
+            ) : developments.length === 0 ? (
+              <div className="dashboard-empty-state">
+                <div className="dashboard-empty-icon" />
+                <h4>{dashboardStrings.DEVELOPMENTS_EMPTY_TITLE}</h4>
+                <p>{dashboardStrings.DEVELOPMENTS_EMPTY_BODY}</p>
+                <button
+                  type="button"
+                  className="dashboard-primary"
+                  onClick={() => navigate('/dashboard/developments/new')}
+                >
+                  <Add fontSize="small" /> {dashboardStrings.CREATE_DEVELOPMENT}
+                </button>
+              </div>
             ) : (
-              <>
-                <DevelopmentList developments={developments} />
-                {developments.length === 0 && (
-                  <div className="dashboard-note">{dashboardStrings.EMPTY_DEVELOPMENTS}</div>
-                )}
-              </>
+              <div className="dashboard-table-card">
+                <div className="dashboard-table-scroll">
+                  <table className="dashboard-dev-table">
+                    <thead>
+                      <tr>
+                        <th>{dashboardStrings.NAME}</th>
+                        <th>{dashboardStrings.STATUS}</th>
+                        <th>{dashboardStrings.UNITS}</th>
+                        <th>{dashboardStrings.UPDATED}</th>
+                        <th>{commonStrings.OPTIONS}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {developments.map((development) => (
+                        <tr key={development._id as string}>
+                          <td>
+                            <div className="dashboard-dev-name">
+                              <strong>{development.name}</strong>
+                              <span>{getDevelopmentLocation(development.location)}</span>
+                            </div>
+                          </td>
+                          <td>
+                            <span className={`dashboard-status status-${(development.status || movininTypes.DevelopmentStatus.Planning).toLowerCase()}`}>
+                              {helper.getDevelopmentStatus(development.status) || '-'}
+                            </span>
+                          </td>
+                          <td>{development.unitsCount ?? '-'}</td>
+                          <td>{development.updatedAt ? new Date(development.updatedAt).toLocaleDateString() : '-'}</td>
+                          <td>
+                            <div className="dashboard-dev-actions">
+                              <Tooltip title={commonStrings.VIEW} placement="top">
+                                <IconButton
+                                  className="dashboard-action"
+                                  onClick={() => navigate(`/projects/${development._id}`)}
+                                  aria-label={commonStrings.VIEW}
+                                  size="small"
+                                >
+                                  <VisibilityOutlined fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title={commonStrings.UPDATE} placement="top">
+                                <IconButton
+                                  className="dashboard-action"
+                                  onClick={() => navigate('/dashboard/developments/new', { state: { developmentId: development._id } })}
+                                  aria-label={commonStrings.UPDATE}
+                                  size="small"
+                                >
+                                  <EditOutlined fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title={commonStrings.DELETE} placement="top">
+                                <IconButton
+                                  className="dashboard-action danger"
+                                  onClick={() => handleDeleteDevelopment(development)}
+                                  aria-label={commonStrings.DELETE}
+                                  size="small"
+                                >
+                                  <DeleteOutline fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
           </section>
 

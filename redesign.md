@@ -59,6 +59,8 @@ Serve as the single source of truth for redesign scope, rules, task tracking, an
 - 2026-02-05: Redesigned notifications (`frontend/src/components/NotificationList.tsx`, `frontend/src/assets/css/notification-list.css`, `frontend/src/lang/notifications.ts`).
 - 2026-02-05: Redesigned organization edit screen (`frontend/src/pages/dashboards/Organization.tsx`, `frontend/src/assets/css/organization-admin.css`).
 - 2026-02-05: Redesigned projects screen with grid/list layouts (`frontend/src/pages/Projects.tsx`, `frontend/src/assets/css/developments.css`, `frontend/src/lang/developments.ts`).
+- 2026-02-05: Redesigned property showcase page (`frontend/src/pages/Property.tsx`, `frontend/src/assets/css/property.css`) and added contact form prefill support (`frontend/src/pages/Contact.tsx`, `frontend/src/lang/properties.ts`).
+- 2026-02-05: Improved developer dashboard inventory filters, development table actions, and empty states (`frontend/src/pages/dashboards/DeveloperDashboard.tsx`, `frontend/src/assets/css/dashboard.css`, `frontend/src/lang/dashboard.ts`).
 **Frontend Pages**
 - `frontend/src/pages/About.tsx` - Components: Footer, Layout [ ]
 - `frontend/src/pages/Activate.tsx` - Components: Footer, Layout, PasswordInput [ ]

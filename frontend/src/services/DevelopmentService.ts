@@ -115,3 +115,32 @@ export const create = (data: movininTypes.CreateDevelopmentPayload): Promise<mov
       { withCredentials: true }
     )
     .then((res) => res.data)
+
+/**
+ * Update a development (authenticated).
+ *
+ * @param {movininTypes.UpdateDevelopmentPayload} data
+ * @returns {Promise<movininTypes.Development>}
+ */
+export const update = (data: movininTypes.UpdateDevelopmentPayload): Promise<movininTypes.Development> =>
+  axiosInstance
+    .put(
+      '/api/update-development',
+      data,
+      { withCredentials: true }
+    )
+    .then((res) => res.data)
+
+/**
+ * Delete a development (authenticated).
+ *
+ * @param {string} id
+ * @returns {Promise<number>}
+ */
+export const remove = (id: string): Promise<number> =>
+  axiosInstance
+    .delete(
+      `/api/delete-development/${encodeURIComponent(id)}`,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)

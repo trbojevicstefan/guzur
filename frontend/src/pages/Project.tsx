@@ -134,7 +134,7 @@ const Project = () => {
     }
     return {
       src: movininHelper.joinURL(env.CDN_PROPERTIES, imageName),
-      fallbackSrc: movininHelper.joinURL(`${env.API_HOST}/cdn/movinin/temp/properties`, imageName),
+      fallbackSrc: movininHelper.joinURL(env.CDN_TEMP_PROPERTIES, imageName),
     }
   }
 

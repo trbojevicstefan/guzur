@@ -133,6 +133,37 @@
   white-space: nowrap;
 }
 
+.file-upload-preview {
+  margin-top: 8px;
+}
+
+.file-upload-preview-main img {
+  width: min(100%, 260px);
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgb(15 23 42 / 12%);
+  background: #f3f4f6;
+}
+
+.file-upload-item-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.file-upload-preview-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgb(15 23 42 / 12%);
+  background: #f3f4f6;
+  flex-shrink: 0;
+}
+
 @media (max-width: 980px) {
   .listing-form {
     max-width: 980px;

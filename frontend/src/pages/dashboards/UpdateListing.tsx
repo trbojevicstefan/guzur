@@ -82,6 +82,9 @@ const UpdateListing = () => {
   const mainImageInputRef = useRef<HTMLInputElement>(null)
   const secondaryImageInputRef = useRef<HTMLInputElement>(null)
   const reverseGeocodeTimerRef = useRef<number | null>(null)
+  const cleanupOnUnmountRef = useRef(true)
+  const tempImageRef = useRef('')
+  const tempSecondaryImagesRef = useRef<string[]>([])
 
   const onLoad = async (currentUser?: movininTypes.User) => {
     if (!currentUser) {
@@ -401,6 +404,7 @@ const UpdateListing = () => {
           await Promise.allSettled(tempSecondaryImages.map((img) => PropertyService.deleteTempImage(img)))
         }
         setTempSecondaryImages([])
+        cleanupOnUnmountRef.current = false
         navigate('/dashboard/listings')
       } else {
         helper.error()
@@ -413,16 +417,26 @@ const UpdateListing = () => {
   }
 
   useEffect(() => () => {
-    if (tempImage) {
-      PropertyService.deleteTempImage(tempImage).catch(() => undefined)
-    }
-    if (tempSecondaryImages.length > 0) {
-      Promise.allSettled(tempSecondaryImages.map((img) => PropertyService.deleteTempImage(img))).catch(() => undefined)
+    if (cleanupOnUnmountRef.current) {
+      if (tempImageRef.current) {
+        PropertyService.deleteTempImage(tempImageRef.current).catch(() => undefined)
+      }
+      if (tempSecondaryImagesRef.current.length > 0) {
+        Promise.allSettled(tempSecondaryImagesRef.current.map((img) => PropertyService.deleteTempImage(img))).catch(() => undefined)
+      }
     }
     if (reverseGeocodeTimerRef.current) {
       window.clearTimeout(reverseGeocodeTimerRef.current)
     }
-  }, [tempImage, tempSecondaryImages])
+  }, [])
+
+  useEffect(() => {
+    tempImageRef.current = tempImage
+  }, [tempImage])
+
+  useEffect(() => {
+    tempSecondaryImagesRef.current = tempSecondaryImages
+  }, [tempSecondaryImages])
 
   return (
     <Layout strict onLoad={onLoad}>
@@ -914,6 +928,7 @@ const UpdateListing = () => {
                   if (tempSecondaryImages.length > 0) {
                     await Promise.allSettled(tempSecondaryImages.map((img) => PropertyService.deleteTempImage(img)))
                   }
+                  cleanupOnUnmountRef.current = false
                 } catch (err) {
                   helper.error(err)
                 }

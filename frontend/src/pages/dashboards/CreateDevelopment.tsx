@@ -13,6 +13,7 @@ import {
   SelectChangeEvent,
 } from '@mui/material'
 import * as movininTypes from ':movinin-types'
+import * as movininHelper from ':movinin-helper'
 import Layout from '@/components/Layout'
 import LocationSelectList from '@/components/LocationSelectList'
 import MapPicker from '@/components/MapPicker'
@@ -23,6 +24,7 @@ import { strings } from '@/lang/create-development'
 import * as DevelopmentService from '@/services/DevelopmentService'
 import * as PropertyService from '@/services/PropertyService'
 import * as LocationService from '@/services/LocationService'
+import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 
 import '@/assets/css/listing-form.css'
@@ -42,6 +44,7 @@ const CreateDevelopment = () => {
   const [unitsCount, setUnitsCount] = useState('')
   const [completionDate, setCompletionDate] = useState('')
   const [status, setStatus] = useState<movininTypes.DevelopmentStatus>(movininTypes.DevelopmentStatus.Planning)
+  const [approved, setApproved] = useState(false)
   const [mainImage, setMainImage] = useState('')
   const [galleryImages, setGalleryImages] = useState<string[]>([])
   const [masterPlan, setMasterPlan] = useState('')
@@ -54,6 +57,8 @@ const CreateDevelopment = () => {
   const galleryImagesInputRef = useRef<HTMLInputElement>(null)
   const masterPlanInputRef = useRef<HTMLInputElement>(null)
   const floorPlansInputRef = useRef<HTMLInputElement>(null)
+  const cleanupOnUnmountRef = useRef(true)
+  const tempUploadsRef = useRef<string[]>([])
 
   const toDateInputValue = (value?: Date | string) => {
     if (!value) {
@@ -114,6 +119,7 @@ const CreateDevelopment = () => {
         setUnitsCount(development.unitsCount ? String(development.unitsCount) : '')
         setCompletionDate(toDateInputValue(development.completionDate))
         setStatus(development.status || movininTypes.DevelopmentStatus.Planning)
+        setApproved(Boolean(development.approved))
         const images = development.images || []
         setMainImage(images[0] || '')
         setGalleryImages(images.slice(1))
@@ -140,14 +146,53 @@ const CreateDevelopment = () => {
   }
 
   useEffect(() => () => {
-    if (tempUploads.length > 0) {
-      Promise.allSettled(tempUploads.map((file) => PropertyService.deleteTempImage(file))).catch(() => undefined)
+    if (cleanupOnUnmountRef.current && tempUploadsRef.current.length > 0) {
+      Promise.allSettled(tempUploadsRef.current.map((file) => PropertyService.deleteTempImage(file))).catch(() => undefined)
     }
+  }, [])
+
+  useEffect(() => {
+    tempUploadsRef.current = tempUploads
   }, [tempUploads])
 
   const handleMapPick = (lat: number, lng: number) => {
     setLatitude(lat.toFixed(6))
     setLongitude(lng.toFixed(6))
+  }
+
+  const normalizeImageName = (value?: string) => {
+    if (!value) {
+      return ''
+    }
+    const trimmed = value.trim()
+    if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+      return ''
+    }
+    return trimmed
+  }
+
+  const resolveImageSource = (value?: string) => {
+    const imageName = normalizeImageName(value)
+    if (!imageName) {
+      return { src: '', fallbackSrc: '' }
+    }
+    if (imageName.startsWith('http')) {
+      return { src: imageName, fallbackSrc: '' }
+    }
+    return {
+      src: movininHelper.joinURL(env.CDN_PROPERTIES, imageName),
+      fallbackSrc: movininHelper.joinURL(env.CDN_TEMP_PROPERTIES, imageName),
+    }
+  }
+
+  const onImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const fallbackSrc = event.currentTarget.dataset.fallback
+    if (fallbackSrc) {
+      event.currentTarget.src = fallbackSrc
+      event.currentTarget.removeAttribute('data-fallback')
+      return
+    }
+    event.currentTarget.style.opacity = '0'
   }
 
   const handleUploadMasterPlan = async (file?: File | null) => {
@@ -275,7 +320,7 @@ const CreateDevelopment = () => {
         unitsCount: unitsCount ? Number.parseInt(unitsCount, 10) : undefined,
         completionDate: completionDate ? new Date(`${completionDate}T00:00:00`) : undefined,
         status,
-        approved: false,
+        approved,
         images: [mainImage, ...galleryImages],
         masterPlan: masterPlan || undefined,
         floorPlans,
@@ -292,6 +337,7 @@ const CreateDevelopment = () => {
       } else {
         await DevelopmentService.create(payload)
       }
+      cleanupOnUnmountRef.current = false
       setTempUploads([])
       navigate('/dashboard/developer')
     } catch (err) {
@@ -301,6 +347,8 @@ const CreateDevelopment = () => {
       setLoading(false)
     }
   }
+
+  const mainImageSource = resolveImageSource(mainImage)
 
   return (
     <Layout onLoad={onLoad} strict>
@@ -313,7 +361,7 @@ const CreateDevelopment = () => {
           </FormControl>
           <FormControl fullWidth margin="dense">
             <InputLabel>{commonStrings.LOCATION}</InputLabel>
-            <LocationSelectList onChange={handleLocationChange} />
+            <LocationSelectList value={location as movininTypes.Location} onChange={handleLocationChange} />
           </FormControl>
           <FormControl fullWidth margin="dense">
             <InputLabel>{strings.UNITS}</InputLabel>
@@ -369,6 +417,16 @@ const CreateDevelopment = () => {
                   <span className="file-upload-name" title={mainImage}>{mainImage}</span>
                 )}
               </div>
+              {mainImage && (
+                <div className="file-upload-preview file-upload-preview-main">
+                  <img
+                    src={mainImageSource.src}
+                    data-fallback={mainImageSource.fallbackSrc || undefined}
+                    onError={onImageError}
+                    alt={strings.MAIN_IMAGE}
+                  />
+                </div>
+              )}
             </div>
           </FormControl>
           <FormControl fullWidth margin="dense">
@@ -419,25 +477,37 @@ const CreateDevelopment = () => {
               </div>
               {galleryImages.length > 0 && (
                 <div className="file-upload-list">
-                  {galleryImages.map((img) => (
-                    <div key={img} className="file-upload-item">
-                      <span className="file-upload-name" title={img}>{img}</span>
-                      <Button
-                        size="small"
-                        onClick={async () => {
-                          setLoading(true)
-                          if (tempUploads.includes(img)) {
-                            await PropertyService.deleteTempImage(img)
-                            setTempUploads((prev) => prev.filter((f) => f !== img))
-                          }
-                          setGalleryImages((prev) => prev.filter((f) => f !== img))
-                          setLoading(false)
-                        }}
-                      >
-                        {strings.REMOVE}
-                      </Button>
-                    </div>
-                  ))}
+                  {galleryImages.map((img) => {
+                    const imageSource = resolveImageSource(img)
+                    return (
+                      <div key={img} className="file-upload-item">
+                        <div className="file-upload-item-main">
+                          <img
+                            className="file-upload-preview-thumb"
+                            src={imageSource.src}
+                            data-fallback={imageSource.fallbackSrc || undefined}
+                            onError={onImageError}
+                            alt={strings.GALLERY_IMAGES}
+                          />
+                          <span className="file-upload-name" title={img}>{img}</span>
+                        </div>
+                        <Button
+                          size="small"
+                          onClick={async () => {
+                            setLoading(true)
+                            if (tempUploads.includes(img)) {
+                              await PropertyService.deleteTempImage(img)
+                              setTempUploads((prev) => prev.filter((f) => f !== img))
+                            }
+                            setGalleryImages((prev) => prev.filter((f) => f !== img))
+                            setLoading(false)
+                          }}
+                        >
+                          {strings.REMOVE}
+                        </Button>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </div>

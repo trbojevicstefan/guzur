@@ -79,6 +79,9 @@ const CreateListing = () => {
   const mainImageInputRef = useRef<HTMLInputElement>(null)
   const secondaryImageInputRef = useRef<HTMLInputElement>(null)
   const reverseGeocodeTimerRef = useRef<number | null>(null)
+  const cleanupOnUnmountRef = useRef(true)
+  const tempMainImageRef = useRef('')
+  const tempSecondaryImagesRef = useRef<string[]>([])
 
   const onLoad = (currentUser?: movininTypes.User) => {
     if (!currentUser) {
@@ -113,9 +116,7 @@ const CreateListing = () => {
         const data = await DevelopmentService.getDevelopments(payload, 1, env.PAGE_SIZE)
         const rows = data?.[0]?.resultData ?? []
         setDevelopments(rows)
-        if (!developmentId && rows.length > 0) {
-          setDevelopmentId(rows[0]._id as string)
-        }
+        setDevelopmentId((prev) => prev || (rows[0]?._id as string) || '')
       } catch (err) {
         helper.error(err)
       }
@@ -125,14 +126,24 @@ const CreateListing = () => {
   }, [user])
 
   useEffect(() => () => {
-    const tempImages = [image, ...secondaryImages].filter(Boolean)
-    if (tempImages.length > 0) {
-      Promise.allSettled(tempImages.map((file) => PropertyService.deleteTempImage(file))).catch(() => undefined)
+    if (cleanupOnUnmountRef.current) {
+      const tempImages = [tempMainImageRef.current, ...tempSecondaryImagesRef.current].filter(Boolean)
+      if (tempImages.length > 0) {
+        Promise.allSettled(tempImages.map((file) => PropertyService.deleteTempImage(file))).catch(() => undefined)
+      }
     }
     if (reverseGeocodeTimerRef.current) {
       window.clearTimeout(reverseGeocodeTimerRef.current)
     }
-  }, [image, secondaryImages])
+  }, [])
+
+  useEffect(() => {
+    tempMainImageRef.current = image
+  }, [image])
+
+  useEffect(() => {
+    tempSecondaryImagesRef.current = secondaryImages
+  }, [secondaryImages])
 
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
@@ -339,6 +350,7 @@ const CreateListing = () => {
 
       const property = await PropertyService.create(payload)
       if (property && property._id) {
+        cleanupOnUnmountRef.current = false
         if (user.type === movininTypes.UserType.Developer) {
           navigate('/dashboard')
         } else {
@@ -853,6 +865,7 @@ const CreateListing = () => {
                   if (tempImages.length > 0) {
                     await Promise.allSettled(tempImages.map((file) => PropertyService.deleteTempImage(file)))
                   }
+                  cleanupOnUnmountRef.current = false
                 } catch (err) {
                   helper.error(err)
                 }

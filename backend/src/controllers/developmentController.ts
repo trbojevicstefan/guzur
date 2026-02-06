@@ -237,7 +237,7 @@ export const update = async (req: Request, res: Response) => {
         if (moved) {
           nextImages.push(moved)
         } else {
-          nextImages.push(imageRef)
+          logger.warn(`[development.update] image not found for reference: ${imageRef}`)
         }
         imageIndex += 1
       }
@@ -254,12 +254,19 @@ export const update = async (req: Request, res: Response) => {
           development.masterPlan = undefined
         }
       } else {
-        if (requestedMasterPlan !== previousMasterPlan) {
-          await removeLocalAsset(previousMasterPlan)
+        if (requestedMasterPlan === previousMasterPlan) {
+          development.masterPlan = previousMasterPlan
+        } else {
+          const nextMaster = await promoteAsset(String(development._id), requestedMasterPlan, 'master')
+          if (nextMaster) {
+            if (previousMasterPlan) {
+              await removeLocalAsset(previousMasterPlan)
+            }
+            development.masterPlan = nextMaster
+          } else {
+            logger.warn(`[development.update] master plan not found for reference: ${requestedMasterPlan}`)
+          }
         }
-
-        const nextMaster = await promoteAsset(String(development._id), requestedMasterPlan, 'master')
-        development.masterPlan = nextMaster || requestedMasterPlan
       }
     }
 
@@ -285,7 +292,7 @@ export const update = async (req: Request, res: Response) => {
         if (moved) {
           nextFloorPlans.push(moved)
         } else {
-          nextFloorPlans.push(plan)
+          logger.warn(`[development.update] floor plan not found for reference: ${plan}`)
         }
         planIndex += 1
       }

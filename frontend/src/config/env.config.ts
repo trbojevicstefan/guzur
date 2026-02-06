@@ -84,6 +84,7 @@ const env = {
   CDN_USERS: String(import.meta.env.VITE_MI_CDN_USERS),
   CDN_TEMP_USERS: String(import.meta.env.VITE_MI_CDN_TEMP_USERS || `${String(import.meta.env.VITE_MI_API_HOST)}/cdn/movinin/temp/users`),
   CDN_PROPERTIES: String(import.meta.env.VITE_MI_CDN_PROPERTIES),
+  CDN_TEMP_PROPERTIES: String(import.meta.env.VITE_MI_CDN_TEMP_PROPERTIES || `${String(import.meta.env.VITE_MI_API_HOST)}/cdn/movinin/temp/properties`),
   CDN_LOCATIONS: String(import.meta.env.VITE_MI_CDN_LOCATIONS),
   PAGE_OFFSET: 200,
   INFINITE_SCROLL_OFFSET: 40,

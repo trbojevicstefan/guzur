@@ -653,6 +653,7 @@ export interface Development {
   developerOrg?: Organization | string
   unitsCount?: number
   status?: DevelopmentStatus
+  completionDate?: Date
   approved?: boolean
   images?: string[]
   masterPlan?: string
@@ -671,6 +672,7 @@ export interface CreateDevelopmentPayload {
   developerOrg?: string
   unitsCount?: number
   status?: DevelopmentStatus
+  completionDate?: Date
   approved?: boolean
   images?: string[]
   masterPlan?: string

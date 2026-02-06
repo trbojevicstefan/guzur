@@ -35,6 +35,7 @@ const CreateDevelopment = () => {
   const [location, setLocation] = useState<movininTypes.Option>()
   const [developer, setDeveloper] = useState<movininTypes.Option>()
   const [unitsCount, setUnitsCount] = useState('')
+  const [completionDate, setCompletionDate] = useState('')
   const [status, setStatus] = useState<movininTypes.DevelopmentStatus>()
   const [images, setImages] = useState<string[]>([])
   const [masterPlan, setMasterPlan] = useState('')
@@ -50,7 +51,7 @@ const CreateDevelopment = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
-      if (!name || !developer?._id) {
+      if (!name || !developer?._id || !completionDate) {
         setFormError(true)
         return
       }
@@ -61,6 +62,7 @@ const CreateDevelopment = () => {
         location: location?._id,
         developer: developer._id,
         unitsCount: unitsCount ? Number.parseInt(unitsCount, 10) : undefined,
+        completionDate: completionDate ? new Date(`${completionDate}T00:00:00`) : undefined,
         status,
         approved,
         images,
@@ -140,6 +142,16 @@ const CreateDevelopment = () => {
               <FormControl fullWidth margin="dense">
                 <InputLabel>{strings.UNITS}</InputLabel>
                 <Input type="number" value={unitsCount} onChange={(e) => setUnitsCount(e.target.value)} autoComplete="off" />
+              </FormControl>
+              <FormControl fullWidth margin="dense">
+                <TextField
+                  type="date"
+                  label={strings.COMPLETION_DATE}
+                  value={completionDate}
+                  onChange={(e) => setCompletionDate(e.target.value)}
+                  required
+                  InputLabelProps={{ shrink: true }}
+                />
               </FormControl>
               <FormControl fullWidth margin="dense">
                 <InputLabel>{strings.LATITUDE}</InputLabel>

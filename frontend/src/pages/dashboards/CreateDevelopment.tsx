@@ -40,6 +40,7 @@ const CreateDevelopment = () => {
   const [description, setDescription] = useState('')
   const [location, setLocation] = useState<movininTypes.Option>()
   const [unitsCount, setUnitsCount] = useState('')
+  const [completionDate, setCompletionDate] = useState('')
   const [status, setStatus] = useState<movininTypes.DevelopmentStatus>(movininTypes.DevelopmentStatus.Planning)
   const [mainImage, setMainImage] = useState('')
   const [galleryImages, setGalleryImages] = useState<string[]>([])
@@ -53,6 +54,20 @@ const CreateDevelopment = () => {
   const galleryImagesInputRef = useRef<HTMLInputElement>(null)
   const masterPlanInputRef = useRef<HTMLInputElement>(null)
   const floorPlansInputRef = useRef<HTMLInputElement>(null)
+
+  const toDateInputValue = (value?: Date | string) => {
+    if (!value) {
+      return ''
+    }
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) {
+      return ''
+    }
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
 
   const onLoad = (currentUser?: movininTypes.User) => {
     if (!currentUser) {
@@ -97,6 +112,7 @@ const CreateDevelopment = () => {
           }
         }
         setUnitsCount(development.unitsCount ? String(development.unitsCount) : '')
+        setCompletionDate(toDateInputValue(development.completionDate))
         setStatus(development.status || movininTypes.DevelopmentStatus.Planning)
         const images = development.images || []
         setMainImage(images[0] || '')
@@ -217,6 +233,11 @@ const CreateDevelopment = () => {
         setFormErrorMessage(strings.DESCRIPTION_REQUIRED)
         return
       }
+      if (!completionDate) {
+        setFormError(true)
+        setFormErrorMessage(strings.COMPLETION_DATE_REQUIRED)
+        return
+      }
       if (!mainImage) {
         setFormError(true)
         setFormErrorMessage(strings.MAIN_IMAGE_REQUIRED)
@@ -252,6 +273,7 @@ const CreateDevelopment = () => {
         developer: user._id as string,
         developerOrg: typeof user.primaryOrg === 'string' ? user.primaryOrg : user.primaryOrg?._id,
         unitsCount: unitsCount ? Number.parseInt(unitsCount, 10) : undefined,
+        completionDate: completionDate ? new Date(`${completionDate}T00:00:00`) : undefined,
         status,
         approved: false,
         images: [mainImage, ...galleryImages],
@@ -296,6 +318,16 @@ const CreateDevelopment = () => {
           <FormControl fullWidth margin="dense">
             <InputLabel>{strings.UNITS}</InputLabel>
             <Input type="number" value={unitsCount} onChange={(e) => setUnitsCount(e.target.value)} autoComplete="off" />
+          </FormControl>
+          <FormControl fullWidth margin="dense">
+            <TextField
+              type="date"
+              label={strings.COMPLETION_DATE}
+              value={completionDate}
+              onChange={(e) => setCompletionDate(e.target.value)}
+              required
+              InputLabelProps={{ shrink: true }}
+            />
           </FormControl>
           <FormControl fullWidth margin="dense">
             <div className="file-upload">

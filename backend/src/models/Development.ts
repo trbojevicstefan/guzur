@@ -39,6 +39,9 @@ const developmentSchema = new Schema<movininTypes.Development>(
       ],
       default: movininTypes.DevelopmentStatus.Planning,
     },
+    completionDate: {
+      type: Date,
+    },
     approved: {
       type: Boolean,
       default: false,

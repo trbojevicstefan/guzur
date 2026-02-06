@@ -37,6 +37,7 @@ const UpdateDevelopment = () => {
   const [location, setLocation] = useState<movininTypes.Option>()
   const [developer, setDeveloper] = useState<movininTypes.Option>()
   const [unitsCount, setUnitsCount] = useState('')
+  const [completionDate, setCompletionDate] = useState('')
   const [status, setStatus] = useState<movininTypes.DevelopmentStatus>()
   const [images, setImages] = useState<string[]>([])
   const [masterPlan, setMasterPlan] = useState('')
@@ -44,6 +45,20 @@ const UpdateDevelopment = () => {
   const [latitude, setLatitude] = useState('')
   const [longitude, setLongitude] = useState('')
   const [approved, setApproved] = useState(false)
+
+  const toDateInputValue = (value?: Date | string) => {
+    if (!value) {
+      return ''
+    }
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) {
+      return ''
+    }
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
 
   const onLoad = async () => {
     const { state } = reactLocation
@@ -70,6 +85,7 @@ const UpdateDevelopment = () => {
         setDeveloper({ _id: dev.developer })
       }
       setUnitsCount(dev.unitsCount ? String(dev.unitsCount) : '')
+      setCompletionDate(toDateInputValue(dev.completionDate))
       setStatus(dev.status)
       setApproved(Boolean(dev.approved))
       setImages(dev.images || [])
@@ -91,7 +107,7 @@ const UpdateDevelopment = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
-      if (!developmentId || !name || !developer?._id) {
+      if (!developmentId || !name || !developer?._id || !completionDate) {
         setFormError(true)
         return
       }
@@ -103,6 +119,7 @@ const UpdateDevelopment = () => {
         location: location?._id,
         developer: developer._id,
         unitsCount: unitsCount ? Number.parseInt(unitsCount, 10) : undefined,
+        completionDate: completionDate ? new Date(`${completionDate}T00:00:00`) : undefined,
         status,
         approved,
         images,
@@ -186,6 +203,16 @@ const UpdateDevelopment = () => {
               <FormControl fullWidth margin="dense">
                 <InputLabel>{strings.UNITS}</InputLabel>
                 <Input type="number" value={unitsCount} onChange={(e) => setUnitsCount(e.target.value)} autoComplete="off" />
+              </FormControl>
+              <FormControl fullWidth margin="dense">
+                <TextField
+                  type="date"
+                  label={strings.COMPLETION_DATE}
+                  value={completionDate}
+                  onChange={(e) => setCompletionDate(e.target.value)}
+                  required
+                  InputLabelProps={{ shrink: true }}
+                />
               </FormControl>
               <FormControl fullWidth margin="dense">
                 <InputLabel>{strings.LATITUDE}</InputLabel>

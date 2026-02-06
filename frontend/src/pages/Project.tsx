@@ -5,6 +5,7 @@ import {
   Input,
   InputLabel,
 } from '@mui/material'
+import { format } from 'date-fns'
 import * as movininTypes from ':movinin-types'
 import Layout from '@/components/Layout'
 import Footer from '@/components/Footer'
@@ -112,14 +113,50 @@ const Project = () => {
     ? development.developer
     : undefined
 
-  const resolveImage = (value?: string) => {
+  const normalizeImageName = (value?: string) => {
     if (!value) {
       return ''
     }
-    if (value.startsWith('http')) {
-      return value
+    const trimmed = value.trim()
+    if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+      return ''
     }
-    return movininHelper.joinURL(env.CDN_PROPERTIES, value)
+    return trimmed
+  }
+
+  const resolveImage = (value?: string) => {
+    const imageName = normalizeImageName(value)
+    if (!imageName) {
+      return { src: '', fallbackSrc: '' }
+    }
+    if (imageName.startsWith('http')) {
+      return { src: imageName, fallbackSrc: '' }
+    }
+    return {
+      src: movininHelper.joinURL(env.CDN_PROPERTIES, imageName),
+      fallbackSrc: movininHelper.joinURL(`${env.API_HOST}/cdn/movinin/temp/properties`, imageName),
+    }
+  }
+
+  const onImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const fallbackSrc = event.currentTarget.dataset.fallback
+    if (fallbackSrc) {
+      event.currentTarget.src = fallbackSrc
+      event.currentTarget.removeAttribute('data-fallback')
+      return
+    }
+    event.currentTarget.style.opacity = '0'
+  }
+
+  const getCompletionDate = (value?: Date | string) => {
+    if (!value) {
+      return '-'
+    }
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) {
+      return '-'
+    }
+    return format(date, 'MMM yyyy')
   }
 
   const summary = (development?.description || '').trim()
@@ -127,7 +164,8 @@ const Project = () => {
   const statusLabel = development ? helper.getDevelopmentStatus(development.status) : ''
   const heroImage = development
     ? resolveImage(development.images?.[0] || development.masterPlan || development.floorPlans?.[0])
-    : ''
+    : { src: '', fallbackSrc: '' }
+  const masterPlanSource = development ? resolveImage(development.masterPlan) : { src: '', fallbackSrc: '' }
 
   return (
     <Layout strict={false}>
@@ -138,8 +176,13 @@ const Project = () => {
           <div className="project-page">
             <div className="project-hero">
               <div className="project-hero-media">
-                {heroImage ? (
-                  <img src={heroImage} alt={development.name} />
+                {heroImage.src ? (
+                  <img
+                    src={heroImage.src}
+                    data-fallback={heroImage.fallbackSrc || undefined}
+                    onError={onImageError}
+                    alt={development.name}
+                  />
                 ) : (
                   <div className="project-hero-placeholder">{development.name?.charAt(0) || 'P'}</div>
                 )}
@@ -195,6 +238,10 @@ const Project = () => {
                     <strong>{development.unitsCount ?? '-'}</strong>
                   </div>
                   <div className="project-meta-item">
+                    <span>{projectStrings.COMPLETION}</span>
+                    <strong>{getCompletionDate(development.completionDate)}</strong>
+                  </div>
+                  <div className="project-meta-item">
                     <span>{projectStrings.DEVELOPER}</span>
                     {developer ? (
                       <div className="project-developer">
@@ -227,11 +274,23 @@ const Project = () => {
               <div className="project-section">
                 <h2>{projectStrings.GALLERY}</h2>
                 <div className="project-gallery">
-                  {development.images.map((img) => (
-                    <div key={img} className="project-gallery-item">
-                      <img src={resolveImage(img)} alt={development.name} />
-                    </div>
-                  ))}
+                  {development.images.map((img) => {
+                    const imageSource = resolveImage(img)
+                    return (
+                      <div key={img} className="project-gallery-item">
+                        {imageSource.src ? (
+                          <img
+                            src={imageSource.src}
+                            data-fallback={imageSource.fallbackSrc || undefined}
+                            onError={onImageError}
+                            alt={development.name}
+                          />
+                        ) : (
+                          <div className="project-gallery-placeholder">{development.name?.charAt(0) || 'P'}</div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -243,15 +302,36 @@ const Project = () => {
                   {development.masterPlan && (
                     <div className="project-plan">
                       <div className="project-plan-title">{projectStrings.MASTER_PLAN}</div>
-                      <img src={resolveImage(development.masterPlan)} alt={projectStrings.MASTER_PLAN} />
+                      {masterPlanSource.src ? (
+                        <img
+                          src={masterPlanSource.src}
+                          data-fallback={masterPlanSource.fallbackSrc || undefined}
+                          onError={onImageError}
+                          alt={projectStrings.MASTER_PLAN}
+                        />
+                      ) : (
+                        <div className="project-plan-placeholder">{projectStrings.MASTER_PLAN}</div>
+                      )}
                     </div>
                   )}
-                  {(development.floorPlans || []).map((plan, index) => (
-                    <div key={plan} className="project-plan">
-                      <div className="project-plan-title">{projectStrings.FLOOR_PLAN} {index + 1}</div>
-                      <img src={resolveImage(plan)} alt={projectStrings.FLOOR_PLAN} />
-                    </div>
-                  ))}
+                  {(development.floorPlans || []).map((plan, index) => {
+                    const planSource = resolveImage(plan)
+                    return (
+                      <div key={plan} className="project-plan">
+                        <div className="project-plan-title">{projectStrings.FLOOR_PLAN} {index + 1}</div>
+                        {planSource.src ? (
+                          <img
+                            src={planSource.src}
+                            data-fallback={planSource.fallbackSrc || undefined}
+                            onError={onImageError}
+                            alt={projectStrings.FLOOR_PLAN}
+                          />
+                        ) : (
+                          <div className="project-plan-placeholder">{projectStrings.FLOOR_PLAN}</div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}

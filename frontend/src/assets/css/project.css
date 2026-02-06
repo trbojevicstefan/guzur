@@ -248,6 +248,19 @@
   display: block;
 }
 
+.project-gallery-placeholder {
+  width: 100%;
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 2.1rem;
+  letter-spacing: 0.12em;
+}
+
 .project-units-filters {
   margin-top: 12px;
   margin-bottom: 16px;
@@ -297,6 +310,20 @@
   width: 100%;
   border-radius: 14px;
   object-fit: cover;
+}
+
+.project-plan-placeholder {
+  width: 100%;
+  min-height: 180px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
 }
 
 .project-map {

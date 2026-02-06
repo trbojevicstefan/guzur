@@ -41,7 +41,7 @@ const Projects = () => {
   const [keyword, setKeyword] = useState('')
   const [location, setLocation] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<movininTypes.Location | undefined>(undefined)
-  const [status, setStatus] = useState<movininTypes.DevelopmentStatus | ''>('')
+  const [status] = useState<movininTypes.DevelopmentStatus | ''>('')
   const [developments, setDevelopments] = useState<movininTypes.Development[]>([])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
@@ -98,9 +98,25 @@ const Projects = () => {
     }
 
     initLocation()
-  }, [searchParams])
+  }, [location, searchParams])
+
+  const formatCompletionDate = (value?: Date | string) => {
+    if (!value) {
+      return ''
+    }
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) {
+      return ''
+    }
+    return format(date, 'MMM yyyy')
+  }
 
   const getOpenDate = (development: movininTypes.Development) => {
+    const explicitCompletion = formatCompletionDate(development.completionDate)
+    if (explicitCompletion) {
+      return explicitCompletion
+    }
+
     const base = development.updatedAt ? new Date(development.updatedAt) : new Date()
     let monthsToAdd = 18
     if (development.status === movininTypes.DevelopmentStatus.InProgress) {
@@ -148,18 +164,43 @@ const Projects = () => {
     return ''
   }
 
-  const resolveImage = (value?: string) => {
+  const normalizeImageName = (value?: string) => {
     if (!value) {
       return ''
     }
-    if (value.startsWith('http')) {
-      return value
+    const trimmed = value.trim()
+    if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+      return ''
     }
-    return movininHelper.joinURL(env.CDN_PROPERTIES, value)
+    return trimmed
+  }
+
+  const resolveImage = (value?: string) => {
+    const imageName = normalizeImageName(value)
+    if (!imageName) {
+      return { src: '', fallbackSrc: '' }
+    }
+    if (imageName.startsWith('http')) {
+      return { src: imageName, fallbackSrc: '' }
+    }
+    return {
+      src: movininHelper.joinURL(env.CDN_PROPERTIES, imageName),
+      fallbackSrc: movininHelper.joinURL(`${env.API_HOST}/cdn/movinin/temp/properties`, imageName),
+    }
   }
 
   const getDevelopmentImage = (development: movininTypes.Development) =>
     resolveImage(development.images?.[0] || development.masterPlan || development.floorPlans?.[0])
+
+  const onImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const fallbackSrc = event.currentTarget.dataset.fallback
+    if (fallbackSrc) {
+      event.currentTarget.src = fallbackSrc
+      event.currentTarget.removeAttribute('data-fallback')
+      return
+    }
+    event.currentTarget.style.opacity = '0'
+  }
 
   const visibleDevelopments = useMemo(() => developments, [developments])
 
@@ -254,42 +295,54 @@ const Projects = () => {
           <div className="projects-loading">{commonStrings.LOADING}</div>
         ) : projectLayout === 'grid' ? (
           <div className="projects-grid">
-            {visibleDevelopments.map((project) => (
-              <div key={project._id} className="project-card">
-                <div className="project-card-media">
-                  <img src={getDevelopmentImage(project)} alt={project.name} />
-                  <div className="project-card-overlay" />
-                  {project.status && (
-                    <span className={`project-card-status status-${project.status?.toLowerCase()}`}>
-                      {statusLabel(project.status)}
-                    </span>
-                  )}
-                  <div className="project-card-units">
-                    {project.unitsCount || 0} {developmentStrings.PLANNED_UNITS}
-                  </div>
-                </div>
-                <div className="project-card-body">
-                  <div className="project-card-location">
-                    <PlaceOutlined fontSize="inherit" />
-                    {getDisplayLocation(project)}
-                  </div>
-                  <h3>{project.name}</h3>
-                  <p>{developmentStrings.DEVELOPED_BY.replace('{name}', getDevelopmentName(project) || '-')}</p>
-                  <div className="project-card-footer">
-                    <div>
-                      <span>{developmentStrings.OPEN_DATE}</span>
-                      <div>
-                        <AccessTime fontSize="inherit" />
-                        {getOpenDate(project)}
-                      </div>
+            {visibleDevelopments.map((project) => {
+              const projectImage = getDevelopmentImage(project)
+              return (
+                <div key={project._id} className="project-card">
+                  <div className="project-card-media">
+                    {projectImage.src ? (
+                      <img
+                        src={projectImage.src}
+                        data-fallback={projectImage.fallbackSrc || undefined}
+                        onError={onImageError}
+                        alt={project.name}
+                      />
+                    ) : (
+                      <div className="project-card-placeholder">{project.name?.charAt(0) || 'P'}</div>
+                    )}
+                    <div className="project-card-overlay" />
+                    {project.status && (
+                      <span className={`project-card-status status-${project.status?.toLowerCase()}`}>
+                        {statusLabel(project.status)}
+                      </span>
+                    )}
+                    <div className="project-card-units">
+                      {project.unitsCount || 0} {developmentStrings.PLANNED_UNITS}
                     </div>
-                    <button type="button" onClick={() => project._id && navigate(`/projects/${project._id}`)}>
-                      <ArrowOutward fontSize="small" />
-                    </button>
+                  </div>
+                  <div className="project-card-body">
+                    <div className="project-card-location">
+                      <PlaceOutlined fontSize="inherit" />
+                      {getDisplayLocation(project)}
+                    </div>
+                    <h3>{project.name}</h3>
+                    <p>{developmentStrings.DEVELOPED_BY.replace('{name}', getDevelopmentName(project) || '-')}</p>
+                    <div className="project-card-footer">
+                      <div>
+                        <span>{developmentStrings.OPEN_DATE}</span>
+                        <div>
+                          <AccessTime fontSize="inherit" />
+                          {getOpenDate(project)}
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => project._id && navigate(`/projects/${project._id}`)}>
+                        <ArrowOutward fontSize="small" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="projects-table">
@@ -305,40 +358,52 @@ const Projects = () => {
                 </tr>
               </thead>
               <tbody>
-                {visibleDevelopments.map((project) => (
-                  <tr key={project._id}>
-                    <td>
-                      <div className="project-table-name">
-                        <img src={getDevelopmentImage(project)} alt={project.name} />
-                        <div>
-                          <strong>{project.name}</strong>
-                          {project.status && (
-                            <span className={`project-card-status status-${project.status?.toLowerCase()}`}>
-                              {statusLabel(project.status)}
-                            </span>
+                {visibleDevelopments.map((project) => {
+                  const projectImage = getDevelopmentImage(project)
+                  return (
+                    <tr key={project._id}>
+                      <td>
+                        <div className="project-table-name">
+                          {projectImage.src ? (
+                            <img
+                              src={projectImage.src}
+                              data-fallback={projectImage.fallbackSrc || undefined}
+                              onError={onImageError}
+                              alt={project.name}
+                            />
+                          ) : (
+                            <div className="project-table-placeholder">{project.name?.charAt(0) || 'P'}</div>
                           )}
+                          <div>
+                            <strong>{project.name}</strong>
+                            {project.status && (
+                              <span className={`project-card-status status-${project.status?.toLowerCase()}`}>
+                                {statusLabel(project.status)}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="project-table-location">
-                        <PlaceOutlined fontSize="inherit" />
-                        {getDisplayLocation(project)}
-                      </span>
-                    </td>
-                    <td>{getDevelopmentName(project) || '-'}</td>
-                    <td className="project-table-units">{project.unitsCount || 0}</td>
-                    <td className="project-table-date">
-                      <AccessTime fontSize="inherit" />
-                      {getOpenDate(project)}
-                    </td>
-                    <td className="project-table-actions">
-                      <button type="button" onClick={() => project._id && navigate(`/projects/${project._id}`)}>
-                        <ArrowOutward fontSize="small" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td>
+                        <span className="project-table-location">
+                          <PlaceOutlined fontSize="inherit" />
+                          {getDisplayLocation(project)}
+                        </span>
+                      </td>
+                      <td>{getDevelopmentName(project) || '-'}</td>
+                      <td className="project-table-units">{project.unitsCount || 0}</td>
+                      <td className="project-table-date">
+                        <AccessTime fontSize="inherit" />
+                        {getOpenDate(project)}
+                      </td>
+                      <td className="project-table-actions">
+                        <button type="button" onClick={() => project._id && navigate(`/projects/${project._id}`)}>
+                          <ArrowOutward fontSize="small" />
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

@@ -12,6 +12,66 @@ import * as env from '../config/env.config'
 import * as helper from '../utils/helper'
 import * as logger from '../utils/logger'
 
+const isRemoteAsset = (value: string) => /^https?:\/\//i.test(value)
+
+const normalizeAssetReference = (value?: string | null) => {
+  if (!value) {
+    return ''
+  }
+  const trimmed = value.trim()
+  if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+    return ''
+  }
+  return isRemoteAsset(trimmed) ? trimmed : path.basename(trimmed)
+}
+
+const parseDate = (value?: Date | string) => {
+  if (!value) {
+    return undefined
+  }
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return undefined
+  }
+  return date
+}
+
+const promoteAsset = async (developmentId: string, assetRef: string, suffix: string) => {
+  const normalized = normalizeAssetReference(assetRef)
+  if (!normalized) {
+    return null
+  }
+  if (isRemoteAsset(normalized)) {
+    return normalized
+  }
+
+  const tempPath = path.join(env.CDN_TEMP_PROPERTIES, normalized)
+  if (await helper.pathExists(tempPath)) {
+    const filename = `${developmentId}_${nanoid()}_${Date.now()}_${suffix}${path.extname(normalized)}`
+    const newPath = path.join(env.CDN_PROPERTIES, filename)
+    await asyncFs.rename(tempPath, newPath)
+    return filename
+  }
+
+  const storedPath = path.join(env.CDN_PROPERTIES, normalized)
+  if (await helper.pathExists(storedPath)) {
+    return normalized
+  }
+
+  return null
+}
+
+const removeLocalAsset = async (assetRef?: string | null) => {
+  const normalized = normalizeAssetReference(assetRef)
+  if (!normalized || isRemoteAsset(normalized)) {
+    return
+  }
+  const storedPath = path.join(env.CDN_PROPERTIES, normalized)
+  if (await helper.pathExists(storedPath)) {
+    await asyncFs.unlink(storedPath)
+  }
+}
+
 /**
  * Create Development.
  *
@@ -41,26 +101,29 @@ export const create = async (req: Request, res: Response) => {
     const development = new Development({
       ...body,
       developerOrg: resolvedDeveloperOrg,
+      completionDate: parseDate(body.completionDate),
+      images: [],
+      masterPlan: undefined,
+      floorPlans: [],
     })
     await development.save()
 
+    const maxImages = 10
     const maxFloorPlans = 10
-    const tempDir = env.CDN_TEMP_PROPERTIES
-    const targetDir = env.CDN_PROPERTIES
-
-    const moveTempFile = async (tempName: string, suffix: string) => {
-      const tempPath = path.join(tempDir, tempName)
-      if (!(await helper.pathExists(tempPath))) {
-        return null
+    const inputImages = Array.isArray(body.images) ? body.images.slice(0, maxImages) : []
+    const nextImages: string[] = []
+    let imageIndex = 1
+    for (const imageRef of inputImages) {
+      const moved = await promoteAsset(String(development._id), imageRef, `img_${imageIndex}`)
+      if (moved) {
+        nextImages.push(moved)
       }
-      const filename = `${development._id}_${nanoid()}_${Date.now()}_${suffix}${path.extname(tempName)}`
-      const newPath = path.join(targetDir, filename)
-      await asyncFs.rename(tempPath, newPath)
-      return filename
+      imageIndex += 1
     }
+    development.images = nextImages
 
     if (body.masterPlan) {
-      const nextMaster = await moveTempFile(body.masterPlan, 'master')
+      const nextMaster = await promoteAsset(String(development._id), body.masterPlan, 'master')
       if (nextMaster) {
         development.masterPlan = nextMaster
       }
@@ -71,15 +134,13 @@ export const create = async (req: Request, res: Response) => {
       const limitedPlans = body.floorPlans.slice(0, maxFloorPlans)
       let index = 1
       for (const plan of limitedPlans) {
-        const moved = await moveTempFile(plan, `floor_${index}`)
+        const moved = await promoteAsset(String(development._id), plan, `floor_${index}`)
         if (moved) {
           nextPlans.push(moved)
         }
         index += 1
       }
-      if (nextPlans.length > 0) {
-        development.floorPlans = nextPlans
-      }
+      development.floorPlans = nextPlans
     }
 
     await development.save()
@@ -123,6 +184,7 @@ export const update = async (req: Request, res: Response) => {
       developerOrg,
       unitsCount,
       status,
+      completionDate,
       approved,
       images,
       masterPlan,
@@ -145,71 +207,91 @@ export const update = async (req: Request, res: Response) => {
     development.developerOrg = resolvedDeveloperOrg as any
     development.unitsCount = unitsCount
     development.status = status
+    if (completionDate !== undefined) {
+      development.completionDate = parseDate(completionDate)
+    }
     development.approved = typeof approved === 'boolean' ? approved : development.approved
-    development.images = images
 
+    const maxImages = 10
     const maxFloorPlans = 10
-    const tempDir = env.CDN_TEMP_PROPERTIES
-    const targetDir = env.CDN_PROPERTIES
 
-    const moveTempFile = async (tempName: string, suffix: string) => {
-      const tempPath = path.join(tempDir, tempName)
-      if (!(await helper.pathExists(tempPath))) {
-        return null
-      }
-      const filename = `${development._id}_${nanoid()}_${Date.now()}_${suffix}${path.extname(tempName)}`
-      const newPath = path.join(targetDir, filename)
-      await asyncFs.rename(tempPath, newPath)
-      return filename
-    }
+    if (Array.isArray(images)) {
+      const previousImages = (development.images || [])
+        .map((imageRef) => normalizeAssetReference(imageRef))
+        .filter((imageRef) => Boolean(imageRef))
+      const requestedImages = images
+        .map((imageRef) => normalizeAssetReference(imageRef))
+        .filter((imageRef) => Boolean(imageRef))
+        .slice(0, maxImages)
 
-    if (masterPlan && masterPlan !== development.masterPlan) {
-      if (development.masterPlan) {
-        const oldMaster = path.join(targetDir, development.masterPlan)
-        if (await helper.pathExists(oldMaster)) {
-          await asyncFs.unlink(oldMaster)
+      for (const existing of previousImages) {
+        if (!requestedImages.includes(existing)) {
+          await removeLocalAsset(existing)
         }
       }
-      const nextMaster = await moveTempFile(masterPlan, 'master')
-      if (nextMaster) {
-        development.masterPlan = nextMaster
+
+      const nextImages: string[] = []
+      let imageIndex = 1
+      for (const imageRef of requestedImages) {
+        const moved = await promoteAsset(String(development._id), imageRef, `img_${imageIndex}`)
+        if (moved) {
+          nextImages.push(moved)
+        } else {
+          nextImages.push(imageRef)
+        }
+        imageIndex += 1
+      }
+      development.images = nextImages
+    }
+
+    if (masterPlan !== undefined) {
+      const previousMasterPlan = normalizeAssetReference(development.masterPlan)
+      const requestedMasterPlan = normalizeAssetReference(masterPlan)
+
+      if (!requestedMasterPlan) {
+        if (previousMasterPlan) {
+          await removeLocalAsset(previousMasterPlan)
+          development.masterPlan = undefined
+        }
+      } else {
+        if (requestedMasterPlan !== previousMasterPlan) {
+          await removeLocalAsset(previousMasterPlan)
+        }
+
+        const nextMaster = await promoteAsset(String(development._id), requestedMasterPlan, 'master')
+        development.masterPlan = nextMaster || requestedMasterPlan
       }
     }
 
-    const nextFloorPlans: string[] = []
     if (Array.isArray(floorPlans)) {
-      const limitedPlans = floorPlans.slice(0, maxFloorPlans)
-      // Remove deleted plans
-      if (Array.isArray(development.floorPlans)) {
-        for (const existing of development.floorPlans) {
-          if (!limitedPlans.includes(existing)) {
-            const oldPath = path.join(targetDir, existing)
-            if (await helper.pathExists(oldPath)) {
-              await asyncFs.unlink(oldPath)
-            }
-          }
+      const previousFloorPlans = (development.floorPlans || [])
+        .map((plan) => normalizeAssetReference(plan))
+        .filter((plan) => Boolean(plan))
+      const requestedFloorPlans = floorPlans
+        .map((plan) => normalizeAssetReference(plan))
+        .filter((plan) => Boolean(plan))
+        .slice(0, maxFloorPlans)
+
+      for (const existing of previousFloorPlans) {
+        if (!requestedFloorPlans.includes(existing)) {
+          await removeLocalAsset(existing)
         }
       }
 
-      let index = 1
-      for (const plan of limitedPlans) {
-        if (development.floorPlans?.includes(plan)) {
-          nextFloorPlans.push(plan)
-          index += 1
-          continue
-        }
-        const moved = await moveTempFile(plan, `floor_${index}`)
+      const nextFloorPlans: string[] = []
+      let planIndex = 1
+      for (const plan of requestedFloorPlans) {
+        const moved = await promoteAsset(String(development._id), plan, `floor_${planIndex}`)
         if (moved) {
           nextFloorPlans.push(moved)
+        } else {
+          nextFloorPlans.push(plan)
         }
-        index += 1
+        planIndex += 1
       }
-    }
-    if (nextFloorPlans.length > 0) {
       development.floorPlans = nextFloorPlans
-    } else if (Array.isArray(floorPlans) && floorPlans.length === 0) {
-      development.floorPlans = []
     }
+
     development.latitude = latitude
     development.longitude = longitude
 

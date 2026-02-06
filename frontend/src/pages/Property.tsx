@@ -134,17 +134,44 @@ const Property = () => {
     || (typeof fallbackPrice === 'number'
       ? `${movininHelper.formatPrice(fallbackPrice, commonStrings.CURRENCY, language)}${isRentListing ? `/${helper.rentalTermUnit(property?.rentalTerm as movininTypes.RentalTerm)}` : ''}`
       : '')
+  const resolvePropertyImage = (value?: string) => {
+    if (!value) {
+      return ''
+    }
+    const trimmed = value.trim()
+    if (!trimmed) {
+      return ''
+    }
+    if (trimmed === 'undefined' || trimmed === 'null') {
+      return ''
+    }
+    if (trimmed.startsWith('http')) {
+      return trimmed
+    }
+    return movininHelper.joinURL(env.CDN_PROPERTIES, trimmed)
+  }
+  const hasImages = images.length > 0
+  const hasGallery = images.length > 1
+  const heroInitial = property?.name?.charAt(0) || 'P'
 
   useEffect(() => {
-    const src = (_image: string) => movininHelper.joinURL(env.CDN_PROPERTIES, _image)
-
-    if (property) {
-      const _image = src(property.image)
-      setImage(_image)
-      const _images = property.images ? property.images.map(src) : []
-      const __images = [_image, ..._images]
-      setImages(__images)
+    if (!property) {
+      setImage('')
+      setImages([])
+      return
     }
+
+    const mainImage = resolvePropertyImage(property.image)
+    const extraImages = (property.images || [])
+      .map(resolvePropertyImage)
+      .filter((value) => Boolean(value))
+    const allImages = [
+      ...(mainImage ? [mainImage] : []),
+      ...extraImages,
+    ]
+
+    setImage(mainImage || extraImages[0] || '')
+    setImages(allImages)
   }, [property])
 
   useEffect(() => {
@@ -233,7 +260,7 @@ const Property = () => {
   return (
     <Layout onLoad={onLoad}>
       {
-        !loading && property && image
+        !loading && property
         && (
           <>
             <div className="property-showcase">
@@ -249,16 +276,23 @@ const Property = () => {
 
               <div className="property-showcase-grid">
                 <section className="property-showcase-main">
-                  <div className="property-hero">
+                  <div className={`property-hero${hasGallery ? '' : ' single'}`}>
                     <button
                       type="button"
                       className="property-hero-main"
                       onClick={() => {
+                        if (!hasImages) {
+                          return
+                        }
                         setCurrentIndex(0)
                         setOpenImageDialog(true)
                       }}
                     >
-                      <img src={image} alt={property.name} />
+                      {image ? (
+                        <img src={image} alt={property.name} />
+                      ) : (
+                        <div className="property-hero-placeholder">{heroInitial}</div>
+                      )}
                       <span className="property-hero-overlay" />
                       <div className="property-hero-title">
                         {saleTypeLabel && <span className="property-hero-tag">{saleTypeLabel}</span>}
@@ -266,21 +300,23 @@ const Property = () => {
                       </div>
                     </button>
 
-                    <button
-                      type="button"
-                      className="property-hero-gallery"
-                      onClick={() => {
-                        setCurrentIndex(galleryIndex)
-                        setOpenImageDialog(true)
-                      }}
-                    >
-                      <span className="property-hero-gallery-label">{strings.GALLERY}</span>
-                      <img src={galleryImage} alt={property.name} />
-                      <span className="property-hero-gallery-overlay">
-                        <span className="property-hero-plus">+</span>
-                        <span>{strings.VIEW_ALL_PHOTOS.replace('{count}', String(images.length))}</span>
-                      </span>
-                    </button>
+                    {hasGallery && (
+                      <button
+                        type="button"
+                        className="property-hero-gallery"
+                        onClick={() => {
+                          setCurrentIndex(galleryIndex)
+                          setOpenImageDialog(true)
+                        }}
+                      >
+                        <span className="property-hero-gallery-label">{strings.GALLERY}</span>
+                        <img src={galleryImage} alt={property.name} />
+                        <span className="property-hero-gallery-overlay">
+                          <span className="property-hero-plus">+</span>
+                          <span>{strings.VIEW_ALL_PHOTOS.replace('{count}', String(images.length))}</span>
+                        </span>
+                      </button>
+                    )}
                   </div>
 
                   <div className="property-stats">
@@ -525,20 +561,17 @@ const Property = () => {
                 </aside>
               </div>
 
-              {
-                openImageDialog
-                && (
-                  <ImageViewer
-                    src={images}
-                    currentIndex={currentIndex}
-                    closeOnClickOutside
-                    title={property.name}
-                    onClose={() => {
-                      setOpenImageDialog(false)
-                    }}
-                  />
-                )
-              }
+              {openImageDialog && hasImages && (
+                <ImageViewer
+                  src={images}
+                  currentIndex={currentIndex}
+                  closeOnClickOutside
+                  title={property.name}
+                  onClose={() => {
+                    setOpenImageDialog(false)
+                  }}
+                />
+              )}
             </div>
 
             <Footer />

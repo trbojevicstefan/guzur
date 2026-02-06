@@ -102,6 +102,25 @@ const Property = ({
 
   const showRentalPricing = !hidePrice && isRentListing && from && to
   const showSalePricing = !hidePrice && isSaleListing && (!from || !to)
+  const resolveImageName = (value?: string) => {
+    if (!value) {
+      return ''
+    }
+    const trimmed = value.trim()
+    if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+      return ''
+    }
+    return trimmed
+  }
+  const fallbackImageName = (property.images || [])
+    .map(resolveImageName)
+    .find((img) => img)
+  const propertyImageName = resolveImageName(property.image) || fallbackImageName
+  const propertyImageUrl = propertyImageName
+    ? (propertyImageName.startsWith('http')
+      ? propertyImageName
+      : movininHelper.joinURL(env.CDN_PROPERTIES, propertyImageName))
+    : ''
 
   if (loading || !language || (showRentalPricing && (!days || !totalPrice)) || (showSalePricing && !salePrice)) {
     return null
@@ -111,11 +130,15 @@ const Property = ({
     <article key={property._id} className="property glass-card group">
 
       <div className="left-panel">
-        <img
-          src={movininHelper.joinURL(env.CDN_PROPERTIES, property.image)}
-          alt={property.name}
-          className="property-img image-zoom"
-        />
+        {propertyImageUrl ? (
+          <img
+            src={propertyImageUrl}
+            alt={property.name}
+            className="property-img image-zoom"
+          />
+        ) : (
+          <div className="property-img-placeholder">{property.name?.charAt(0) || 'P'}</div>
+        )}
         {!hideAgency && <AgencyBadge agency={property.agency} style={sizeAuto ? { bottom: 10 } : {}} />}
       </div>
 

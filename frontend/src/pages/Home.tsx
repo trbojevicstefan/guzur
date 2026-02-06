@@ -155,6 +155,25 @@ const Home = () => {
       ? (property.agency.fullName || property.agency.company || '')
       : ''
     const sizeLabel = property.size ? `${movininHelper.formatNumber(property.size, language)} ${env.SIZE_UNIT}` : ''
+    const resolveImageName = (value?: string) => {
+      if (!value) {
+        return ''
+      }
+      const trimmed = value.trim()
+      if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+        return ''
+      }
+      return trimmed
+    }
+    const fallbackImageName = (property.images || [])
+      .map(resolveImageName)
+      .find((img) => img)
+    const propertyImageName = resolveImageName(property.image) || fallbackImageName
+    const propertyImageUrl = propertyImageName
+      ? (propertyImageName.startsWith('http')
+        ? propertyImageName
+        : movininHelper.joinURL(env.CDN_PROPERTIES, propertyImageName))
+      : ''
     return (
       <div key={property._id} className="home-listing-card">
         <button
@@ -164,11 +183,15 @@ const Home = () => {
             navigate(`/property/${property._id}`, { state: { propertyId: property._id } })
           }}
         >
-          <img
-            src={movininHelper.joinURL(env.CDN_PROPERTIES, property.image)}
-            alt={property.name}
-            loading="lazy"
-          />
+          {propertyImageUrl ? (
+            <img
+              src={propertyImageUrl}
+              alt={property.name}
+              loading="lazy"
+            />
+          ) : (
+            <div className="home-listing-placeholder">{property.name?.charAt(0) || 'P'}</div>
+          )}
         </button>
         <div className="home-listing-body">
           <div className="home-listing-name">{property.name}</div>

@@ -37,6 +37,10 @@
   margin-bottom: 18px;
 }
 
+.property-hero.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .property-hero-main,
 .property-hero-gallery {
   border: none;
@@ -59,6 +63,19 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.property-hero-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
 }
 
 .property-hero-overlay {

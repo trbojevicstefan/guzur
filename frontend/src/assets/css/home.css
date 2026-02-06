@@ -214,6 +214,19 @@ div.home .home-listing-image img {
   transition: transform 0.5s ease;
 }
 
+div.home .home-listing-placeholder {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  letter-spacing: 0.1em;
+}
+
 div.home .home-listing-card:hover .home-listing-image img {
   transform: scale(1.05);
 }

@@ -207,11 +207,35 @@ div.home .home-listing-image {
   cursor: pointer;
 }
 
-div.home .home-listing-image img {
+div.home .home-listing-media {
+  width: 100%;
+  height: 180px;
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(130deg, rgba(148, 163, 184, 0.2) 0%, rgba(148, 163, 184, 0.3) 100%);
+}
+
+div.home .home-listing-media img {
   width: 100%;
   height: 180px;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  display: block;
+  opacity: 0;
+  transform: scale(1.015);
+  transition: transform 0.45s ease, opacity 0.35s ease;
+}
+
+div.home .home-listing-media.is-loaded img {
+  opacity: 1;
+  transform: scale(1);
+}
+
+div.home .home-listing-image-skeleton {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
 }
 
 div.home .home-listing-placeholder {
@@ -227,7 +251,7 @@ div.home .home-listing-placeholder {
   letter-spacing: 0.1em;
 }
 
-div.home .home-listing-card:hover .home-listing-image img {
+div.home .home-listing-card:hover .home-listing-media.is-loaded img {
   transform: scale(1.05);
 }
 
@@ -261,6 +285,61 @@ div.home .home-listing-meta {
 div.home .home-listing-price {
   color: var(--text-strong);
   font-weight: 600;
+}
+
+div.home .home-listings-row-skeleton {
+  overflow: hidden;
+}
+
+div.home .home-listing-card.skeleton {
+  pointer-events: none;
+}
+
+div.home .home-listing-image-skeleton-block {
+  width: 100%;
+  height: 180px;
+  border-radius: 22px;
+}
+
+div.home .home-line-skeleton {
+  display: block;
+  border-radius: 999px;
+}
+
+div.home .home-line-lg {
+  width: 85%;
+  height: 16px;
+}
+
+div.home .home-line-md {
+  width: 62%;
+  height: 13px;
+}
+
+div.home .home-line-sm {
+  width: 74px;
+  height: 11px;
+}
+
+div.home .shimmer {
+  background: linear-gradient(
+    105deg,
+    rgba(203, 213, 225, 0.35) 30%,
+    rgba(255, 255, 255, 0.85) 45%,
+    rgba(203, 213, 225, 0.35) 60%
+  );
+  background-size: 240% 100%;
+  animation: homeShimmer 1.2s linear infinite;
+}
+
+@keyframes homeShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: -100% 50%;
+  }
 }
 
 div.home div.featured-listings {

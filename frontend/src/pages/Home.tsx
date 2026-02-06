@@ -29,7 +29,6 @@ import TabPanel, { a11yProps } from '@/components/TabPanel'
 import Map from '@/components/Map'
 import { strings as mapStrings } from '@/lang/map'
 import Footer from '@/components/Footer'
-import PropertyList from '@/components/PropertyList'
 import { useHeaderSearch } from '@/context/HeaderSearchContext'
 
 import '@/assets/css/home.css'
@@ -47,6 +46,8 @@ const Home = () => {
   const [featuredListings, setFeaturedListings] = useState<movininTypes.Property[]>([])
   const [homeListings, setHomeListings] = useState<movininTypes.Property[]>([])
   const [listingsLoading, setListingsLoading] = useState(false)
+  const [loadedListingImages, setLoadedListingImages] = useState<Record<string, boolean>>({})
+  const [failedListingImages, setFailedListingImages] = useState<Record<string, boolean>>({})
   const [headerSearchActive, setHeaderSearchActive] = useState(false)
   const featuredRowRef = useRef<HTMLDivElement | null>(null)
   const allRowRef = useRef<HTMLDivElement | null>(null)
@@ -84,6 +85,8 @@ const Home = () => {
 
     try {
       setListingsLoading(true)
+      setLoadedListingImages({})
+      setFailedListingImages({})
       const payload: movininTypes.GetPropertiesPayload = {
         agencies: [],
         types: movininHelper.getAllPropertyTypes(),
@@ -147,6 +150,24 @@ const Home = () => {
     }
   }, [headerSearchActive, setSearchSlot])
 
+  const setListingImageLoaded = (imageUrl: string) => {
+    setLoadedListingImages((prev) => {
+      if (prev[imageUrl]) {
+        return prev
+      }
+      return { ...prev, [imageUrl]: true }
+    })
+  }
+
+  const setListingImageFailed = (imageUrl: string) => {
+    setFailedListingImages((prev) => {
+      if (prev[imageUrl]) {
+        return prev
+      }
+      return { ...prev, [imageUrl]: true }
+    })
+  }
+
   const renderListingCard = (property: movininTypes.Property) => {
     const isSaleListing = property.listingType === movininTypes.ListingType.Sale
       || property.listingType === movininTypes.ListingType.Both
@@ -174,6 +195,8 @@ const Home = () => {
         ? propertyImageName
         : movininHelper.joinURL(env.CDN_PROPERTIES, propertyImageName))
       : ''
+    const imageLoaded = propertyImageUrl ? Boolean(loadedListingImages[propertyImageUrl]) : false
+    const imageFailed = propertyImageUrl ? Boolean(failedListingImages[propertyImageUrl]) : false
     return (
       <div key={property._id} className="home-listing-card">
         <button
@@ -183,12 +206,21 @@ const Home = () => {
             navigate(`/property/${property._id}`, { state: { propertyId: property._id } })
           }}
         >
-          {propertyImageUrl ? (
-            <img
-              src={propertyImageUrl}
-              alt={property.name}
-              loading="lazy"
-            />
+          {propertyImageUrl && !imageFailed ? (
+            <div className={`home-listing-media${imageLoaded ? ' is-loaded' : ''}`}>
+              {!imageLoaded && <span className="home-listing-image-skeleton shimmer" />}
+              <img
+                src={propertyImageUrl}
+                alt={property.name}
+                loading="lazy"
+                onLoad={() => {
+                  setListingImageLoaded(propertyImageUrl)
+                }}
+                onError={() => {
+                  setListingImageFailed(propertyImageUrl)
+                }}
+              />
+            </div>
           ) : (
             <div className="home-listing-placeholder">{property.name?.charAt(0) || 'P'}</div>
           )}
@@ -247,6 +279,24 @@ const Home = () => {
     </div>
   )
 
+  const renderListingsSkeletonRow = (count: number) => (
+    <div className="home-listings-row home-listings-row-skeleton" aria-hidden>
+      {Array.from({ length: count }).map((_, index) => (
+        <div key={`listing-skeleton-${index}`} className="home-listing-card skeleton">
+          <div className="home-listing-image-skeleton-block shimmer" />
+          <div className="home-listing-body">
+            <span className="home-line-skeleton home-line-lg shimmer" />
+            <span className="home-line-skeleton home-line-md shimmer" />
+            <div className="home-listing-meta">
+              <span className="home-line-skeleton home-line-sm shimmer" />
+              <span className="home-line-skeleton home-line-sm shimmer" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
   return (
     <Layout onLoad={onLoad} strict={false}>
       <div className="home">
@@ -299,7 +349,7 @@ const Home = () => {
         <div className="home-listings featured-listings">
           <h1>{strings.FEATURED_TITLE}</h1>
           {listingsLoading ? (
-            <PropertyList properties={[]} loading={listingsLoading} hideActions sizeAuto />
+            renderListingsSkeletonRow(6)
           ) : (
             renderListingsRow(featuredListings, featuredRowRef)
           )}
@@ -308,7 +358,7 @@ const Home = () => {
         <div className="home-listings all-listings">
           <h1>{strings.LISTINGS_TITLE}</h1>
           {listingsLoading ? (
-            <PropertyList properties={[]} loading={listingsLoading} hideActions sizeAuto />
+            renderListingsSkeletonRow(8)
           ) : (
             renderListingsRow(homeListings, allRowRef)
           )}

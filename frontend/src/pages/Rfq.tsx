@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { MenuItem, Select, CircularProgress } from '@mui/material'
 import {
   Add,
@@ -26,9 +26,21 @@ import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/rfq'
 import * as helper from '@/utils/helper'
 import * as RfqService from '@/services/RfqService'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import '@/assets/css/rfq.css'
+
+interface RfqPrefillState {
+  propertyId?: string
+  propertyName?: string
+  location?: string
+  listingType?: movininTypes.ListingType
+  propertyType?: movininTypes.PropertyType
+  bedrooms?: number
+  bathrooms?: number
+  budget?: number
+  message?: string
+}
 
 const Rfq = () => {
   const [name, setName] = useState('')
@@ -44,10 +56,67 @@ const Rfq = () => {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const reactLocation = useLocation()
+  const prefillDone = useRef(false)
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  useEffect(() => {
+    if (prefillDone.current) {
+      return
+    }
+
+    const rawState = reactLocation.state as unknown
+    let prefill: RfqPrefillState | undefined
+    if (rawState && typeof rawState === 'object' && 'prefill' in rawState) {
+      prefill = (rawState as { prefill?: RfqPrefillState }).prefill
+    } else {
+      prefill = rawState as RfqPrefillState | undefined
+    }
+
+    if (!prefill || typeof prefill !== 'object') {
+      return
+    }
+
+    const locationValue = (prefill.location || '').trim()
+    if (locationValue) {
+      setLocation(locationValue)
+      setSelectedLocation({
+        _id: prefill.propertyId || locationValue,
+        name: locationValue,
+      })
+    }
+
+    if (prefill.listingType === movininTypes.ListingType.Sale || prefill.listingType === movininTypes.ListingType.Rent) {
+      setListingType(prefill.listingType)
+    }
+
+    if (prefill.propertyType && movininHelper.getAllPropertyTypes().includes(prefill.propertyType)) {
+      setPropertyType(prefill.propertyType)
+    }
+
+    if (typeof prefill.bedrooms === 'number' && Number.isFinite(prefill.bedrooms) && prefill.bedrooms >= 0) {
+      setBedrooms(prefill.bedrooms)
+    }
+
+    if (typeof prefill.bathrooms === 'number' && Number.isFinite(prefill.bathrooms) && prefill.bathrooms >= 0) {
+      setBathrooms(prefill.bathrooms)
+    }
+
+    if (typeof prefill.budget === 'number' && Number.isFinite(prefill.budget) && prefill.budget > 0) {
+      setBudget(String(Math.round(prefill.budget)))
+    }
+
+    if (prefill.message && prefill.message.trim()) {
+      setMessage(prefill.message.trim())
+    } else if (prefill.propertyName && prefill.propertyName.trim()) {
+      setMessage(`Interested in ${prefill.propertyName.trim()}.`)
+    }
+
+    prefillDone.current = true
+  }, [reactLocation.state])
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

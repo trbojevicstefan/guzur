@@ -121,6 +121,18 @@ const Property = ({
       ? propertyImageName
       : movininHelper.joinURL(env.CDN_PROPERTIES, propertyImageName))
     : ''
+  const openPropertyDetails = () => {
+    if (!property._id) {
+      return
+    }
+    navigate(`/property/${property._id}`, {
+      state: {
+        propertyId: property._id,
+        from,
+        to
+      }
+    })
+  }
 
   if (loading || !language || (showRentalPricing && (!days || !totalPrice)) || (showSalePricing && !salePrice)) {
     return null
@@ -130,21 +142,34 @@ const Property = ({
     <article key={property._id} className="property glass-card group">
 
       <div className="left-panel">
-        {propertyImageUrl ? (
-          <img
-            src={propertyImageUrl}
-            alt={property.name}
-            className="property-img image-zoom"
-          />
-        ) : (
-          <div className="property-img-placeholder">{property.name?.charAt(0) || 'P'}</div>
-        )}
+        <button
+          type="button"
+          className="property-media-btn"
+          aria-label={`${strings.VIEW} ${property.name || commonStrings.PROPERTY}`}
+          onClick={openPropertyDetails}
+        >
+          {propertyImageUrl ? (
+            <img
+              src={propertyImageUrl}
+              alt={property.name}
+              className="property-img image-zoom"
+            />
+          ) : (
+            <div className="property-img-placeholder">{property.name?.charAt(0) || 'P'}</div>
+          )}
+        </button>
         {!hideAgency && <AgencyBadge agency={property.agency} style={sizeAuto ? { bottom: 10 } : {}} />}
       </div>
 
       <div className="middle-panel">
         <div className="name">
-          <h2>{property.name}</h2>
+          <button
+            type="button"
+            className="property-name-btn"
+            onClick={openPropertyDetails}
+          >
+            <h2>{property.name}</h2>
+          </button>
         </div>
         {(developmentId || developerId) && (
           <div className="property-links">
@@ -199,18 +224,7 @@ const Property = ({
               <Button
                 variant="outlined"
                 className="btn-margin-bottom btn-view"
-                onClick={() => {
-                  if (!property._id) {
-                    return
-                  }
-                  navigate(`/property/${property._id}`, {
-                    state: {
-                      propertyId: property._id,
-                      from,
-                      to
-                    }
-                  })
-                }}
+                onClick={openPropertyDetails}
               >
                 {strings.VIEW}
               </Button>

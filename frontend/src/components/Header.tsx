@@ -1,25 +1,14 @@
-import React, { useState, useEffect, memo } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
   Badge,
-  MenuItem,
+  IconButton,
   Menu,
-  Button,
-  Drawer,
-  List,
-  ListItemIcon,
-  ListItemText,
-  ListItem
+  MenuItem,
 } from '@mui/material'
 import {
-  Menu as MenuIcon,
   Mail as MailIcon,
   Notifications as NotificationsIcon,
-  More as MoreIcon,
   Language as LanguageIcon,
   Settings as SettingsIcon,
   Dashboard as DashboardIcon,
@@ -37,9 +26,10 @@ import {
   Apartment as ProjectsIcon,
   Bolt as PulseIcon,
   RequestQuote as RfqIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material'
 import { toast } from 'react-toastify'
-import { CircleFlag } from 'react-circle-flags'
+import { gsap } from 'gsap'
 import * as movininTypes from ':movinin-types'
 import env from '@/config/env.config'
 import { strings as commonStrings } from '@/lang/common'
@@ -47,16 +37,15 @@ import { strings as suStrings } from '@/lang/sign-up'
 import { strings } from '@/lang/header'
 import * as UserService from '@/services/UserService'
 import * as PaymentService from '@/services/PaymentService'
-import Avatar from './Avatar'
+import Avatar from '@/components/Avatar'
 import * as langHelper from '@/utils/langHelper'
 import * as helper from '@/utils/helper'
 import { useNotificationContext, NotificationContextType } from '@/context/NotificationContext'
 import { useUserContext, UserContextType } from '@/context/UserContext'
-import { useHeaderSearch } from '@/context/HeaderSearchContext'
 
 import '@/assets/css/header.css'
 
-const flagHeight = 28
+const getFlagSrc = (countryCode?: string) => `https://flagcdn.com/w20/${String(countryCode || 'us').toLowerCase()}.png`
 
 interface HeaderProps {
   hidden?: boolean
@@ -68,52 +57,26 @@ const Header = ({
   hideSignin,
 }: HeaderProps) => {
   const navigate = useNavigate()
-
   const { user } = useUserContext() as UserContextType
   const { notificationCount, messageCount } = useNotificationContext() as NotificationContextType
-  const { searchSlot } = useHeaderSearch()
 
   const [currentUser, setCurrentUser] = useState<movininTypes.User>()
-
   const [lang, setLang] = useState(helper.getLanguage(env.DEFAULT_LANGUAGE))
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const [langAnchorEl, setLangAnchorEl] = useState<HTMLElement | null>(null)
-  const [currencyAnchorEl, setCurrencyAnchorEl] = useState<HTMLElement | null>(null)
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState<HTMLElement | null>(null)
-  const [sideAnchorEl, setSideAnchorEl] = useState<HTMLElement | null>(null)
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
+  const [accountAnchorEl, setAccountAnchorEl] = useState<HTMLElement | null>(null)
+  const [langAnchorEl, setLangAnchorEl] = useState<HTMLElement | null>(null)
+  const [currencyAnchorEl, setCurrencyAnchorEl] = useState<HTMLElement | null>(null)
+
+  const sideMenuRef = useRef<HTMLDivElement | null>(null)
+  const sideOverlayRef = useRef<HTMLDivElement | null>(null)
+
   const isPartner = currentUser && [
     movininTypes.UserType.Broker,
     movininTypes.UserType.Developer,
     movininTypes.UserType.Owner,
   ].includes(currentUser.type as movininTypes.UserType)
-
-  const isMenuOpen = Boolean(anchorEl)
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
-  const isLangMenuOpen = Boolean(langAnchorEl)
-  const isCurrencyMenuOpen = Boolean(currencyAnchorEl)
-  const isSideMenuOpen = Boolean(sideAnchorEl)
-
-  const classes = {
-    list: {
-      width: 250,
-    },
-    formControl: {
-      margin: 1,
-      minWidth: 120,
-    },
-    selectEmpty: {
-      marginTop: 2,
-    },
-    grow: {
-      flexGrow: 1,
-    },
-    menuButton: {
-      marginRight: 2,
-      color: '#121212',
-    },
-  }
 
   useEffect(() => {
     const language = langHelper.getLanguage()
@@ -132,527 +95,408 @@ const Header = ({
     setIsLoaded(true)
   }, [user])
 
-  const handleAccountMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
+  useEffect(() => {
+    const sideMenu = sideMenuRef.current
+    const sideOverlay = sideOverlayRef.current
+    if (!sideMenu || !sideOverlay) {
+      return
+    }
 
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null)
-  }
+    gsap.set(sideMenu, { x: -360 })
+    gsap.set(sideOverlay, {
+      autoAlpha: 0,
+      pointerEvents: 'none',
+    })
+  }, [])
 
-  const handleLangMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setLangAnchorEl(event.currentTarget)
-  }
+  useEffect(() => {
+    const sideMenu = sideMenuRef.current
+    const sideOverlay = sideOverlayRef.current
+    if (!sideMenu || !sideOverlay) {
+      return
+    }
 
-  const handleCurrencyMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setCurrencyAnchorEl(event.currentTarget)
-  }
+    if (isSideMenuOpen) {
+      gsap.to(sideMenu, {
+        x: 0,
+        duration: 0.62,
+        ease: 'expo.out',
+      })
+      gsap.set(sideOverlay, { pointerEvents: 'auto' })
+      gsap.to(sideOverlay, {
+        autoAlpha: 1,
+        duration: 0.38,
+        ease: 'power2.out',
+      })
+      document.body.classList.add('menu-open')
+      return
+    }
+
+    gsap.to(sideMenu, {
+      x: -360,
+      duration: 0.5,
+      ease: 'expo.inOut',
+    })
+    gsap.to(sideOverlay, {
+      autoAlpha: 0,
+      duration: 0.3,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        gsap.set(sideOverlay, { pointerEvents: 'none' })
+      },
+    })
+    document.body.classList.remove('menu-open')
+  }, [isSideMenuOpen])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsSideMenuOpen(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.classList.remove('menu-open')
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
 
   const refreshPage = () => {
-    // const params = new URLSearchParams(window.location.search)
-
-    // if (params.has('l')) {
-    //   params.delete('l')
-    //   // window.location.href = window.location.href.split('?')[0] + ([...params].length > 0 ? `?${params}` : '')
-    //   window.location.replace(window.location.href.split('?')[0] + ([...params].length > 0 ? `?${params}` : ''))
-    // } else {
-    //   // window.location.reload()
-    //   window.location.replace(window.location.href)
-    // }
     navigate(0)
   }
 
-  const handleLangMenuClose = async (event: React.MouseEvent<HTMLElement>) => {
+  const handleLanguageSelect = async (code: string) => {
     setLangAnchorEl(null)
+    if (!code) {
+      return
+    }
 
-    const { code } = event.currentTarget.dataset
-    if (code) {
-      setLang(helper.getLanguage(code))
-      const currentLang = UserService.getLanguage()
-      if (isSignedIn && user) {
-        // Update user language
-        const data: movininTypes.UpdateLanguagePayload = {
-          id: user._id as string,
-          language: code,
-        }
-        const status = await UserService.updateLanguage(data)
-        if (status === 200) {
-          UserService.setLanguage(code)
-          if (code && code !== currentLang) {
-            // Refresh page
-            refreshPage()
-          }
-        } else {
-          toast(commonStrings.CHANGE_LANGUAGE_ERROR, { type: 'error' })
-        }
-      } else {
+    setLang(helper.getLanguage(code))
+    const currentLang = UserService.getLanguage()
+
+    if (isSignedIn && user) {
+      const data: movininTypes.UpdateLanguagePayload = {
+        id: user._id as string,
+        language: code,
+      }
+      const status = await UserService.updateLanguage(data)
+      if (status === 200) {
         UserService.setLanguage(code)
-        if (code && code !== currentLang) {
-          // Refresh page
+        if (code !== currentLang) {
           refreshPage()
         }
+      } else {
+        toast(commonStrings.CHANGE_LANGUAGE_ERROR, { type: 'error' })
       }
+      return
+    }
+
+    UserService.setLanguage(code)
+    if (code !== currentLang) {
+      refreshPage()
     }
   }
 
-  const handleCurrencyMenuClose = async (event: React.MouseEvent<HTMLElement>) => {
+  const handleCurrencySelect = (code: string) => {
     setCurrencyAnchorEl(null)
-
-    const { code } = event.currentTarget.dataset
-    if (code) {
-      const currentCurrency = PaymentService.getCurrency()
-
-      if (code && code !== currentCurrency) {
-        PaymentService.setCurrency(code)
-        // Refresh page
-        refreshPage()
-      }
+    if (!code) {
+      return
     }
-  }
 
-  const handleMenuClose = () => {
-    setAnchorEl(null)
-    handleMobileMenuClose()
-  }
-
-  const handleSettingsClick = () => {
-    handleMenuClose()
-    navigate('/settings')
+    const currentCurrency = PaymentService.getCurrency()
+    if (code !== currentCurrency) {
+      PaymentService.setCurrency(code)
+      refreshPage()
+    }
   }
 
   const handleSignout = async () => {
     await UserService.signout(true, false)
-    handleMenuClose()
+    setAccountAnchorEl(null)
   }
 
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget)
+  const navigateAndClose = (path: string) => {
+    navigate(path)
+    setIsSideMenuOpen(false)
   }
 
-  const handleSideMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setSideAnchorEl(event.currentTarget)
-  }
-
-  const handleSideMenuClose = () => {
-    setSideAnchorEl(null)
-  }
-
-  const handleNotificationsClick = () => {
-    navigate('/notifications')
-  }
-
-  const handleDashboardClick = () => {
-    navigate('/dashboard')
-  }
-
-  const menuId = 'primary-account-menu'
-  const renderMenu = (
+  const renderAccountMenu = (
     <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
+      anchorEl={accountAnchorEl}
+      open={Boolean(accountAnchorEl)}
+      onClose={() => setAccountAnchorEl(null)}
       className="menu"
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
     >
       {isPartner && (
-        <MenuItem onClick={handleDashboardClick}>
+        <MenuItem
+          onClick={() => {
+            setAccountAnchorEl(null)
+            navigate('/dashboard')
+          }}
+        >
           <DashboardIcon className="header-action" />
           {strings.DASHBOARD}
         </MenuItem>
       )}
-      {isSignedIn && (
-        <MenuItem
-          onClick={() => {
-            handleMenuClose()
-            navigate('/messages')
-          }}
-        >
-          <MailIcon className="header-action" />
-          {strings.PULSE}
-        </MenuItem>
-      )}
-      <MenuItem onClick={handleSettingsClick}>
+      <MenuItem
+        onClick={() => {
+          setAccountAnchorEl(null)
+          navigate('/messages')
+        }}
+      >
+        <MailIcon className="header-action" />
+        {strings.PULSE}
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          setAccountAnchorEl(null)
+          navigate('/settings')
+        }}
+      >
         <SettingsIcon className="header-action" />
         {strings.SETTINGS}
       </MenuItem>
       <MenuItem onClick={handleSignout}>
         <SignoutIcon className="header-action" />
-        <Typography>{strings.SIGN_OUT}</Typography>
+        {strings.SIGN_OUT}
       </MenuItem>
     </Menu>
   )
 
-  const mobileMenuId = 'mobile-menu'
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-      className="menu"
-    >
-      {isPartner && (
-        <MenuItem onClick={handleDashboardClick}>
-          <IconButton color="inherit">
-            <DashboardIcon />
-          </IconButton>
-          <p>{strings.DASHBOARD}</p>
-        </MenuItem>
-      )}
-      {isSignedIn && (
-        <MenuItem
-          onClick={() => {
-            handleMobileMenuClose()
-            navigate('/messages')
-          }}
-        >
-          <IconButton color="inherit">
-            <MailIcon />
-          </IconButton>
-          <p>{strings.PULSE}</p>
-        </MenuItem>
-      )}
-      <MenuItem onClick={handleSettingsClick}>
-        <SettingsIcon className="header-action" />
-        <p>{strings.SETTINGS}</p>
-      </MenuItem>
-      <MenuItem onClick={handleLangMenuOpen}>
-        <IconButton aria-label="language of current user" aria-controls="primary-search-account-menu" aria-haspopup="true" color="inherit">
-          <LanguageIcon />
-        </IconButton>
-        <p>{strings.LANGUAGE}</p>
-      </MenuItem>
-      <MenuItem onClick={handleSignout}>
-        <IconButton color="inherit">
-          <SignoutIcon />
-        </IconButton>
-        <Typography>{strings.SIGN_OUT}</Typography>
-      </MenuItem>
-    </Menu>
-  )
-
-  const languageMenuId = 'language-menu'
   const renderLanguageMenu = (
     <Menu
       anchorEl={langAnchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      id={languageMenuId}
-      keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={isLangMenuOpen}
-      onClose={handleLangMenuClose}
+      open={Boolean(langAnchorEl)}
+      onClose={() => setLangAnchorEl(null)}
       className="menu"
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
     >
-      {
-        env._LANGUAGES.map((language) => (
-          <MenuItem onClick={handleLangMenuClose} data-code={language.code} key={language.code}>
-            <div className="language">
-              <CircleFlag countryCode={language.countryCode as string} height={flagHeight} className="flag" title={language.label} />
-              <span>{language.label}</span>
-            </div>
-          </MenuItem>
-        ))
-      }
+      {env._LANGUAGES.map((language) => (
+        <MenuItem key={language.code} onClick={() => handleLanguageSelect(language.code)}>
+          <div className="language">
+            <img src={getFlagSrc(language.countryCode)} className="flag" alt={language.label} loading="lazy" />
+            <span>{language.label}</span>
+          </div>
+        </MenuItem>
+      ))}
     </Menu>
   )
 
-  const currencyMenuId = 'currency-menu'
   const renderCurrencyMenu = (
     <Menu
       anchorEl={currencyAnchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      id={currencyMenuId}
-      keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={isCurrencyMenuOpen}
-      onClose={handleCurrencyMenuClose}
+      open={Boolean(currencyAnchorEl)}
+      onClose={() => setCurrencyAnchorEl(null)}
       className="menu"
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
     >
-      {
-        env.CURRENCIES.map((_currency) => (
-          <MenuItem onClick={handleCurrencyMenuClose} data-code={_currency.code} key={_currency.code}>
-            {_currency.code}
-          </MenuItem>
-        ))
-      }
+      {env.CURRENCIES.map((_currency) => (
+        <MenuItem key={_currency.code} onClick={() => handleCurrencySelect(_currency.code)}>
+          {_currency.code}
+        </MenuItem>
+      ))}
     </Menu>
   )
 
   return (
     (!hidden && (
-      <div style={classes.grow} className="header">
-        <AppBar position="sticky" sx={{ bgcolor: 'transparent', boxShadow: 'none' }} className="header-bar">
-          <Toolbar className="toolbar">
-            <div className="header-surface glass-surface">
-              {isLoaded && (
-                <>
-                  <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="open drawer" onClick={handleSideMenuOpen}>
-                    <MenuIcon />
-                  </IconButton>
+      <div className={`header luxury-header${isSideMenuOpen ? ' menu-open' : ''}`}>
+        <div className="lux-sidebar-overlay" ref={sideOverlayRef} onClick={() => setIsSideMenuOpen(false)} />
+        <aside className="lux-sidebar" ref={sideMenuRef}>
+          <button
+            type="button"
+            className="lux-sidebar-brand"
+            onClick={() => navigateAndClose('/')}
+            aria-label={env.WEBSITE_NAME}
+          >
+            <img src="/guzurlogo.png" alt={env.WEBSITE_NAME} className="lux-sidebar-brand-img" />
+            <span className="lux-sidebar-brand-text">{env.WEBSITE_NAME}</span>
+          </button>
 
-                  <Button onClick={() => navigate('/')} className="logo">
-                    <img src="/guzurlogo.png" alt={env.WEBSITE_NAME} className="logo-img" />
-                    <span className="logo-text">{env.WEBSITE_NAME}</span>
-                  </Button>
-                </>
-              )}
+          <div className="lux-sidebar-links">
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/')}>
+              <HomeIcon />
+              <span>{strings.HOME}</span>
+            </button>
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/brokers')}>
+              <AgencyIcon />
+              <span>{strings.BROKERS}</span>
+            </button>
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/developers')}>
+              <AgencyIcon />
+              <span>{strings.DEVELOPERS}</span>
+            </button>
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/projects')}>
+              <ProjectsIcon />
+              <span>{strings.PROJECTS}</span>
+            </button>
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/destinations')}>
+              <LocationIcon />
+              <span>{strings.LOCATIONS}</span>
+            </button>
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/about')}>
+              <AboutIcon />
+              <span>{strings.ABOUT}</span>
+            </button>
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/contact')}>
+              <MailIcon />
+              <span>{strings.CONTACT}</span>
+            </button>
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/rfq')}>
+              <RfqIcon />
+              <span>{strings.RFQ}</span>
+            </button>
+            {isSignedIn && (
+              <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/bookings')}>
+                <BookingsIcon />
+                <span>{strings.BOOKINGS}</span>
+              </button>
+            )}
+            {isSignedIn && isPartner && (
+              <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/dashboard')}>
+                <DashboardIcon />
+                <span>{strings.DASHBOARD}</span>
+              </button>
+            )}
+            {!hideSignin && !isSignedIn && isLoaded && (
               <>
-                <Drawer open={isSideMenuOpen} onClose={handleSideMenuClose} className="menu side-menu">
-                  <List sx={classes.list}>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><HomeIcon /></ListItemIcon>
-                    <ListItemText primary={strings.HOME} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/rfq')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><RfqIcon /></ListItemIcon>
-                    <ListItemText primary={strings.RFQ} />
-                  </ListItem>
-                  {isSignedIn && (
-                    <ListItem
-                      onClick={() => {
-                        navigate('/bookings')
-                        handleSideMenuClose()
-                      }}
-                    >
-                      <ListItemIcon><BookingsIcon /></ListItemIcon>
-                      <ListItemText primary={strings.BOOKINGS} />
-                    </ListItem>
-                  )}
-                  {isSignedIn && isPartner && (
-                    <ListItem
-                      onClick={() => {
-                        navigate('/dashboard')
-                        handleSideMenuClose()
-                      }}
-                    >
-                      <ListItemIcon><DashboardIcon /></ListItemIcon>
-                      <ListItemText primary={strings.DASHBOARD} />
-                    </ListItem>
-                  )}
-                  <ListItem
-                    onClick={() => {
-                      navigate('/brokers')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><AgencyIcon /></ListItemIcon>
-                    <ListItemText primary={strings.BROKERS} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/developers')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><AgencyIcon /></ListItemIcon>
-                    <ListItemText primary={strings.DEVELOPERS} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/projects')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><ProjectsIcon /></ListItemIcon>
-                    <ListItemText primary={strings.PROJECTS} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/destinations')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><LocationIcon /></ListItemIcon>
-                    <ListItemText primary={strings.LOCATIONS} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/about')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><AboutIcon /></ListItemIcon>
-                    <ListItemText primary={strings.ABOUT} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/cookie-policy')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><CookiePolicyIcon /></ListItemIcon>
-                    <ListItemText primary={strings.COOKIE_POLICY} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/privacy')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><PrivacyIcon /></ListItemIcon>
-                    <ListItemText primary={strings.PRIVACY_POLICY} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/tos')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><TosIcon /></ListItemIcon>
-                    <ListItemText primary={strings.TOS} />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => {
-                      navigate('/contact')
-                      handleSideMenuClose()
-                    }}
-                  >
-                    <ListItemIcon><MailIcon /></ListItemIcon>
-                    <ListItemText primary={strings.CONTACT} />
-                  </ListItem>
-                  {env.isMobile && !hideSignin && !isSignedIn && isLoaded && (
-                    <>
-                      <ListItem
-                        onClick={() => {
-                          navigate('/sign-in')
-                          handleSideMenuClose()
-                        }}
-                      >
-                        <ListItemIcon><LoginIcon /></ListItemIcon>
-                        <ListItemText primary={strings.SIGN_IN} />
-                      </ListItem>
-                      <ListItem
-                        onClick={() => {
-                          navigate('/sign-up')
-                          handleSideMenuClose()
-                        }}
-                      >
-                        <ListItemIcon><SignUpIcon /></ListItemIcon>
-                        <ListItemText primary={suStrings.SIGN_UP} />
-                      </ListItem>
-                    </>
-                  )}
-                  </List>
-                </Drawer>
+                <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/sign-up')}>
+                  <SignUpIcon />
+                  <span>{suStrings.SIGN_UP}</span>
+                </button>
+                <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/sign-in')}>
+                  <LoginIcon />
+                  <span>{strings.SIGN_IN}</span>
+                </button>
               </>
-              {searchSlot && (
-                <div className="header-search-slot">
-                  {searchSlot}
-                </div>
-              )}
-              <div style={classes.grow} />
-              <div className="header-desktop">
-                {isLoaded && (
-                  <Button variant="contained" onClick={() => navigate('/rfq')} disableElevation className="btn btn-rfq">
-                    {strings.RFQ}
-                  </Button>
-                )}
-                {isLoaded && (
-                  <Button variant="contained" onClick={handleCurrencyMenuOpen} disableElevation className="btn bold">
-                    {PaymentService.getCurrency()}
-                  </Button>
-                )}
-                {isLoaded && (
-                  <Button variant="contained" onClick={handleLangMenuOpen} disableElevation fullWidth className="btn">
-                    {/* {lang?.label} */}
-                    <CircleFlag countryCode={lang?.countryCode as string} height={flagHeight} className="flag" title={lang?.label} />
-                  </Button>
-                )}
-                {!hideSignin && !isSignedIn && isLoaded && (
-                  <Button variant="contained" size="medium" startIcon={<SignUpIcon />} onClick={() => navigate('/sign-up')} disableElevation className="btn btn-auth" aria-label="Sign in">
-                    <span className="btn-auth-txt">{suStrings.SIGN_UP}</span>
-                  </Button>
-                )}
-                {!hideSignin && !isSignedIn && isLoaded && (
-                  <Button variant="contained" startIcon={<LoginIcon />} href="/sign-in" disableElevation fullWidth className="btn btn-auth">
-                    <span className="btn-auth-txt">{strings.SIGN_IN}</span>
-                  </Button>
-                )}
-                {isSignedIn && (
-                  <IconButton aria-label="" color="inherit" onClick={handleNotificationsClick} className="btn">
-                    <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
-                      <NotificationsIcon />
-                    </Badge>
-                  </IconButton>
-                )}
-                {isSignedIn && (
-                  <IconButton
-                    aria-label={strings.PULSE}
-                    color="inherit"
-                    onClick={() => navigate('/messages')}
-                    className="btn"
-                  >
-                    <Badge badgeContent={messageCount > 0 ? messageCount : null} color="error">
-                      <PulseIcon />
-                    </Badge>
-                  </IconButton>
-                )}
-                {isSignedIn && (
-                  <IconButton edge="end" aria-label="account" aria-controls={menuId} aria-haspopup="true" onClick={handleAccountMenuOpen} color="inherit" className="btn">
-                    <Avatar loggedUser={currentUser} user={currentUser} size="small" readonly />
-                  </IconButton>
-                )}
-              </div>
-              <div className="header-mobile">
-                <Button variant="contained" onClick={() => navigate('/rfq')} disableElevation fullWidth className="btn btn-rfq">
-                  {strings.RFQ}
-                </Button>
-                <Button variant="contained" onClick={handleCurrencyMenuOpen} disableElevation fullWidth className="btn bold">
-                  {PaymentService.getCurrency()}
-                </Button>
-                {!isSignedIn && (
-                  <Button variant="contained" onClick={handleLangMenuOpen} disableElevation fullWidth className="btn">
-                    {/* {lang?.label} */}
-                    <CircleFlag countryCode={lang?.countryCode as string} height={flagHeight} className="flag" title={lang?.label} />
-                  </Button>
-                )}
-                {isSignedIn && (
-                  <IconButton color="inherit" onClick={handleNotificationsClick} className="btn">
-                    <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
-                      <NotificationsIcon />
-                    </Badge>
-                  </IconButton>
-                )}
-                {isSignedIn && (
-                  <IconButton
-                    color="inherit"
-                    onClick={() => navigate('/messages')}
-                    className="btn"
-                    aria-label={strings.PULSE}
-                  >
-                    <Badge badgeContent={messageCount > 0 ? messageCount : null} color="error">
-                      <PulseIcon />
-                    </Badge>
-                  </IconButton>
-                )}
-                {isSignedIn && (
-                  <IconButton aria-label="show more" aria-controls={mobileMenuId} aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit" className="btn">
-                    <MoreIcon />
-                  </IconButton>
-                )}
-              </div>
-            </div>
-          </Toolbar>
-        </AppBar>
+            )}
+          </div>
 
-        {renderMobileMenu}
-        {renderMenu}
+          <div className="lux-sidebar-footer">
+            <button type="button" className="lux-legal-link" onClick={() => navigateAndClose('/cookie-policy')}>
+              <CookiePolicyIcon />
+              {strings.COOKIE_POLICY}
+            </button>
+            <button type="button" className="lux-legal-link" onClick={() => navigateAndClose('/privacy')}>
+              <PrivacyIcon />
+              {strings.PRIVACY_POLICY}
+            </button>
+            <button type="button" className="lux-legal-link" onClick={() => navigateAndClose('/tos')}>
+              <TosIcon />
+              {strings.TOS}
+            </button>
+          </div>
+        </aside>
+
+        <header className="lux-nav">
+          <div className="lux-nav-left">
+            <button
+              type="button"
+              className="lux-menu-icon"
+              onClick={() => setIsSideMenuOpen((prev) => !prev)}
+              aria-label="Open navigation menu"
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+
+            <button
+              type="button"
+              className="lux-logo-wrap"
+              onClick={() => navigate('/')}
+              aria-label={env.WEBSITE_NAME}
+            >
+              <img src="/guzurlogo.png" alt={env.WEBSITE_NAME} className="lux-logo-img" />
+              <span className="lux-logo-text">{env.WEBSITE_NAME}</span>
+            </button>
+          </div>
+
+          <div className="lux-nav-center">
+            <button type="button" className="lux-icon-btn" onClick={() => navigate('/search')}>
+              <SearchIcon />
+              <span>{commonStrings.SEARCH.toUpperCase()}</span>
+            </button>
+            <button type="button" className="lux-icon-btn" onClick={() => navigate('/rfq')}>
+              <HomeIcon />
+              <span>{strings.RFQ.toUpperCase()}</span>
+            </button>
+          </div>
+
+          <div className="lux-nav-right">
+            <button
+              type="button"
+              className="lux-meta-trigger lux-currency-trigger"
+              onClick={(event) => setCurrencyAnchorEl(event.currentTarget)}
+            >
+              {PaymentService.getCurrency()}
+            </button>
+
+            <button
+              type="button"
+              className="lux-meta-trigger lux-language-trigger"
+              onClick={(event) => setLangAnchorEl(event.currentTarget)}
+              aria-label={strings.LANGUAGE}
+            >
+              <img
+                src={getFlagSrc(lang?.countryCode)}
+                className="lux-flag-icon"
+                alt={lang?.label || strings.LANGUAGE}
+                loading="lazy"
+              />
+            </button>
+
+            {!hideSignin && !isSignedIn && isLoaded && (
+              <div className="lux-auth-links">
+                <button type="button" onClick={() => navigate('/sign-up')}>
+                  {suStrings.SIGN_UP}
+                </button>
+                <span>|</span>
+                <button type="button" onClick={() => navigate('/sign-in')}>
+                  {strings.SIGN_IN}
+                </button>
+              </div>
+            )}
+
+            {isSignedIn && (
+              <div className="lux-user-actions">
+                <IconButton aria-label="Notifications" onClick={() => navigate('/notifications')} className="lux-icon-plain">
+                  <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
+                    <NotificationsIcon />
+                  </Badge>
+                </IconButton>
+                <IconButton aria-label={strings.PULSE} onClick={() => navigate('/messages')} className="lux-icon-plain">
+                  <Badge badgeContent={messageCount > 0 ? messageCount : null} color="error">
+                    <PulseIcon />
+                  </Badge>
+                </IconButton>
+                <IconButton
+                  aria-label={strings.SETTINGS}
+                  onClick={(event) => setAccountAnchorEl(event.currentTarget)}
+                  className="lux-icon-plain"
+                >
+                  <Avatar loggedUser={currentUser} user={currentUser} size="small" readonly />
+                </IconButton>
+              </div>
+            )}
+
+            {!isSignedIn && (
+              <IconButton
+                className="lux-mobile-lang"
+                aria-label={strings.LANGUAGE}
+                onClick={(event) => setLangAnchorEl(event.currentTarget)}
+              >
+                <LanguageIcon />
+              </IconButton>
+            )}
+          </div>
+        </header>
+
+        {renderAccountMenu}
         {renderLanguageMenu}
         {renderCurrencyMenu}
       </div>

@@ -23,6 +23,25 @@
   padding: 6px 0;
 }
 
+.property-presentation-play {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #0f172a;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.property-presentation-play:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
 .property-showcase-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.7fr);

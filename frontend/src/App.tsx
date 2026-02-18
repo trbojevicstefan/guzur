@@ -5,7 +5,6 @@ import { NotificationProvider } from '@/context/NotificationContext'
 import { UserProvider } from '@/context/UserContext'
 import { RecaptchaProvider } from '@/context/RecaptchaContext'
 import { PayPalProvider } from '@/context/PayPalContext'
-import { HeaderSearchProvider } from '@/context/HeaderSearchContext'
 import { init as initGA } from '@/utils/ga4'
 import ScrollToTop from '@/components/ScrollToTop'
 import NProgressIndicator from '@/components/NProgressIndicator'
@@ -73,15 +72,13 @@ const AppLayout = () => {
       <NotificationProvider refreshKey={refreshKey}>
         <RecaptchaProvider>
           <PayPalProvider>
-            <HeaderSearchProvider>
-              <ScrollToTop />
-              <div className="app">
-                <Suspense fallback={<NProgressIndicator />}>
-                  <Header />
-                  <Outlet />
-                </Suspense>
-              </div>
-            </HeaderSearchProvider>
+            <ScrollToTop />
+            <div className="app">
+              <Suspense fallback={<NProgressIndicator />}>
+                <Header />
+                <Outlet />
+              </Suspense>
+            </div>
           </PayPalProvider>
         </RecaptchaProvider>
       </NotificationProvider>

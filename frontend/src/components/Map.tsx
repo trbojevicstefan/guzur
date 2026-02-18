@@ -1,4 +1,11 @@
-import React, { Dispatch, ReactNode, SetStateAction, useMemo, useState } from 'react'
+import React, {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import L, { LatLngExpression } from 'leaflet'
 import icon from 'leaflet/dist/images/marker-icon.png'
@@ -78,6 +85,9 @@ interface MapProps {
   showTileToggle?: boolean
   streetLabel?: string
   satelliteLabel?: string
+  clickToActivate?: boolean
+  lockOnMouseLeave?: boolean
+  activationTheme?: 'default' | 'home-different'
 }
 
 const Map = ({
@@ -93,14 +103,49 @@ const Map = ({
   showTileToggle = false,
   streetLabel = 'Street',
   satelliteLabel = 'Satellite',
+  clickToActivate = false,
+  lockOnMouseLeave = true,
+  activationTheme = 'default',
 }: MapProps) => {
   const _initialZoom = initialZoom || 5.5
   const [zoom, setZoom] = useState(_initialZoom)
   const [map, setMap] = useState<L.Map | null>(null)
+  const [isMapInteractive, setIsMapInteractive] = useState(!clickToActivate)
 
-  if (map) {
+  useEffect(() => {
+    setIsMapInteractive(!clickToActivate)
+  }, [clickToActivate])
+
+  useEffect(() => {
+    if (!map) {
+      return
+    }
+
     map.attributionControl.setPrefix('')
-  }
+    const mapWithTap = map as L.Map & {
+      tap?: {
+        enable: () => void
+        disable: () => void
+      }
+    }
+    const controls = [
+      map.dragging,
+      map.touchZoom,
+      map.doubleClickZoom,
+      map.scrollWheelZoom,
+      map.boxZoom,
+      map.keyboard,
+      mapWithTap.tap,
+    ].filter(Boolean) as Array<{ enable: () => void, disable: () => void }>
+
+    controls.forEach((control) => {
+      if (isMapInteractive) {
+        control.enable()
+      } else {
+        control.disable()
+      }
+    })
+  }, [isMapInteractive, map])
 
   //
   // Tile server
@@ -208,55 +253,81 @@ const Map = ({
   return (
     <>
       {title && <h1 className="map-title">{title}</h1>}
-      <MapContainer
-        center={position}
-        zoom={_initialZoom}
-        className={`${className ? `${className} ` : ''}map`}
-        ref={setMap}
+      <div
+        className={`map-shell ${isMapInteractive ? 'is-active' : 'is-locked'}`}
+        onMouseLeave={() => {
+          if (clickToActivate && lockOnMouseLeave && isMapInteractive) {
+            setIsMapInteractive(false)
+          }
+        }}
       >
-        {showTileToggle && (
-          <div className="map-toggle">
-            <button
-              type="button"
-              className={`map-toggle-btn ${tileMode === 'street' ? 'active' : ''}`}
-              onClick={() => setTileMode('street')}
-            >
-              {streetLabel}
-            </button>
-            <button
-              type="button"
-              className={`map-toggle-btn ${tileMode === 'satellite' ? 'active' : ''}`}
-              onClick={() => setTileMode('satellite')}
-            >
-              {satelliteLabel}
-            </button>
-          </div>
+        <MapContainer
+          center={position}
+          zoom={_initialZoom}
+          className={`${className ? `${className} ` : ''}map`}
+          ref={setMap}
+        >
+          {showTileToggle && (
+            <div className="map-toggle">
+              <button
+                type="button"
+                className={`map-toggle-btn ${tileMode === 'street' ? 'active' : ''}`}
+                onClick={() => setTileMode('street')}
+              >
+                {streetLabel}
+              </button>
+              <button
+                type="button"
+                className={`map-toggle-btn ${tileMode === 'satellite' ? 'active' : ''}`}
+                onClick={() => setTileMode('satellite')}
+              >
+                {satelliteLabel}
+              </button>
+            </div>
+          )}
+          <TileLayer
+            attribution={tileConfig.attribution}
+            url={tileConfig.url}
+          />
+          <ZoomTracker setZoom={setZoom} />
+          <ZoomControlledLayer zoom={zoom} minZoom={7.5}>
+            {
+              getMarkers(zoomMarkers)
+            }
+          </ZoomControlledLayer>
+          <ZoomControlledLayer zoom={zoom} minZoom={5.5}>
+            {
+              getMarkers(markers)
+            }
+          </ZoomControlledLayer>
+          <ZoomControlledLayer zoom={zoom} minZoom={_initialZoom}>
+            {
+              getMarkers(getLocationMarkers())
+            }
+          </ZoomControlledLayer>
+          <ZoomControlledLayer zoom={zoom} minZoom={_initialZoom}>
+            {renderPropertyMarkers()}
+          </ZoomControlledLayer>
+          {children}
+        </MapContainer>
+        {clickToActivate && !isMapInteractive && (
+          <button
+            type="button"
+            className={`map-activation-mask ${activationTheme === 'home-different' ? 'is-home-different' : ''}`}
+            onClick={() => {
+              setIsMapInteractive(true)
+            }}
+            aria-label={strings.MAP_ACTIVATE}
+          >
+            <span className="map-activation-kicker">{strings.MAP_INACTIVE}</span>
+            <span className="map-activation-title">{strings.MAP_ACTIVATE}</span>
+            <span className="map-activation-hint">{strings.MAP_ACTIVATE_HINT}</span>
+          </button>
         )}
-        <TileLayer
-          attribution={tileConfig.attribution}
-          url={tileConfig.url}
-        />
-        <ZoomTracker setZoom={setZoom} />
-        <ZoomControlledLayer zoom={zoom} minZoom={7.5}>
-          {
-            getMarkers(zoomMarkers)
-          }
-        </ZoomControlledLayer>
-        <ZoomControlledLayer zoom={zoom} minZoom={5.5}>
-          {
-            getMarkers(markers)
-          }
-        </ZoomControlledLayer>
-        <ZoomControlledLayer zoom={zoom} minZoom={_initialZoom}>
-          {
-            getMarkers(getLocationMarkers())
-          }
-        </ZoomControlledLayer>
-        <ZoomControlledLayer zoom={zoom} minZoom={_initialZoom}>
-          {renderPropertyMarkers()}
-        </ZoomControlledLayer>
-        {children}
-      </MapContainer>
+        {clickToActivate && isMapInteractive && lockOnMouseLeave && (
+          <div className="map-activation-state">{strings.MAP_ACTIVE_HINT}</div>
+        )}
+      </div>
     </>
   )
 }

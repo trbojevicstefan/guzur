@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import {
   FormControl,
@@ -11,6 +11,7 @@ import Layout from '@/components/Layout'
 import Footer from '@/components/Footer'
 import ListingTable from '@/components/ListingTable'
 import Pager from '@/components/Pager'
+import DetailLoadingReveal, { DetailLoadingRevealStat } from '@/components/DetailLoadingReveal'
 import NoMatch from '@/pages/NoMatch'
 import Progress from '@/components/Progress'
 import Map from '@/components/Map'
@@ -30,6 +31,8 @@ const Project = () => {
   const [development, setDevelopment] = useState<movininTypes.Development>()
   const [loading, setLoading] = useState(false)
   const [loadingUnits, setLoadingUnits] = useState(false)
+  const [showReveal, setShowReveal] = useState(false)
+  const [introComplete, setIntroComplete] = useState(false)
   const [noMatch, setNoMatch] = useState(false)
   const [keyword, setKeyword] = useState('')
   const [units, setUnits] = useState<movininTypes.Property[]>([])
@@ -42,25 +45,34 @@ const Project = () => {
   useEffect(() => {
     const fetchDevelopment = async () => {
       if (!id) {
+        setShowReveal(false)
+        setIntroComplete(false)
         setNoMatch(true)
         return
       }
 
       try {
         setLoading(true)
+        setShowReveal(false)
+        setIntroComplete(false)
+        setNoMatch(false)
         const data = await DevelopmentService.getFrontendDevelopment(id)
         if (!data || !data._id) {
           if (currentUser?._id) {
             const authData = await DevelopmentService.getDevelopment(id)
             if (authData && authData._id) {
               setDevelopment(authData)
+              setShowReveal(true)
               return
             }
           }
+          setShowReveal(false)
+          setIntroComplete(false)
           setNoMatch(true)
           return
         }
         setDevelopment(data)
+        setShowReveal(true)
       } catch (err) {
         helper.error(err)
         try {
@@ -68,12 +80,15 @@ const Project = () => {
             const authData = await DevelopmentService.getDevelopment(id)
             if (authData && authData._id) {
               setDevelopment(authData)
+              setShowReveal(true)
               return
             }
           }
         } catch {
           // ignore fallback errors
         }
+        setShowReveal(false)
+        setIntroComplete(false)
         setNoMatch(true)
       } finally {
         setLoading(false)
@@ -85,7 +100,7 @@ const Project = () => {
 
   useEffect(() => {
     const fetchUnits = async () => {
-      if (!id) {
+      if (!id || !introComplete) {
         return
       }
 
@@ -107,13 +122,13 @@ const Project = () => {
     }
 
     fetchUnits()
-  }, [id, keyword, page])
+  }, [id, keyword, page, introComplete])
 
   const developer = development && typeof development.developer === 'object'
     ? development.developer
     : undefined
 
-  const normalizeImageName = (value?: string) => {
+  const normalizeImageName = useCallback((value?: string) => {
     if (!value) {
       return ''
     }
@@ -122,9 +137,9 @@ const Project = () => {
       return ''
     }
     return trimmed
-  }
+  }, [])
 
-  const resolveImage = (value?: string) => {
+  const resolveImage = useCallback((value?: string) => {
     const imageName = normalizeImageName(value)
     if (!imageName) {
       return { src: '', fallbackSrc: '' }
@@ -136,9 +151,9 @@ const Project = () => {
       src: movininHelper.joinURL(env.CDN_PROPERTIES, imageName),
       fallbackSrc: movininHelper.joinURL(env.CDN_TEMP_PROPERTIES, imageName),
     }
-  }
+  }, [normalizeImageName])
 
-  const onImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const onImageError = useCallback((event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const fallbackSrc = event.currentTarget.dataset.fallback
     if (fallbackSrc) {
       event.currentTarget.src = fallbackSrc
@@ -146,9 +161,9 @@ const Project = () => {
       return
     }
     event.currentTarget.style.opacity = '0'
-  }
+  }, [])
 
-  const getCompletionDate = (value?: Date | string) => {
+  const getCompletionDate = useCallback((value?: Date | string) => {
     if (!value) {
       return '-'
     }
@@ -157,7 +172,7 @@ const Project = () => {
       return '-'
     }
     return format(date, 'MMM yyyy')
-  }
+  }, [])
 
   const summary = (development?.description || '').trim()
   const heroSummary = summary.length > 180 ? `${summary.slice(0, 177)}...` : summary
@@ -166,12 +181,56 @@ const Project = () => {
     ? resolveImage(development.images?.[0] || development.masterPlan || development.floorPlans?.[0])
     : { src: '', fallbackSrc: '' }
   const masterPlanSource = development ? resolveImage(development.masterPlan) : { src: '', fallbackSrc: '' }
+  const revealImages = useMemo(() => (development
+    ? [...new Set([
+      development.images?.[0],
+      development.masterPlan,
+      ...(development.images || []),
+      ...(development.floorPlans || []),
+    ]
+      .map((img) => {
+        const source = resolveImage(img)
+        return source.src || source.fallbackSrc
+      })
+      .filter((img) => Boolean(img)))]
+      .slice(0, 4)
+    : []
+  ), [development, resolveImage])
+  const revealStats: DetailLoadingRevealStat[] = useMemo(() => (development
+    ? [
+      { label: projectStrings.STATUS, value: statusLabel || '-' },
+      { label: projectStrings.UNITS, value: String(development.unitsCount ?? '-') },
+      { label: projectStrings.COMPLETION, value: getCompletionDate(development.completionDate) },
+      { label: projectStrings.LOCATION, value: development.location || '-' },
+    ]
+    : []
+  ), [development, getCompletionDate, statusLabel])
+  const handleRevealComplete = useCallback(() => {
+    setShowReveal(false)
+    setIntroComplete(true)
+  }, [])
 
   return (
     <Layout strict={false}>
       {loading && <Progress />}
       {noMatch && <NoMatch hideHeader />}
-      {!loading && development && (
+      {!loading && development && showReveal && (
+        <DetailLoadingReveal
+          visible={showReveal}
+          title={development.name || projectStrings.HEADING}
+          subtitle={projectStrings.DETAILS}
+          description={heroSummary || development.location}
+          images={revealImages.length > 0 ? revealImages : ['/cover.webp']}
+          stats={revealStats}
+          accent="#9eb8cd"
+          secondary="#d4bc8d"
+          durationMs={21000}
+          motionMode="full"
+          holdOnCompleteUntilClick
+          onComplete={handleRevealComplete}
+        />
+      )}
+      {!loading && development && introComplete && (
         <>
           <div className="project-page">
             <div className="project-hero">
@@ -344,6 +403,9 @@ const Project = () => {
                   initialZoom={12}
                   showTileToggle
                   className="project-map"
+                  clickToActivate
+                  activationTheme="home-different"
+                  lockOnMouseLeave
                 />
               </div>
             )}

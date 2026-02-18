@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import {
   Button,
   FormControl,
 } from '@mui/material'
+import {
+  VisibilityOutlined,
+  SupportAgentOutlined,
+  RequestQuoteOutlined,
+} from '@mui/icons-material'
 import * as movininTypes from ':movinin-types'
 import * as movininHelper from ':movinin-helper'
 import Layout from '@/components/Layout'
 import env from '@/config/env.config'
 import { strings as commonStrings } from '@/lang/common'
+import { strings as headerStrings } from '@/lang/header'
 import { strings } from '@/lang/properties'
 import * as helper from '@/utils/helper'
 import * as PropertyService from '@/services/PropertyService'
@@ -22,6 +28,11 @@ import AgencyBadge from '@/components/AgencyBadge'
 import DatePicker from '@/components/DatePicker'
 import Footer from '@/components/Footer'
 import Progress from '@/components/Progress'
+import DetailLoadingReveal, {
+  DetailLoadingRevealAction,
+  DetailLoadingRevealPhase,
+  DetailLoadingRevealStat,
+} from '@/components/DetailLoadingReveal'
 import { strings as messagesStrings } from '@/lang/messages'
 
 import '@/assets/css/property.css'
@@ -46,6 +57,8 @@ const Property = () => {
   const [minDate, setMinDate] = useState<Date>()
   const [maxDate, setMaxDate] = useState<Date>()
   const [hideAction, setHideAction] = useState(true)
+  const [showReveal, setShowReveal] = useState(false)
+  const [introComplete, setIntroComplete] = useState(false)
   const [language, setLanguage] = useState(env.DEFAULT_LANGUAGE)
   const [priceLabel, setPriceLabel] = useState('')
   const currentUser = UserService.getCurrentUser()
@@ -96,6 +109,13 @@ const Property = () => {
   const descriptionHtml = property?.useAiDescription && property.aiDescription
     ? property.aiDescription
     : property?.description
+  const plainDescription = (descriptionHtml || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  const revealDescription = plainDescription.length > 180
+    ? `${plainDescription.slice(0, 177)}...`
+    : plainDescription
   const compoundName = development?.name || ''
   const saleTypeLabel = property?.listingType === movininTypes.ListingType.Sale
     ? (developerOrg || developer ? strings.DEVELOPER_SALE : strings.BROKER_SALE)
@@ -153,6 +173,104 @@ const Property = () => {
   const hasImages = images.length > 0
   const hasGallery = images.length > 1
   const heroInitial = property?.name?.charAt(0) || 'P'
+  const revealImages = useMemo(() => (property
+    ? [...new Set([
+      property.image,
+      ...(property.images || []),
+    ]
+      .map(resolvePropertyImage)
+      .filter((img) => Boolean(img)))]
+      .slice(0, 4)
+    : []
+  ), [property])
+  const revealStats: DetailLoadingRevealStat[] = useMemo(() => (property
+    ? [
+      { label: strings.PRICE, value: displayPrice || '-' },
+      { label: strings.BEDROOMS_LABEL, value: String(property.bedrooms ?? '-') },
+      { label: strings.BATHROOMS_LABEL, value: String(property.bathrooms ?? '-') },
+      { label: commonStrings.LOCATION, value: locationName || property.address || '-' },
+      { label: strings.SIZE, value: sizeLabel || '-' },
+    ]
+    : []
+  ), [displayPrice, locationName, property, sizeLabel])
+  const amenityParts = useMemo(() => (property
+    ? [
+      property.furnished ? strings.FINISHED : '',
+      property.aircon ? strings.AIRCON_TOOLTIP : '',
+      property.petsAllowed ? strings.PETS_ALLOWED_TOOLTIP : '',
+      typeof property.kitchens === 'number' ? `${property.kitchens} ${strings.KITCHENS_TOOLTIP_1}` : '',
+      typeof property.parkingSpaces === 'number'
+        ? `${property.parkingSpaces} ${strings.PARKING_SPACES_TOOLTIP_1}${property.parkingSpaces > 1 ? strings.PARKING_SPACES_TOOLTIP_2 : ''}`
+        : '',
+    ].filter((item) => Boolean(item))
+    : []
+  ), [property])
+  const amenitiesSummary = useMemo(
+    () => (amenityParts.length > 0 ? amenityParts.slice(0, 3).join(' • ') : strings.UNAVAILABLE),
+    [amenityParts],
+  )
+  const sellerSummary = useMemo(
+    () => (sellerName ? `${sellerName}${sellerType ? ` • ${sellerType}` : ''}` : strings.UNAVAILABLE),
+    [sellerName, sellerType],
+  )
+  const propertyRevealPhases: DetailLoadingRevealPhase[] = useMemo(() => (property
+    ? [
+      {
+        heading: strings.OVERVIEW,
+        body: displayPrice || revealDescription || strings.DETAILS,
+        bubbles: [
+          { label: strings.PRICE, value: displayPrice || '-' },
+          { label: strings.BEDROOMS_LABEL, value: String(property.bedrooms ?? '-') },
+          { label: strings.BATHROOMS_LABEL, value: String(property.bathrooms ?? '-') },
+        ],
+      },
+      {
+        heading: strings.DETAILS,
+        body: revealDescription || (locationName || property.address || '-'),
+        bubbles: [
+          { label: commonStrings.LOCATION, value: locationName || property.address || '-' },
+          { label: strings.SIZE, value: sizeLabel || '-' },
+          { label: strings.PROPERTY_TYPE, value: helper.getPropertyType(property.type) || '-' },
+        ],
+      },
+      {
+        heading: strings.AMENITIES,
+        body: amenitiesSummary,
+        bubbles: [
+          { label: strings.AMENITIES, value: amenitiesSummary },
+          { label: strings.COMPOUND, value: compoundName || '-' },
+          { label: strings.DELIVERY_STATUS, value: finishingLabel || '-' },
+        ],
+      },
+      {
+        heading: strings.SELLER,
+        body: sellerSummary,
+        bubbles: [
+          { label: strings.SELLER, value: sellerName || '-' },
+          { label: strings.SALE_TYPE, value: sellerType || '-' },
+          { label: strings.CONTACT_SELLER, value: contactLabel },
+        ],
+      },
+    ]
+    : []
+  ), [
+    amenitiesSummary,
+    compoundName,
+    contactLabel,
+    displayPrice,
+    finishingLabel,
+    locationName,
+    property,
+    revealDescription,
+    sellerName,
+    sellerSummary,
+    sellerType,
+    sizeLabel,
+  ])
+  const handleRevealComplete = useCallback(() => {
+    setShowReveal(false)
+    setIntroComplete(true)
+  }, [])
 
   useEffect(() => {
     if (!property) {
@@ -189,11 +307,16 @@ const Property = () => {
     const _to = state?.to as Date | undefined
 
     if (!propertyId) {
+      setShowReveal(false)
+      setIntroComplete(false)
       setNoMatch(true)
       return
     }
 
     setLoading(true)
+    setShowReveal(false)
+    setIntroComplete(false)
+    setNoMatch(false)
     const _language = UserService.getLanguage()
     setLanguage(_language)
     setFrom(_from || undefined)
@@ -225,10 +348,15 @@ const Property = () => {
         setPriceLabel(nextPriceLabel)
 
         setHideAction(!rentListing)
+        setShowReveal(true)
       } else {
+        setShowReveal(false)
+        setIntroComplete(false)
         setNoMatch(true)
       }
     } catch (err) {
+      setShowReveal(false)
+      setIntroComplete(false)
       helper.error(err)
     } finally {
       setLoading(false)
@@ -245,7 +373,7 @@ const Property = () => {
     setHasUnread(!readMap[property._id])
   }, [currentUser?._id, property?._id])
 
-  const handleContactSeller = () => {
+  const handleContactSeller = useCallback(() => {
     if (!property) {
       return
     }
@@ -255,12 +383,105 @@ const Property = () => {
       .replace('{location}', locationName || property.address || commonStrings.LOCATION)
       .replace('{price}', displayPrice || '')
     navigate('/contact', { state: { subject, message } })
-  }
+  }, [displayPrice, locationName, navigate, property])
+
+  const revealActionButtons: DetailLoadingRevealAction[] = useMemo(() => {
+    if (!property?._id) {
+      return []
+    }
+    const propertyTypeLabel = helper.getPropertyType(property.type) || commonStrings.PROPERTY
+    const rfqListingType = property.listingType === movininTypes.ListingType.Rent
+      ? movininTypes.ListingType.Rent
+      : movininTypes.ListingType.Sale
+    const rfqBudget = rfqListingType === movininTypes.ListingType.Sale
+      ? (property.salePrice || property.price)
+      : property.price
+    const rfqLocation = locationName || property.address || ''
+    const rfqMessage = `${commonStrings.PROPERTY}: ${property.name || commonStrings.PROPERTY}${rfqLocation ? ` (${rfqLocation})` : ''}`
+
+    return [
+      {
+        id: 'view-property',
+        label: `${commonStrings.VIEW} ${propertyTypeLabel}`,
+        icon: <VisibilityOutlined fontSize="small" />,
+        tone: 'view',
+        onClick: () => {
+          setShowReveal(false)
+          setIntroComplete(true)
+        },
+      },
+      {
+        id: 'contact-seller',
+        label: contactLabel || strings.CONTACT_DEVELOPER,
+        icon: <SupportAgentOutlined fontSize="small" />,
+        tone: 'contact',
+        onClick: () => {
+          handleContactSeller()
+        },
+      },
+      {
+        id: 'request-home',
+        label: headerStrings.RFQ,
+        icon: <RequestQuoteOutlined fontSize="small" />,
+        tone: 'request',
+        onClick: () => {
+          navigate('/rfq', {
+            state: {
+              prefill: {
+                propertyId: property._id,
+                propertyName: property.name || commonStrings.PROPERTY,
+                location: rfqLocation,
+                listingType: rfqListingType,
+                propertyType: property.type,
+                bedrooms: property.bedrooms,
+                bathrooms: property.bathrooms,
+                budget: rfqBudget,
+                message: rfqMessage,
+              },
+            },
+          })
+        },
+      },
+    ]
+  }, [
+    contactLabel,
+    handleContactSeller,
+    locationName,
+    navigate,
+    property?._id,
+    property?.address,
+    property?.bathrooms,
+    property?.bedrooms,
+    property?.listingType,
+    property?.name,
+    property?.price,
+    property?.salePrice,
+    property?.type,
+  ])
 
   return (
     <Layout onLoad={onLoad}>
+      {!loading && property && showReveal && (
+        <DetailLoadingReveal
+          visible={showReveal}
+          title={property.name || commonStrings.PROPERTY}
+          subtitle={strings.DETAILS}
+          description={revealDescription || locationName || property.address || ''}
+          images={revealImages.length > 0 ? revealImages : ['/cover.webp']}
+          stats={revealStats}
+          phases={propertyRevealPhases}
+          finalActions={revealActionButtons}
+          accent={property.listingType === movininTypes.ListingType.Rent ? '#9eb8cd' : '#d97d74'}
+          secondary={property.listingType === movininTypes.ListingType.Sale ? '#d4bc8d' : '#a8b69f'}
+          durationMs={21000}
+          motionMode="full"
+          holdOnCompleteUntilClick
+          onComplete={handleRevealComplete}
+        />
+      )}
+
       {
-        !loading && property
+        !loading && property && introComplete
         && (
           <>
             <div className="property-showcase">
@@ -271,6 +492,15 @@ const Property = () => {
                   onClick={() => navigate(-1)}
                 >
                   {strings.BACK_TO_LISTINGS}
+                </button>
+                <button
+                  type="button"
+                  className="property-presentation-play"
+                  onClick={() => {
+                    setShowReveal(true)
+                  }}
+                >
+                  {strings.PLAY_PRESENTATION}
                 </button>
               </div>
 
@@ -411,6 +641,9 @@ const Property = () => {
                           initialZoom={13}
                           showTileToggle
                           className="property-map"
+                          clickToActivate
+                          activationTheme="home-different"
+                          lockOnMouseLeave
                           properties={[property]}
                           onSelectProperty={() => property._id && navigate(`/property/${property._id}`)}
                         />

@@ -6,6 +6,9 @@ import { createHtmlPlugin } from 'vite-plugin-html'
 // https://vitejs.dev/config/
 export default ({ mode }: { mode: string }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), '') }
+  const serverPort = Number.parseInt(process.env.VITE_PORT || '3004', 10)
+  const hmrPort = Number.parseInt(process.env.VITE_HMR_PORT || String(serverPort), 10)
+  const hmrClientPort = Number.parseInt(process.env.VITE_HMR_CLIENT_PORT || String(hmrPort), 10)
 
   return defineConfig({
     plugins: [
@@ -44,7 +47,7 @@ export default ({ mode }: { mode: string }) => {
 
     server: {
       host: '0.0.0.0',
-      port: Number.parseInt(process.env.VITE_PORT || '3004', 10),
+      port: serverPort,
       watch: {
         usePolling: true,
         interval: 500,
@@ -52,8 +55,8 @@ export default ({ mode }: { mode: string }) => {
       hmr: {
         protocol: 'ws',
         host: process.env.VITE_HMR_HOST || 'localhost',
-        port: Number.parseInt(process.env.VITE_HMR_PORT || '8081', 10),
-        clientPort: Number.parseInt(process.env.VITE_HMR_CLIENT_PORT || '8081', 10),
+        port: hmrPort,
+        clientPort: hmrClientPort,
       },
     },
 

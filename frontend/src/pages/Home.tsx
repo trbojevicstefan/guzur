@@ -1,17 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Tabs, Tab, Dialog, DialogContent, Button } from '@mui/material'
 import {
-  RoomService,
-  Apartment,
-  AccessTime,
-  AttachMoney,
-  Public,
-  FlashOn,
   CheckBox,
   ChevronLeft,
   ChevronRight,
 } from '@mui/icons-material'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import L from 'leaflet'
 import * as movininTypes from ':movinin-types'
 import * as movininHelper from ':movinin-helper'
@@ -29,13 +25,15 @@ import TabPanel, { a11yProps } from '@/components/TabPanel'
 import Map from '@/components/Map'
 import { strings as mapStrings } from '@/lang/map'
 import Footer from '@/components/Footer'
-import { useHeaderSearch } from '@/context/HeaderSearchContext'
 
 import '@/assets/css/home.css'
 
+gsap.registerPlugin(ScrollTrigger)
+const DIFFERENT_STEP_COLORS = ['#d97d74', '#a8b69f', '#d4bc8d', '#9eb8cd', '#b8a9c9']
+
 const Home = () => {
   const navigate = useNavigate()
-  const { setSearchSlot } = useHeaderSearch()
+  const language = UserService.getLanguage()
 
   const [countries, setCountries] = useState<movininTypes.CountryInfo[]>([])
   const [tabValue, setTabValue] = useState(0)
@@ -48,9 +46,110 @@ const Home = () => {
   const [listingsLoading, setListingsLoading] = useState(false)
   const [loadedListingImages, setLoadedListingImages] = useState<Record<string, boolean>>({})
   const [failedListingImages, setFailedListingImages] = useState<Record<string, boolean>>({})
-  const [headerSearchActive, setHeaderSearchActive] = useState(false)
+  const [activeDifferentStep, setActiveDifferentStep] = useState(0)
   const featuredRowRef = useRef<HTMLDivElement | null>(null)
   const allRowRef = useRef<HTMLDivElement | null>(null)
+  const differentSectionRef = useRef<HTMLElement | null>(null)
+
+  const resolveImageName = useCallback((value?: string) => {
+    if (!value) {
+      return ''
+    }
+    const trimmed = value.trim()
+    if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+      return ''
+    }
+    return trimmed
+  }, [])
+
+  const getPropertyImageUrl = useCallback((property?: movininTypes.Property) => {
+    if (!property) {
+      return ''
+    }
+    const fallbackImageName = (property.images || [])
+      .map(resolveImageName)
+      .find((img) => img)
+    const propertyImageName = resolveImageName(property.image) || fallbackImageName
+
+    if (!propertyImageName) {
+      return ''
+    }
+
+    return propertyImageName.startsWith('http')
+      ? propertyImageName
+      : movininHelper.joinURL(env.CDN_PROPERTIES, propertyImageName)
+  }, [resolveImageName])
+
+  const marketsCount = countries.length > 0 ? countries.length : locations.length
+  const differentStats = [
+    {
+      label: strings.FEATURED_TITLE,
+      value: `${movininHelper.formatNumber(featuredListings.length, language)}+`,
+    },
+    {
+      label: strings.LISTINGS_TITLE,
+      value: `${movininHelper.formatNumber(homeListings.length, language)}+`,
+    },
+    {
+      label: strings.DESTINATIONS_TITLE,
+      value: `${movininHelper.formatNumber(marketsCount, language)}+`,
+    },
+  ]
+
+  const featuredImageSource = featuredListings.length > 0 ? featuredListings : homeListings
+  const differentStepImages = useMemo(() => Array.from({ length: 5 }, (_, index) => (
+    getPropertyImageUrl(featuredImageSource[index])
+    || getPropertyImageUrl(homeListings[index])
+    || '/cover.webp'
+  )), [featuredImageSource, homeListings, getPropertyImageUrl])
+  const differentSteps = useMemo(() => ([
+    {
+      id: 'selection',
+      color: DIFFERENT_STEP_COLORS[0],
+      tag: strings.SERVICES_FLEET_TITLE,
+      title: strings.SERVICES_FLEET_TITLE,
+      description: strings.SERVICES_FLEET,
+      image: differentStepImages[0],
+    },
+    {
+      id: 'availability',
+      color: DIFFERENT_STEP_COLORS[1],
+      tag: strings.SERVICES_FLEXIBLE_TITLE,
+      title: strings.SERVICES_FLEXIBLE_TITLE,
+      description: strings.SERVICES_FLEXIBLE,
+      image: differentStepImages[1],
+    },
+    {
+      id: 'value',
+      color: DIFFERENT_STEP_COLORS[2],
+      tag: strings.SERVICES_PRICES_TITLE,
+      title: strings.SERVICES_PRICES_TITLE,
+      description: strings.SERVICES_PRICES,
+      image: differentStepImages[2],
+    },
+    {
+      id: 'process',
+      color: DIFFERENT_STEP_COLORS[3],
+      tag: strings.SERVICES_BOOKING_ONLINE_TITLE,
+      title: strings.SERVICES_BOOKING_ONLINE_TITLE,
+      description: strings.SERVICES_BOOKING_ONLINE,
+      image: differentStepImages[3],
+    },
+    {
+      id: 'commitment',
+      color: DIFFERENT_STEP_COLORS[4],
+      tag: strings.SERVICE_INSTANT_BOOKING_TITLE,
+      title: strings.SERVICE_INSTANT_BOOKING_TITLE,
+      description: strings.SERVICE_INSTANT_BOOKING,
+      image: differentStepImages[4],
+    },
+  ]), [differentStepImages])
+  const activeStepColor = differentSteps[activeDifferentStep]?.color || DIFFERENT_STEP_COLORS[0]
+  const nextStepColor = differentSteps[(activeDifferentStep + 1) % differentSteps.length]?.color || DIFFERENT_STEP_COLORS[1]
+  const differentStyle = {
+    '--home-different-accent': activeStepColor,
+    '--home-different-secondary': nextStepColor,
+  } as React.CSSProperties
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
@@ -119,36 +218,193 @@ const Home = () => {
     }
   }
 
-  const language = UserService.getLanguage()
-
-  useEffect(() => {
-    const threshold = 180
-    const onScroll = () => {
-      const shouldActivate = window.scrollY > threshold
-      setHeaderSearchActive(shouldActivate)
+  useLayoutEffect(() => {
+    const section = differentSectionRef.current
+    if (!section) {
+      return undefined
     }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
+
+    const stepNodes = Array.from(section.querySelectorAll<HTMLDivElement>('.home-different-step'))
+    const imageNodes = Array.from(section.querySelectorAll<HTMLImageElement>('.home-different-frame img'))
+    const ringNodes = Array.from(section.querySelectorAll<HTMLDivElement>('.home-different-ring'))
+    const bubbleNodes = Array.from(section.querySelectorAll<HTMLDivElement>('.home-different-bubble'))
+    const frameNode = section.querySelector<HTMLDivElement>('.home-different-frame')
+    const glowNode = section.querySelector<HTMLDivElement>('.home-different-glow')
+    const totalSteps = differentSteps.length
+
+    if (stepNodes.length === 0 || imageNodes.length === 0 || totalSteps === 0) {
+      return undefined
+    }
+
+    gsap.set(stepNodes, { autoAlpha: 0, y: 40 })
+    gsap.set(imageNodes, { autoAlpha: 0, scale: 1.14 })
+    gsap.set(bubbleNodes, { autoAlpha: 0, y: 20, scale: 0.88 })
+    gsap.set(stepNodes[0], { autoAlpha: 1, y: 0 })
+    gsap.set(imageNodes[0], { autoAlpha: 1, scale: 1 })
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    let refreshHandle = 0
+    const ctx = gsap.context(() => {
+      const ringBaseOpacity = [0.12, 0.2, 0.42, 0.62]
+
+      if (prefersReducedMotion) {
+        gsap.set(bubbleNodes, { autoAlpha: 1, y: 0, scale: 1 })
+      } else {
+        const ringMeta = ringNodes.map((ring, index) => ({
+          ring,
+          baseOpacity: ringBaseOpacity[index] || 0.22,
+        }))
+        const waveOrder = [...ringMeta].reverse()
+
+        ringMeta.forEach(({ ring, baseOpacity }) => {
+          gsap.set(ring, {
+            scale: 1,
+            opacity: baseOpacity,
+            transformOrigin: '50% 50%',
+          })
+        })
+
+        const waveTimeline = gsap.timeline({
+          repeat: -1,
+          defaults: { ease: 'sine.inOut' },
+        })
+        waveOrder.forEach(({ ring, baseOpacity }, waveIndex) => {
+          const peakScale = 1.12 - (waveIndex * 0.02)
+          const peakOpacity = Math.min(baseOpacity + 0.28, 0.86)
+          const startAt = waveIndex * 0.14
+
+          waveTimeline.to(ring, {
+            scale: peakScale,
+            opacity: peakOpacity,
+            duration: 0.3,
+            ease: 'sine.out',
+          }, startAt)
+          waveTimeline.to(ring, {
+            scale: 1,
+            opacity: baseOpacity,
+            duration: 1.05,
+            ease: 'sine.inOut',
+          }, startAt + 0.3)
+        })
+        waveTimeline.to({}, { duration: 0.2 })
+
+        if (glowNode) {
+          gsap.to(glowNode, {
+            scale: 1.18,
+            opacity: 0.34,
+            duration: 0.62,
+            yoyo: true,
+            repeat: -1,
+            ease: 'sine.inOut',
+            transformOrigin: '50% 50%',
+          })
+        }
+
+        if (frameNode) {
+          gsap.to(frameNode, {
+            y: -14,
+            duration: 3.4,
+            yoyo: true,
+            repeat: -1,
+            ease: 'sine.inOut',
+          })
+        }
+  
+        gsap.to(bubbleNodes, {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: 'power2.out',
+        })
+        bubbleNodes.forEach((bubble, index) => {
+          gsap.to(bubble, {
+            y: -(8 + (index * 2)),
+            duration: 2.4 + (index * 0.3),
+            repeat: -1,
+            yoyo: true,
+            delay: 0.65 + (index * 0.12),
+            ease: 'sine.inOut',
+          })
+        })
+      }
+
+      const animateStep = (index: number) => {
+        setActiveDifferentStep((prev) => (prev === index ? prev : index))
+        const activeColor = differentSteps[index]?.color || DIFFERENT_STEP_COLORS[0]
+        const nextColor = differentSteps[(index + 1) % totalSteps]?.color || DIFFERENT_STEP_COLORS[1]
+
+        gsap.to(section, {
+          '--home-different-accent': activeColor,
+          '--home-different-secondary': nextColor,
+          duration: 0.7,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        })
+        gsap.to(ringNodes, {
+          borderColor: activeColor,
+          duration: 0.7,
+          stagger: 0.03,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        })
+
+        stepNodes.forEach((stepNode, stepIndex) => {
+          gsap.to(stepNode, {
+            autoAlpha: stepIndex === index ? 1 : 0,
+            y: stepIndex === index ? 0 : 40,
+            x: stepIndex === index ? 0 : -10,
+            duration: 0.5,
+            ease: 'power2.out',
+            overwrite: 'auto',
+          })
+        })
+
+        imageNodes.forEach((imageNode, imageIndex) => {
+          gsap.to(imageNode, {
+            autoAlpha: imageIndex === index ? 1 : 0,
+            scale: imageIndex === index ? 1 : 1.14,
+            duration: 0.8,
+            ease: 'power3.out',
+            overwrite: 'auto',
+          })
+        })
+      }
+
+      let currentStep = 0
+      animateStep(0)
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        // Use a 1s catch-up for smoother, less robotic scroll-linked motion.
+        scrub: 1,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const nextStep = Math.min(totalSteps - 1, Math.floor(self.progress * totalSteps))
+          if (nextStep !== currentStep) {
+            currentStep = nextStep
+            animateStep(nextStep)
+          }
+        },
+      })
+    }, section)
+    refreshHandle = window.requestAnimationFrame(() => {
+      ScrollTrigger.sort()
+      ScrollTrigger.refresh()
+    })
+
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      setHeaderSearchActive(false)
-      setSearchSlot(null)
+      if (refreshHandle) {
+        window.cancelAnimationFrame(refreshHandle)
+      }
+      ctx.revert()
     }
-  }, [setSearchSlot])
-
-  useEffect(() => {
-    if (headerSearchActive) {
-      setSearchSlot(
-        <SearchForm
-          listingTypeOptions={[movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
-          defaultListingType={movininTypes.ListingType.Sale}
-          requireLocation={false}
-        />,
-      )
-    } else {
-      setSearchSlot(null)
-    }
-  }, [headerSearchActive, setSearchSlot])
+  }, [differentSteps])
 
   const setListingImageLoaded = (imageUrl: string) => {
     setLoadedListingImages((prev) => {
@@ -176,25 +432,7 @@ const Home = () => {
       ? (property.agency.fullName || property.agency.company || '')
       : ''
     const sizeLabel = property.size ? `${movininHelper.formatNumber(property.size, language)} ${env.SIZE_UNIT}` : ''
-    const resolveImageName = (value?: string) => {
-      if (!value) {
-        return ''
-      }
-      const trimmed = value.trim()
-      if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
-        return ''
-      }
-      return trimmed
-    }
-    const fallbackImageName = (property.images || [])
-      .map(resolveImageName)
-      .find((img) => img)
-    const propertyImageName = resolveImageName(property.image) || fallbackImageName
-    const propertyImageUrl = propertyImageName
-      ? (propertyImageName.startsWith('http')
-        ? propertyImageName
-        : movininHelper.joinURL(env.CDN_PROPERTIES, propertyImageName))
-      : ''
+    const propertyImageUrl = getPropertyImageUrl(property)
     const imageLoaded = propertyImageUrl ? Boolean(loadedListingImages[propertyImageUrl]) : false
     const imageFailed = propertyImageUrl ? Boolean(failedListingImages[propertyImageUrl]) : false
     return (
@@ -334,18 +572,6 @@ const Home = () => {
 
         </div>
 
-        {!headerSearchActive && (
-          <div className="search">
-            <div className="home-search">
-              <SearchForm
-                listingTypeOptions={[movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
-                defaultListingType={movininTypes.ListingType.Sale}
-                requireLocation={false}
-              />
-            </div>
-          </div>
-        )}
-
         <div className="home-listings featured-listings">
           <h1>{strings.FEATURED_TITLE}</h1>
           {listingsLoading ? (
@@ -368,70 +594,64 @@ const Home = () => {
 
           <h1>{strings.SERVICES_TITLE}</h1>
 
-          <div className="services-boxes">
+          <section className="home-different-section" style={differentStyle} ref={differentSectionRef}>
+            <div className="home-different-sticky">
+              <div className="home-different-orb home-different-orb-one" />
+              <div className="home-different-orb home-different-orb-two" />
 
-            <div className="services-box">
-              <div className="services-icon-wrapper">
-                <Apartment className="services-icon" />
-              </div>
-              <div className="services-text-wrapper">
-                <span className="services-title">{strings.SERVICES_FLEET_TITLE}</span>
-                <span className="services-text">{strings.SERVICES_FLEET}</span>
+              <div className="home-different-grid">
+                <div className="home-different-text">
+                  {differentSteps.map((step) => (
+                    <div
+                      key={step.id}
+                      className="home-different-step"
+                    >
+                      <span className="home-different-tag" style={{ color: step.color }}>
+                        {step.tag}
+                      </span>
+                      <h2>{step.title}</h2>
+                      <p>{step.description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="home-different-visual">
+                  <div className="home-different-glow" />
+
+                  <div className="home-different-ring-container">
+                    <div className="home-different-ring home-different-ring-1" />
+                    <div className="home-different-ring home-different-ring-2" />
+                    <div className="home-different-ring home-different-ring-3" />
+                    <div className="home-different-ring home-different-ring-4" />
+                  </div>
+
+                  <div className="home-different-frame">
+                    {differentSteps.map((step) => (
+                      <img
+                        key={`${step.id}-image`}
+                        src={step.image}
+                        alt={step.title}
+                        loading="lazy"
+                      />
+                    ))}
+                  </div>
+
+                  <div className="home-different-bubbles">
+                    {differentStats.map((stat, index) => (
+                      <div
+                        key={`${stat.label}-${index}`}
+                        className={`home-different-bubble home-different-bubble-${index + 1}`}
+                      >
+                        <span className="label">{stat.label}</span>
+                        <span className="value">{stat.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div className="services-box">
-              <div className="services-icon-wrapper">
-                <AccessTime className="services-icon" />
-              </div>
-              <div className="services-text-wrapper">
-                <span className="services-title">{strings.SERVICES_FLEXIBLE_TITLE}</span>
-                <span className="services-text">{strings.SERVICES_FLEXIBLE}</span>
-              </div>
-            </div>
-
-            <div className="services-box">
-              <div className="services-icon-wrapper">
-                <AttachMoney className="services-icon" />
-              </div>
-              <div className="services-text-wrapper">
-                <span className="services-title">{strings.SERVICES_PRICES_TITLE}</span>
-                <span className="services-text">{strings.SERVICES_PRICES}</span>
-              </div>
-            </div>
-
-            <div className="services-box">
-              <div className="services-icon-wrapper">
-                <Public className="services-icon" />
-              </div>
-              <div className="services-text-wrapper">
-                <span className="services-title">{strings.SERVICES_BOOKING_ONLINE_TITLE}</span>
-                <span className="services-text">{strings.SERVICES_BOOKING_ONLINE}</span>
-              </div>
-            </div>
-
-            <div className="services-box">
-              <div className="services-icon-wrapper">
-                <FlashOn className="services-icon" />
-              </div>
-              <div className="services-text-wrapper">
-                <span className="services-title">{strings.SERVICE_INSTANT_BOOKING_TITLE}</span>
-                <span className="services-text">{strings.SERVICE_INSTANT_BOOKING}</span>
-              </div>
-            </div>
-
-            <div className="services-box">
-              <div className="services-icon-wrapper">
-                <RoomService className="services-icon" />
-              </div>
-              <div className="services-text-wrapper">
-                <span className="services-title">{strings.SERVICES_SUPPORT_TITLE}</span>
-                <span className="services-text">{strings.SERVICES_SUPPORT}</span>
-              </div>
-            </div>
-
+          </section>
           </div>
-        </div>
 
         {countries.length > 0 && (
           <div className="destinations">
@@ -480,6 +700,9 @@ const Home = () => {
             locations={locations}
             properties={homeListings}
             showTileToggle
+            clickToActivate
+            activationTheme="home-different"
+            lockOnMouseLeave
             streetLabel={mapStrings.STREET}
             satelliteLabel={mapStrings.SATELLITE}
             onSelelectLocation={async (locationId) => {

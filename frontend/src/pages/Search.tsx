@@ -1,6 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@mui/material'
+import {
+  Search as SearchIcon,
+  SwapVert as SortIcon,
+  MapOutlined,
+  ApartmentOutlined,
+} from '@mui/icons-material'
 import * as movininTypes from ':movinin-types'
 import * as movininHelper from ':movinin-helper'
 import * as helper from '@/utils/helper'
@@ -225,11 +231,14 @@ const Properties = () => {
             <div className="search-header">
               <div className="search-breadcrumbs">
                 <span>{strings.HOME}</span>
-                <span className="separator">›</span>
+                <span className="separator">&gt;</span>
                 <span>{strings.PROPERTIES_IN} {location?.name || strings.OUR_MARKET}</span>
               </div>
-                <div className="search-top-bar">
+              <div className="search-top-bar">
                 <div className="search-input">
+                  <span className="search-input-icon">
+                    <SearchIcon fontSize="small" />
+                  </span>
                   <input
                     type="text"
                     placeholder={strings.SEARCH_PLACEHOLDER}
@@ -237,25 +246,35 @@ const Properties = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <Button variant="outlined" className="search-action">
+                <Button variant="outlined" className="search-action search-action-sort">
+                  <SortIcon fontSize="small" />
                   {strings.SORT_BY}
                 </Button>
-                <Button variant="outlined" className="search-action" onClick={() => setOpenMapDialog(true)}>
+                <Button
+                  variant="outlined"
+                  className="search-action search-action-map"
+                  onClick={() => setOpenMapDialog(true)}
+                >
+                  <MapOutlined fontSize="small" />
                   {strings.MAP_VIEW}
                 </Button>
                 <Button
                   variant="outlined"
-                  className="search-action"
+                  className="search-action search-action-compounds"
                   onClick={() => navigate('/projects')}
                 >
+                  <ApartmentOutlined fontSize="small" />
                   {strings.SWITCH_COMPOUNDS}
                 </Button>
               </div>
-                <div className="search-title">
-                  <h1>{strings.PROPERTIES_IN} {location?.name || strings.OUR_MARKET}</h1>
-                  <span>{propertyCount} {strings.PROPERTIES}</span>
-                </div>
+              <div className="search-title">
+                <h1>{strings.PROPERTIES_IN} {location?.name || strings.OUR_MARKET}</h1>
+                <span>{propertyCount} {strings.PROPERTIES}</span>
+              </div>
             </div>
+            {requiresDates && (!from || !to) && (
+              <div className="search-requires-dates">{strings.SELECT_DATES_TO_SEARCH_RENTALS}</div>
+            )}
             <PropertyList
               agencies={agencies}
               types={propertyTypes}

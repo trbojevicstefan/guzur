@@ -93,12 +93,10 @@ const CreateDevelopment = () => {
                 maxImages={10}
                 images={images.map((filename) => ({ filename }))}
                 onAdd={(img) => {
-                  images.push(img.filename)
-                  setImages(images)
+                  setImages((prev) => (prev.includes(img.filename) ? prev : [...prev, img.filename]))
                 }}
                 onDelete={(img) => {
-                  images.splice(images.indexOf(img.filename), 1)
-                  setImages(images)
+                  setImages((prev) => prev.filter((filename) => filename !== img.filename))
                 }}
                 onImageViewerOpen={() => {
                   document.body.classList.add('stop-scrolling')
@@ -119,12 +117,10 @@ const CreateDevelopment = () => {
                 maxImages={10}
                 images={floorPlans.map((filename) => ({ filename }))}
                 onAdd={(img) => {
-                  floorPlans.push(img.filename)
-                  setFloorPlans(floorPlans)
+                  setFloorPlans((prev) => (prev.includes(img.filename) ? prev : [...prev, img.filename]))
                 }}
                 onDelete={(img) => {
-                  floorPlans.splice(floorPlans.indexOf(img.filename), 1)
-                  setFloorPlans(floorPlans)
+                  setFloorPlans((prev) => prev.filter((filename) => filename !== img.filename))
                 }}
               />
               <FormControl fullWidth margin="dense">

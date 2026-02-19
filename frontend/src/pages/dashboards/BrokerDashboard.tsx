@@ -100,6 +100,13 @@ const BrokerDashboard = () => {
               >
                 <Add fontSize="small" /> {dashboardStrings.CREATE_LISTING}
               </button>
+              <button
+                type="button"
+                className="dashboard-primary"
+                onClick={() => navigate('/dashboard/developments/new')}
+              >
+                <Add fontSize="small" /> {dashboardStrings.CREATE_DEVELOPMENT}
+              </button>
             </div>
           </div>
 

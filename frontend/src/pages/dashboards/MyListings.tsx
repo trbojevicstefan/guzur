@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Input,
   InputLabel,
@@ -25,6 +25,7 @@ import '@/assets/css/dashboard.css'
 
 const MyListings = () => {
   const navigate = useNavigate()
+  const locationRoute = useLocation()
   const [user, setUser] = useState<movininTypes.User>()
   const [listings, setListings] = useState<movininTypes.Property[]>([])
   const [loading, setLoading] = useState(false)
@@ -35,6 +36,20 @@ const MyListings = () => {
   const [totalRecords, setTotalRecords] = useState(0)
   const [developments, setDevelopments] = useState<movininTypes.Development[]>([])
   const [developmentId, setDevelopmentId] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(locationRoute.search)
+    const nextDevelopmentId = params.get('developmentId')
+    const nextStatus = params.get('status')
+    if (nextDevelopmentId) {
+      setDevelopmentId(nextDevelopmentId)
+      setPage(1)
+    }
+    if (nextStatus && Object.values(movininTypes.ListingStatus).includes(nextStatus as movininTypes.ListingStatus)) {
+      setStatus(nextStatus as movininTypes.ListingStatus)
+      setPage(1)
+    }
+  }, [locationRoute.search])
 
   const onLoad = (currentUser?: movininTypes.User) => {
     if (!currentUser) {

@@ -4,13 +4,23 @@ import * as env from '../config/env.config'
 import * as logger from '../utils/logger'
 import i18n from '../lang/i18n'
 
-const buildPrompt = (payload: movininTypes.SeoGeneratePayload) => {
+const buildListingPrompt = (payload: movininTypes.SeoGeneratePayload) => {
   const amenities: string[] = []
-  if (payload.furnished) amenities.push('Furnished')
-  if (payload.petsAllowed) amenities.push('Pets allowed')
-  if (payload.aircon) amenities.push('Air conditioning')
-  if (typeof payload.kitchens === 'number') amenities.push(`Kitchens: ${payload.kitchens}`)
-  if (typeof payload.parkingSpaces === 'number') amenities.push(`Parking spaces: ${payload.parkingSpaces}`)
+  if (payload.furnished) {
+    amenities.push('Furnished')
+  }
+  if (payload.petsAllowed) {
+    amenities.push('Pets allowed')
+  }
+  if (payload.aircon) {
+    amenities.push('Air conditioning')
+  }
+  if (typeof payload.kitchens === 'number') {
+    amenities.push(`Kitchens: ${payload.kitchens}`)
+  }
+  if (typeof payload.parkingSpaces === 'number') {
+    amenities.push(`Parking spaces: ${payload.parkingSpaces}`)
+  }
 
   const parts = [
     `Name: ${payload.name}`,
@@ -30,6 +40,20 @@ const buildPrompt = (payload: movininTypes.SeoGeneratePayload) => {
   return parts.join('\n')
 }
 
+const buildProjectPrompt = (payload: movininTypes.SeoGeneratePayload) => {
+  const parts = [
+    `Project name: ${payload.name}`,
+    payload.type ? `Project type: ${payload.type}` : null,
+    payload.location ? `Location: ${payload.location}` : null,
+    typeof payload.unitsCount === 'number' ? `Units count: ${payload.unitsCount}` : null,
+    payload.developmentStatus ? `Project status: ${payload.developmentStatus}` : null,
+    payload.completionDate ? `Completion date: ${payload.completionDate}` : null,
+    `Description: ${payload.description}`,
+  ].filter(Boolean)
+
+  return parts.join('\n')
+}
+
 export const generateSeo = async (req: Request, res: Response) => {
   const { body }: { body: movininTypes.SeoGeneratePayload } = req
 
@@ -39,12 +63,37 @@ export const generateSeo = async (req: Request, res: Response) => {
       return
     }
 
-    if (!body?.name || !body?.description || !body?.type) {
+    const contextType = body?.contextType === 'project' ? 'project' : 'listing'
+    if (!body?.name || !body?.description || (contextType === 'listing' && !body?.type)) {
       res.status(400).send('Invalid SEO payload')
       return
     }
 
-    const prompt = buildPrompt(body)
+    const prompt = contextType === 'project' ? buildProjectPrompt(body) : buildListingPrompt(body)
+    const systemMessage = contextType === 'project'
+      ? 'Return JSON only. Create SEO fields for a real estate project/development page.'
+      : 'Return JSON only. Create SEO fields for a real estate listing.'
+    const userInstructions = contextType === 'project'
+      ? [
+          'Generate SEO fields:',
+          '- seoTitle: concise title, max 70 chars',
+          '- seoDescription: meta description, max 160 chars',
+          '- seoKeywords: array of 5-10 keywords',
+          '- aiDescription: full project description, 140-240 words, SEO-optimized, buyer and investor friendly, include location advantages and project highlights',
+          '',
+          'Project:',
+          prompt,
+        ].join('\n')
+      : [
+          'Generate SEO fields:',
+          '- seoTitle: concise title, max 70 chars',
+          '- seoDescription: meta description, max 160 chars',
+          '- seoKeywords: array of 5-10 keywords',
+          '- aiDescription: full listing description, 120-200 words, buyer-facing, highlight key amenities and location',
+          '',
+          'Listing:',
+          prompt,
+        ].join('\n')
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -59,20 +108,11 @@ export const generateSeo = async (req: Request, res: Response) => {
         messages: [
           {
             role: 'system',
-            content: 'Return JSON only. Create SEO fields for a real estate listing.',
+            content: systemMessage,
           },
           {
             role: 'user',
-            content: [
-              'Generate SEO fields:',
-              '- seoTitle: concise title, max 70 chars',
-              '- seoDescription: meta description, max 160 chars',
-              '- seoKeywords: array of 5-10 keywords',
-              '- aiDescription: full listing description, 120-200 words, buyer-facing, highlight key amenities and location',
-              '',
-              'Listing:',
-              prompt,
-            ].join('\n'),
+            content: userInstructions,
           },
         ],
       }),

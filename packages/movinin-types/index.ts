@@ -575,7 +575,7 @@ export interface CreatePropertyPayload {
   description: string
   aiDescription?: string
   useAiDescription?: boolean
-  image: string
+  image?: string
   images?: string[]
   available: boolean
   bedrooms: number
@@ -619,6 +619,7 @@ export interface UpdatePropertyPayload extends CreatePropertyPayload {
 }
 
 export interface SeoGeneratePayload {
+  contextType?: 'listing' | 'project'
   name: string
   type: string
   description: string
@@ -635,6 +636,9 @@ export interface SeoGeneratePayload {
   petsAllowed?: boolean
   furnished?: boolean
   aircon?: boolean
+  unitsCount?: number
+  developmentStatus?: DevelopmentStatus
+  completionDate?: Date | string
 }
 
 export interface SeoGenerateResult {
@@ -648,6 +652,12 @@ export interface Development {
   _id?: string
   name: string
   description?: string
+  aiDescription?: string
+  useAiDescription?: boolean
+  seoTitle?: string
+  seoDescription?: string
+  seoKeywords?: string[]
+  seoGeneratedAt?: Date
   location?: string
   developer: User | string
   developerOrg?: Organization | string
@@ -667,6 +677,12 @@ export interface Development {
 export interface CreateDevelopmentPayload {
   name: string
   description?: string
+  aiDescription?: string
+  useAiDescription?: boolean
+  seoTitle?: string
+  seoDescription?: string
+  seoKeywords?: string[]
+  seoGeneratedAt?: Date
   location?: string
   developer: string
   developerOrg?: string

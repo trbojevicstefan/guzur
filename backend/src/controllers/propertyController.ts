@@ -107,9 +107,9 @@ export const create = async (req: Request, res: Response) => {
       }
 
       let resolvedBrokerageOrg = brokerageOrg
-        || (user?.type === movininTypes.UserType.Broker ? user.primaryOrg : undefined)
+        || (user?.type === movininTypes.UserType.Broker ? user?.primaryOrg : undefined)
       let resolvedDeveloperOrg = developerOrg
-        || (user?.type === movininTypes.UserType.Developer ? user.primaryOrg : undefined)
+        || (user?.type === movininTypes.UserType.Developer ? user?.primaryOrg : undefined)
 
       if (!resolvedBrokerageOrg && broker && helper.isValidObjectId(broker)) {
         const brokerUser = await User.findById(broker)
@@ -171,15 +171,17 @@ export const create = async (req: Request, res: Response) => {
     await property.save()
 
     // image
-    const _image = path.join(env.CDN_TEMP_PROPERTIES, imageFile)
-    if (await helper.pathExists(_image)) {
-      const filename = `${property._id}_${Date.now()}${path.extname(imageFile)}`
-      const newPath = path.join(env.CDN_PROPERTIES, filename)
+    if (imageFile) {
+      const _image = path.join(env.CDN_TEMP_PROPERTIES, imageFile)
+      if (await helper.pathExists(_image)) {
+        const filename = `${property._id}_${Date.now()}${path.extname(imageFile)}`
+        const newPath = path.join(env.CDN_PROPERTIES, filename)
 
-      await asyncFs.rename(_image, newPath)
-      property.image = filename
-    } else {
-      logger.warn(`[property.create] main image not found in temp: ${_image}`)
+        await asyncFs.rename(_image, newPath)
+        property.image = filename
+      } else {
+        logger.warn(`[property.create] main image not found in temp: ${_image}`)
+      }
     }
 
     // images
@@ -289,9 +291,9 @@ export const update = async (req: Request, res: Response) => {
         property.developer = developer ? new mongoose.Types.ObjectId(developer) : property.developer
         property.owner = owner ? new mongoose.Types.ObjectId(owner) : property.owner
         let nextBrokerageOrg = brokerageOrg
-          || (user?.type === movininTypes.UserType.Broker ? user.primaryOrg : property.brokerageOrg)
+          || (user?.type === movininTypes.UserType.Broker ? user?.primaryOrg : property.brokerageOrg)
         let nextDeveloperOrg = developerOrg
-          || (user?.type === movininTypes.UserType.Developer ? user.primaryOrg : property.developerOrg)
+          || (user?.type === movininTypes.UserType.Developer ? user?.primaryOrg : property.developerOrg)
 
         if (!nextBrokerageOrg && broker && helper.isValidObjectId(broker)) {
           const brokerUser = await User.findById(broker)
@@ -941,18 +943,19 @@ export const getProperties = async (req: Request, res: Response) => {
           developerFilters.push({ developerOrg: new mongoose.Types.ObjectId(user.primaryOrg) })
         }
         $and.push({ $or: developerFilters })
+      } else if (user.type === movininTypes.UserType.Owner) {
+        $and.push({ owner: user._id })
+      } else {
+        res.sendStatus(403)
+        return
+      }
+
       if (developmentId) {
         if (!helper.isValidObjectId(developmentId)) {
           res.status(400).send(i18n.t('ERROR') + 'developmentId is not valid')
           return
         }
         $and.push({ developmentId: new mongoose.Types.ObjectId(developmentId) })
-      }
-      } else if (user.type === movininTypes.UserType.Owner) {
-        $and.push({ owner: user._id })
-      } else {
-        res.sendStatus(403)
-        return
       }
 
       if (status && Object.values(movininTypes.ListingStatus).includes(status as movininTypes.ListingStatus)) {

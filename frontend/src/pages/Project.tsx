@@ -174,7 +174,9 @@ const Project = () => {
     return format(date, 'MMM yyyy')
   }, [])
 
-  const summary = (development?.description || '').trim()
+  const summary = ((development?.useAiDescription && development.aiDescription)
+    ? development.aiDescription
+    : development?.description || '').trim()
   const heroSummary = summary.length > 180 ? `${summary.slice(0, 177)}...` : summary
   const statusLabel = development ? helper.getDevelopmentStatus(development.status) : ''
   const heroImage = development

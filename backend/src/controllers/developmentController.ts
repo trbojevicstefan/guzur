@@ -102,6 +102,7 @@ export const create = async (req: Request, res: Response) => {
       ...body,
       developerOrg: resolvedDeveloperOrg,
       completionDate: parseDate(body.completionDate),
+      seoGeneratedAt: parseDate(body.seoGeneratedAt),
       images: [],
       masterPlan: undefined,
       floorPlans: [],
@@ -179,6 +180,12 @@ export const update = async (req: Request, res: Response) => {
     const {
       name,
       description,
+      aiDescription,
+      useAiDescription,
+      seoTitle,
+      seoDescription,
+      seoKeywords,
+      seoGeneratedAt,
       location,
       developer,
       developerOrg,
@@ -195,6 +202,12 @@ export const update = async (req: Request, res: Response) => {
 
     development.name = name
     development.description = description
+    development.aiDescription = aiDescription
+    development.useAiDescription = useAiDescription
+    development.seoTitle = seoTitle
+    development.seoDescription = seoDescription
+    development.seoKeywords = Array.isArray(seoKeywords) ? seoKeywords : []
+    development.seoGeneratedAt = parseDate(seoGeneratedAt)
     development.location = location
     development.developer = developer as any
     let resolvedDeveloperOrg = developerOrg || development.developerOrg

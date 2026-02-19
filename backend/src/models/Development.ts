@@ -11,6 +11,29 @@ const developmentSchema = new Schema<movininTypes.Development>(
     description: {
       type: String,
     },
+    aiDescription: {
+      type: String,
+      trim: true,
+    },
+    useAiDescription: {
+      type: Boolean,
+      default: false,
+    },
+    seoTitle: {
+      type: String,
+      trim: true,
+    },
+    seoDescription: {
+      type: String,
+      trim: true,
+    },
+    seoKeywords: {
+      type: [String],
+      default: [],
+    },
+    seoGeneratedAt: {
+      type: Date,
+    },
     location: {
       type: String,
       trim: true,

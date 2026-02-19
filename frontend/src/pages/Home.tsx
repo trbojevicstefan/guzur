@@ -118,6 +118,56 @@ const Home = () => {
       : movininHelper.joinURL(env.CDN_LOCATIONS, imageName)
   }, [resolveImageName])
 
+  const getDeveloperLogoUrl = useCallback((developer?: movininTypes.User | string) => {
+    if (!developer || typeof developer === 'string') {
+      return ''
+    }
+    const imageName = resolveImageName(developer.avatar)
+    if (!imageName) {
+      return ''
+    }
+    return imageName.startsWith('http')
+      ? imageName
+      : movininHelper.joinURL(env.CDN_USERS, imageName)
+  }, [resolveImageName])
+
+  const getProjectDeveloperInfo = useCallback((project?: movininTypes.Development) => {
+    const developer = project?.developer
+    if (!developer || typeof developer === 'string') {
+      return { name: '-', logoUrl: '' }
+    }
+
+    const name = developer.company || developer.fullName || developer.email || '-'
+    const logoUrl = getDeveloperLogoUrl(developer)
+    return { name, logoUrl }
+  }, [getDeveloperLogoUrl])
+
+  const getProjectLocationLabel = useCallback((project?: movininTypes.Development) => {
+    const value = project?.location as unknown
+    if (typeof value === 'string') {
+      const normalized = value.trim()
+      return normalized || '-'
+    }
+    if (value && typeof value === 'object' && 'name' in value) {
+      const name = (value as { name?: string }).name
+      if (name) {
+        return name
+      }
+    }
+    return '-'
+  }, [])
+
+  const getProjectCompletionLabel = useCallback((project?: movininTypes.Development) => {
+    if (!project?.completionDate) {
+      return '-'
+    }
+    const date = new Date(project.completionDate)
+    if (Number.isNaN(date.getTime())) {
+      return '-'
+    }
+    return date.toLocaleDateString(language, { month: 'short', year: 'numeric' })
+  }, [language])
+
   const marketsCount = countries.length > 0 ? countries.length : locations.length
   const differentStats = [
     {
@@ -614,6 +664,16 @@ const Home = () => {
 
   const renderProjectCard = (project: movininTypes.Development) => {
     const imageUrl = getDevelopmentImageUrl(project)
+    const { name: developerName, logoUrl: developerLogoUrl } = getProjectDeveloperInfo(project)
+    const locationLabel = getProjectLocationLabel(project)
+    const completionLabel = getProjectCompletionLabel(project)
+    const unitsLabel = typeof project.unitsCount === 'number'
+      ? movininHelper.formatNumber(project.unitsCount, language)
+      : '-'
+    const developerInitial = developerName && developerName !== '-'
+      ? developerName.charAt(0).toUpperCase()
+      : 'D'
+
     return (
       <div key={project._id} className="home-project-card">
         <button
@@ -633,7 +693,30 @@ const Home = () => {
         </button>
         <div className="home-project-body">
           <h3>{project.name}</h3>
-          <p>{project.location || '-'}</p>
+          <div className="home-project-developer">
+            <span className="home-project-developer-logo" aria-hidden>
+              {developerLogoUrl ? (
+                <img src={developerLogoUrl} alt={developerName} loading="lazy" />
+              ) : (
+                <span>{developerInitial}</span>
+              )}
+            </span>
+            <span className="home-project-developer-name">{developerName}</span>
+          </div>
+          <div className="home-project-details">
+            <div className="home-project-detail-item home-project-detail-item-wide">
+              <span>{strings.PROJECT_LOCATION_LABEL}</span>
+              <strong>{locationLabel}</strong>
+            </div>
+            <div className="home-project-detail-item">
+              <span>{strings.PROJECT_COMPLETION_LABEL}</span>
+              <strong>{completionLabel}</strong>
+            </div>
+            <div className="home-project-detail-item">
+              <span>{strings.PROJECT_UNITS_LABEL}</span>
+              <strong>{unitsLabel}</strong>
+            </div>
+          </div>
           <button
             type="button"
             className="home-project-link"

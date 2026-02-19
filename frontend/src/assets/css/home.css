@@ -21,20 +21,43 @@ div.home div.home-content {
 }
 
 div.home div.home-content .video {
+  --hero-radius: 28px;
   position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
+  height: calc(100% - 28px);
+  width: min(1480px, calc(100% - 80px));
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: -1;
+  border-radius: var(--hero-radius);
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(8, 13, 21, 0.38);
+  background: transparent;
 }
 
 div.home div.home-content video {
   height: 100%;
   width: 100%;
   object-fit: cover;
+  object-position: 50% 42%;
   position: relative;
   z-index: 2;
+  border-radius: var(--hero-radius);
+  clip-path: inset(0 round var(--hero-radius));
+}
+
+div.home div.home-content video.home-hero-video {
+  opacity: 0;
+  transition: opacity 320ms ease;
+}
+
+div.home div.home-content video.home-hero-video.is-loaded {
+  opacity: 1;
+}
+
+div.home div.home-content video.home-hero-video.is-ended {
+  opacity: 0;
+  pointer-events: none;
 }
 
 div.home div.home-content div.video-background {
@@ -43,23 +66,17 @@ div.home div.home-content div.video-background {
   width: 100%;
   top: 0;
   left: 0;
-  background-image: url('/cover.webp');
+  background-image: url('/hero.jpeg');
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: 50%;
+  background-position: 50% 42%;
   z-index: 1;
+  border-radius: var(--hero-radius);
+  clip-path: inset(0 round var(--hero-radius));
 }
 
 div.home div.home-content::after {
-  content: "";
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  background: linear-gradient(135deg, rgba(16, 16, 16, 0.55), rgba(16, 16, 16, 0.15));
-  opacity: 1;
-  z-index: -1;
+  content: none;
 }
 
 div.home-title {
@@ -137,8 +154,37 @@ div.home div.home-listings {
 }
 
 div.home div.home-listings h1 {
+  margin: 0 0 12px;
+  font-family: var(--font-heading);
+  font-size: clamp(24px, 1.9vw, 32px);
   font-weight: 600;
-  text-align: center;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-align: left;
+}
+
+div.home .home-section-title {
+  margin: 0 0 12px;
+  font-family: var(--font-heading);
+  font-size: clamp(24px, 1.9vw, 32px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-align: left;
+}
+
+div.home .home-section-title-left {
+  text-align: left;
+}
+
+div.home .home-section-title-featured {
+  text-align: left;
+}
+
+div.home .featured-listings,
+div.home .home-projects,
+div.home .top-locations {
+  text-align: left;
 }
 
 div.home div.home-listings-row {
@@ -259,6 +305,7 @@ div.home .home-listing-body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  text-align: left;
 }
 
 div.home .home-listing-name {
@@ -277,7 +324,7 @@ div.home .home-listing-seller {
 
 div.home .home-listing-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   font-size: 13px;
   color: var(--text-muted);
 }
@@ -285,6 +332,31 @@ div.home .home-listing-meta {
 div.home .home-listing-price {
   color: var(--text-strong);
   font-weight: 600;
+}
+
+div.home .home-listing-amenities {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+  min-height: 58px;
+  align-content: start;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+div.home .home-listing-amenity {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-self: start;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(214, 198, 182, 0.45);
+}
+
+div.home .home-listing-amenity svg {
+  font-size: 14px;
 }
 
 div.home .home-listings-row-skeleton {
@@ -350,22 +422,267 @@ div.home div.all-listings {
   padding-bottom: 20px;
 }
 
+div.home div.home-projects {
+  padding-top: 20px;
+}
+
+div.home .home-projects-row {
+  gap: 20px;
+  justify-content: center;
+}
+
+div.home .home-projects-empty {
+  color: var(--text-muted);
+  padding: 18px 0;
+}
+
+div.home .home-project-card {
+  min-width: 220px;
+  max-width: 240px;
+  border: 1px solid rgba(214, 198, 182, 0.6);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 245, 0.9), rgba(248, 242, 236, 0.9));
+  box-shadow: 0 12px 30px rgba(118, 97, 77, 0.12);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+div.home .home-project-image {
+  border: 0;
+  padding: 0;
+  width: 100%;
+  height: 180px;
+  cursor: pointer;
+  background: transparent;
+}
+
+div.home .home-project-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+div.home .home-project-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: #fff;
+  background: linear-gradient(135deg, #475569, #0f172a);
+}
+
+div.home .home-project-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  text-align: left;
+}
+
+div.home .home-project-body h3 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+div.home .home-project-body p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+div.home .home-project-link {
+  margin-top: 4px;
+  width: fit-content;
+  border: 1px solid rgba(194, 157, 124, 0.45);
+  background: rgba(247, 224, 203, 0.76);
+  color: #5f4129;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+div.home div.top-locations {
+  --home-different-accent: #d97d74;
+  --home-different-secondary: #a8b69f;
+  padding-top: 16px;
+  padding-bottom: 24px;
+}
+
+div.home .home-top-locations-meta {
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 20px;
+  text-align: center;
+}
+
+div.home .home-top-locations-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px 26px;
+  max-width: 980px;
+  margin: 0 auto;
+  justify-items: center;
+}
+
+div.home .home-top-location-item {
+  border: 0;
+  background: transparent;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  cursor: pointer;
+}
+
+div.home .home-top-location-image {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--home-different-accent) 64%, white);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), transparent 45%),
+    color-mix(in srgb, var(--home-different-secondary) 24%, white);
+  box-shadow:
+    0 0 0 5px rgba(255, 255, 255, 0.88),
+    0 10px 24px rgba(15, 23, 42, 0.18),
+    0 0 26px color-mix(in srgb, var(--home-different-accent) 22%, transparent);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+div.home .home-top-location-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+div.home .home-top-location-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #94a3b8, #475569);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 28px;
+}
+
+div.home .home-top-location-name {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-strong);
+  line-height: 1.2;
+}
+
+div.home .home-top-location-item:hover .home-top-location-image {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 0 0 5px rgba(255, 255, 255, 0.88),
+    0 14px 28px rgba(15, 23, 42, 0.2),
+    0 0 34px color-mix(in srgb, var(--home-different-accent) 34%, transparent);
+}
+
+div.home div.home-listings.home-intent-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding-top: 10px;
+  padding-bottom: 18px;
+}
+
+div.home .home-intent-card {
+  position: relative;
+  border: 1px solid rgba(214, 198, 182, 0.65);
+  border-radius: 16px;
+  min-height: 124px;
+  padding: 22px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+div.home .home-intent-card-sell {
+  background:
+    radial-gradient(circle at 88% 0%, rgba(236, 170, 136, 0.42) 0 72px, transparent 74px),
+    linear-gradient(180deg, rgba(248, 233, 221, 0.96), rgba(246, 228, 214, 0.93));
+}
+
+div.home .home-intent-card-buy {
+  background:
+    radial-gradient(circle at 88% 0%, rgba(188, 205, 223, 0.4) 0 72px, transparent 74px),
+    linear-gradient(180deg, rgba(236, 241, 247, 0.96), rgba(227, 235, 244, 0.92));
+}
+
+div.home .home-intent-card-deco {
+  position: absolute;
+  right: -20px;
+  top: -26px;
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  border: 16px solid rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
+
+div.home .home-intent-card-title {
+  font-family: var(--font-heading);
+  font-size: clamp(24px, 2.2vw, 32px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+}
+
+div.home .home-intent-card-text {
+  font-size: 15px;
+  color: rgba(36, 48, 62, 0.85);
+  line-height: 1.45;
+  max-width: 86%;
+}
+
+div.home .home-intent-card-link {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+div.home .home-intent-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px rgba(17, 24, 39, 0.1);
+}
+
 div.home div.services {
   width: 100%;
-  padding: 80px 0 88px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   background: radial-gradient(circle at 85% 10%, rgba(217, 125, 116, 0.16), transparent 44%),
     radial-gradient(circle at 0% 85%, rgba(168, 182, 159, 0.12), transparent 40%),
     var(--bg-base);
-}
-
-div.home div.services h1 {
-  font-weight: 700;
-  padding: 0 10px;
-  text-align: center;
-  margin-bottom: 22px;
 }
 
 div.home .home-different-section {
@@ -375,13 +692,13 @@ div.home .home-different-section {
   width: 100vw;
   max-width: none;
   margin-inline: calc(50% - 50vw);
-  height: 560vh;
+  height: 500vh;
 }
 
 div.home .home-different-sticky {
   position: sticky;
-  top: 72px;
-  min-height: calc(100vh - 72px);
+  top: 0;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -400,9 +717,28 @@ div.home .home-different-grid {
   z-index: 2;
 }
 
+div.home .home-different-copy {
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+div.home .home-different-heading {
+  margin-bottom: 18px;
+}
+
+div.home .home-different-heading h1 {
+  margin: 0;
+  text-align: left;
+  font-family: var(--font-heading);
+  letter-spacing: -0.03em;
+  font-size: clamp(32px, 3.6vw, 54px);
+}
+
 div.home .home-different-text {
   position: relative;
-  height: 520px;
+  height: 440px;
   display: flex;
   align-items: center;
   justify-self: start;
@@ -603,6 +939,38 @@ div.home .home-different-orb {
   z-index: 1;
 }
 
+div.home div.home-content div.video-background.video-background-parallax {
+  background: none;
+  overflow: hidden;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms ease;
+  will-change: opacity;
+  border-radius: var(--hero-radius);
+  clip-path: inset(0 round var(--hero-radius));
+}
+
+div.home div.home-content div.video-background.video-background-parallax.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+div.home .video-parallax-layer {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50% 42%;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+div.home .video-parallax-base {
+  transform: scale(1.1);
+  transform-origin: 50% 50%;
+}
+
 div.home .home-different-orb-one {
   width: 900px;
   height: 900px;
@@ -759,6 +1127,13 @@ div.home div.customer-care div.customer-care-img img {
     height: 560px;
   }
 
+  div.home div.home-content .video {
+    --hero-radius: 18px;
+    width: calc(100% - 18px);
+    height: calc(100% - 16px);
+    top: 8px;
+  }
+
   div.home div.home-title {
     font-size: 14px;
     font-weight: 600;
@@ -771,6 +1146,59 @@ div.home div.customer-care div.customer-care-img img {
     padding: 0 10px;
   }
 
+  div.home div.home-listings h1,
+  div.home .home-section-title {
+    font-size: clamp(20px, 7vw, 26px);
+    margin-bottom: 10px;
+  }
+
+  div.home .home-top-locations-meta {
+    font-size: 14px;
+  }
+
+  div.home .home-top-locations-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  div.home .home-top-location-image {
+    width: 72px;
+    height: 72px;
+  }
+
+  div.home .home-top-location-name {
+    font-size: 16px;
+  }
+
+  div.home div.home-listings.home-intent-strip {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-top: 4px;
+    padding-bottom: 14px;
+  }
+
+  div.home .home-intent-card {
+    min-height: 112px;
+    padding: 18px 16px 16px;
+  }
+
+  div.home .home-intent-card-title {
+    font-size: clamp(22px, 6.2vw, 28px);
+  }
+
+  div.home .home-intent-card-text {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  div.home .home-intent-card-link {
+    font-size: 14px;
+  }
+
+  div.home .home-projects-row {
+    justify-content: flex-start;
+  }
+
   div.home div.search div.home-search {
     padding: 14px;
     margin: -110px 20px 0 20px;
@@ -781,7 +1209,7 @@ div.home div.customer-care div.customer-care-img img {
   div.home .home-different-section {
     width: 100%;
     margin-inline: 0;
-    height: 430vh;
+    height: 360vh;
   }
 
   div.home .home-different-grid {
@@ -790,8 +1218,17 @@ div.home div.customer-care div.customer-care-img img {
     padding: 0 16px;
   }
 
+  div.home .home-different-copy {
+    height: 360px;
+  }
+
+  div.home .home-different-heading h1 {
+    text-align: center;
+    font-size: clamp(28px, 8vw, 40px);
+  }
+
   div.home .home-different-text {
-    height: 320px;
+    height: 280px;
     justify-self: center;
   }
 
@@ -804,8 +1241,8 @@ div.home div.customer-care div.customer-care-img img {
   }
 
   div.home .home-different-sticky {
-    top: 56px;
-    min-height: calc(100vh - 56px);
+    top: 0;
+    min-height: 100vh;
   }
 
   div.home .home-different-bubble {
@@ -869,7 +1306,7 @@ div.home div.customer-care div.customer-care-img img {
 
 @media only screen and (width >=960px) {
   div.home div.home-content {
-    height: 480px;
+    height: 560px;
   }
 
   div.home div.home-cover {

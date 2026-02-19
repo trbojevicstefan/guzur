@@ -1,7 +1,11 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Tabs, Tab, Dialog, DialogContent, Button } from '@mui/material'
+import { Dialog, DialogContent, Button } from '@mui/material'
 import {
+  BedOutlined,
+  BathtubOutlined,
+  Straighten,
+  DirectionsCarFilledOutlined,
   CheckBox,
   ChevronLeft,
   ChevronRight,
@@ -17,11 +21,10 @@ import { strings as commonStrings } from '@/lang/common'
 import * as CountryService from '@/services/CountryService'
 import * as LocationService from '@/services/LocationService'
 import * as PropertyService from '@/services/PropertyService'
+import * as DevelopmentService from '@/services/DevelopmentService'
 import * as UserService from '@/services/UserService'
 import Layout from '@/components/Layout'
 import SearchForm from '@/components/SearchForm'
-import LocationCarrousel from '@/components/LocationCarrousel'
-import TabPanel, { a11yProps } from '@/components/TabPanel'
 import Map from '@/components/Map'
 import { strings as mapStrings } from '@/lang/map'
 import Footer from '@/components/Footer'
@@ -36,20 +39,23 @@ const Home = () => {
   const language = UserService.getLanguage()
 
   const [countries, setCountries] = useState<movininTypes.CountryInfo[]>([])
-  const [tabValue, setTabValue] = useState(0)
   const [openLocationSearchFormDialog, setOpenLocationSearchFormDialog] = useState(false)
   const [locations, setLocations] = useState<movininTypes.Location[]>([])
+  const [topLocations, setTopLocations] = useState<movininTypes.Location[]>([])
   const [location, setLocation] = useState('')
   const [videoLoaded, setVideoLoaded] = useState(false)
+  const [videoEnded, setVideoEnded] = useState(false)
   const [featuredListings, setFeaturedListings] = useState<movininTypes.Property[]>([])
   const [homeListings, setHomeListings] = useState<movininTypes.Property[]>([])
+  const [projects, setProjects] = useState<movininTypes.Development[]>([])
   const [listingsLoading, setListingsLoading] = useState(false)
   const [loadedListingImages, setLoadedListingImages] = useState<Record<string, boolean>>({})
   const [failedListingImages, setFailedListingImages] = useState<Record<string, boolean>>({})
   const [activeDifferentStep, setActiveDifferentStep] = useState(0)
   const featuredRowRef = useRef<HTMLDivElement | null>(null)
-  const allRowRef = useRef<HTMLDivElement | null>(null)
+  const projectsRowRef = useRef<HTMLDivElement | null>(null)
   const differentSectionRef = useRef<HTMLElement | null>(null)
+  const heroVideoRef = useRef<HTMLVideoElement | null>(null)
 
   const resolveImageName = useCallback((value?: string) => {
     if (!value) {
@@ -80,6 +86,38 @@ const Home = () => {
       : movininHelper.joinURL(env.CDN_PROPERTIES, propertyImageName)
   }, [resolveImageName])
 
+  const getDevelopmentImageUrl = useCallback((development?: movininTypes.Development) => {
+    if (!development) {
+      return ''
+    }
+    const candidates = [
+      ...(development.images || []),
+      development.masterPlan || '',
+      ...(development.floorPlans || []),
+    ]
+      .map(resolveImageName)
+      .filter((imageName) => imageName)
+
+    const imageName = candidates[0]
+    if (!imageName) {
+      return ''
+    }
+
+    return imageName.startsWith('http')
+      ? imageName
+      : movininHelper.joinURL(env.CDN_PROPERTIES, imageName)
+  }, [resolveImageName])
+
+  const getLocationImageUrl = useCallback((loc?: movininTypes.Location) => {
+    const imageName = resolveImageName(loc?.image)
+    if (!imageName) {
+      return ''
+    }
+    return imageName.startsWith('http')
+      ? imageName
+      : movininHelper.joinURL(env.CDN_LOCATIONS, imageName)
+  }, [resolveImageName])
+
   const marketsCount = countries.length > 0 ? countries.length : locations.length
   const differentStats = [
     {
@@ -100,7 +138,7 @@ const Home = () => {
   const differentStepImages = useMemo(() => Array.from({ length: 5 }, (_, index) => (
     getPropertyImageUrl(featuredImageSource[index])
     || getPropertyImageUrl(homeListings[index])
-    || '/cover.webp'
+    || '/hero.jpeg'
   )), [featuredImageSource, homeListings, getPropertyImageUrl])
   const differentSteps = useMemo(() => ([
     {
@@ -151,22 +189,6 @@ const Home = () => {
     '--home-different-secondary': nextStepColor,
   } as React.CSSProperties
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue)
-  }
-
-  const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-    entries.forEach((entry) => {
-      const video = entry.target as HTMLVideoElement
-      if (entry.isIntersecting) {
-        video.muted = true
-        video.play()
-      } else {
-        video.pause()
-      }
-    })
-  }
-
   const onLoad = async () => {
     try {
       const _countries = await CountryService.getCountriesWithLocations('', true, env.MIN_LOCATIONS)
@@ -180,6 +202,14 @@ const Home = () => {
       setLocations(Array.isArray(_locations) ? _locations : [])
     } catch {
       setLocations([])
+    }
+
+    try {
+      const data = await LocationService.getLocations('', 1, 500)
+      const rows = data?.[0]?.resultData ?? []
+      setTopLocations(Array.isArray(rows) ? rows : [])
+    } catch {
+      setTopLocations([])
     }
 
     try {
@@ -205,18 +235,41 @@ const Home = () => {
     } catch {
       setFeaturedListings([])
       setHomeListings([])
+    }
+
+    try {
+      const data = await DevelopmentService.getFrontendDevelopments({}, 1, 12)
+      const rows = data?.[0]?.resultData ?? []
+      setProjects(Array.isArray(rows) ? rows : [])
+    } catch {
+      setProjects([])
     } finally {
       setListingsLoading(false)
     }
-
-    const observer = new IntersectionObserver(handleIntersection)
-    const video = document.getElementById('cover') as HTMLVideoElement
-    if (video) {
-      observer.observe(video)
-    } else {
-      console.error('Cover video not found')
-    }
   }
+
+  useEffect(() => {
+    const video = heroVideoRef.current
+    if (!video || videoEnded) {
+      return undefined
+    }
+
+    const tryPlay = () => {
+      video.play().catch(() => {
+        // Keep fallback still if autoplay is blocked.
+      })
+    }
+
+    if (video.readyState >= 2) {
+      tryPlay()
+      return undefined
+    }
+
+    video.addEventListener('canplay', tryPlay, { once: true })
+    return () => {
+      video.removeEventListener('canplay', tryPlay)
+    }
+  }, [videoEnded])
 
   useLayoutEffect(() => {
     const section = differentSectionRef.current
@@ -431,7 +484,6 @@ const Home = () => {
     const sellerName = typeof property.agency === 'object'
       ? (property.agency.fullName || property.agency.company || '')
       : ''
-    const sizeLabel = property.size ? `${movininHelper.formatNumber(property.size, language)} ${env.SIZE_UNIT}` : ''
     const propertyImageUrl = getPropertyImageUrl(property)
     const imageLoaded = propertyImageUrl ? Boolean(loadedListingImages[propertyImageUrl]) : false
     const imageFailed = propertyImageUrl ? Boolean(failedListingImages[propertyImageUrl]) : false
@@ -470,8 +522,33 @@ const Home = () => {
               {strings.SELLER_LABEL} {sellerName}
             </div>
           )}
+          <div className="home-listing-amenities">
+            {property.bedrooms ? (
+              <span className="home-listing-amenity">
+                <BedOutlined fontSize="inherit" />
+                {property.bedrooms}
+              </span>
+            ) : null}
+            {property.bathrooms ? (
+              <span className="home-listing-amenity">
+                <BathtubOutlined fontSize="inherit" />
+                {property.bathrooms}
+              </span>
+            ) : null}
+            {property.size ? (
+              <span className="home-listing-amenity">
+                <Straighten fontSize="inherit" />
+                {`${movininHelper.formatNumber(property.size, language)} ${env.SIZE_UNIT}`}
+              </span>
+            ) : null}
+            {property.parkingSpaces ? (
+              <span className="home-listing-amenity">
+                <DirectionsCarFilledOutlined fontSize="inherit" />
+                {property.parkingSpaces}
+              </span>
+            ) : null}
+          </div>
           <div className="home-listing-meta">
-            {sizeLabel && <span>{sizeLabel}</span>}
             <span className="home-listing-price">
               {movininHelper.formatPrice(priceValue, commonStrings.CURRENCY, language)}
             </span>
@@ -535,6 +612,70 @@ const Home = () => {
     </div>
   )
 
+  const renderProjectCard = (project: movininTypes.Development) => {
+    const imageUrl = getDevelopmentImageUrl(project)
+    return (
+      <div key={project._id} className="home-project-card">
+        <button
+          type="button"
+          className="home-project-image"
+          onClick={() => {
+            if (project._id) {
+              navigate(`/projects/${project._id}`)
+            }
+          }}
+        >
+          {imageUrl ? (
+            <img src={imageUrl} alt={project.name} loading="lazy" />
+          ) : (
+            <div className="home-project-placeholder">{project.name?.charAt(0) || 'P'}</div>
+          )}
+        </button>
+        <div className="home-project-body">
+          <h3>{project.name}</h3>
+          <p>{project.location || '-'}</p>
+          <button
+            type="button"
+            className="home-project-link"
+            onClick={() => {
+              if (project._id) {
+                navigate(`/projects/${project._id}`)
+              }
+            }}
+          >
+            View Project
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const renderProjectsRow = (rows: movininTypes.Development[], ref: React.RefObject<HTMLDivElement | null>) => (
+    <div className="home-listings-row-wrapper">
+      <button
+        type="button"
+        className="home-listings-nav prev"
+        onClick={() => scrollRow(ref, 'left')}
+        aria-label="Scroll left"
+      >
+        <ChevronLeft />
+      </button>
+      <div className="home-listings-row home-projects-row" ref={ref}>
+        {rows.length > 0 ? rows.map(renderProjectCard) : (
+          <div className="home-projects-empty">{commonStrings.NO_DATA}</div>
+        )}
+      </div>
+      <button
+        type="button"
+        className="home-listings-nav next"
+        onClick={() => scrollRow(ref, 'right')}
+        aria-label="Scroll right"
+      >
+        <ChevronRight />
+      </button>
+    </div>
+  )
+
   return (
     <Layout onLoad={onLoad} strict={false}>
       <div className="home">
@@ -544,20 +685,57 @@ const Home = () => {
           <div className="video">
             <video
               id="cover"
-              muted={!env.isSafari}
-              autoPlay={!env.isSafari}
-              loop
+              ref={heroVideoRef}
+              className={`home-hero-video${videoLoaded ? ' is-loaded' : ''}${videoEnded ? ' is-ended' : ''}`}
+              muted
+              autoPlay
               playsInline
+              preload="auto"
+              poster="/hero.jpeg"
               disablePictureInPicture
-              onLoadedData={async () => {
+              onCanPlay={() => {
+                heroVideoRef.current?.play().catch(() => {
+                  // Keep poster/fallback visible if autoplay is blocked.
+                })
+              }}
+              onPlaying={() => {
                 setVideoLoaded(true)
               }}
+              onLoadedData={() => {
+                setVideoLoaded(true)
+                heroVideoRef.current?.play().catch(() => {
+                  // Keep poster/fallback visible if autoplay is blocked.
+                })
+              }}
+              onEnded={() => {
+                setVideoEnded(true)
+              }}
+              onError={() => {
+                setVideoLoaded(true)
+                setVideoEnded(true)
+              }}
             >
-              <source src="hero2.mp4" type="video/mp4" />
+              <source src="/hero2.mp4" type="video/mp4" />
+              <source src="/hero2.original.mp4" type="video/mp4" />
               <track kind="captions" />
             </video>
+
+            <div
+              className={`video-background video-background-parallax${videoEnded ? ' is-active' : ''}`}
+            >
+              <div
+                className="video-parallax-layer video-parallax-base"
+                style={{ backgroundImage: "url('/hero-lastframe.png')" }}
+              />
+            </div>
+
             {!videoLoaded && (
-              <div className="video-background" />
+              <div
+                className="video-background"
+                style={{
+                  backgroundImage: "url('/hero.jpeg')",
+                }}
+              />
             )}
           </div>
 
@@ -573,7 +751,7 @@ const Home = () => {
         </div>
 
         <div className="home-listings featured-listings">
-          <h1>{strings.FEATURED_TITLE}</h1>
+          <h1 className="home-section-title home-section-title-featured">{strings.FEATURED_TITLE}</h1>
           {listingsLoading ? (
             renderListingsSkeletonRow(6)
           ) : (
@@ -581,38 +759,100 @@ const Home = () => {
           )}
         </div>
 
-        <div className="home-listings all-listings">
-          <h1>{strings.LISTINGS_TITLE}</h1>
+        <div className="home-listings all-listings home-projects">
+          <h1 className="home-section-title home-section-title-left">{strings.PROJECTS_TITLE}</h1>
           {listingsLoading ? (
             renderListingsSkeletonRow(8)
           ) : (
-            renderListingsRow(homeListings, allRowRef)
+            renderProjectsRow(projects, projectsRowRef)
           )}
         </div>
 
+        <div className="home-listings top-locations">
+          <h1 className="home-section-title home-section-title-left">{strings.TOP_LOCATIONS_TITLE}</h1>
+          <div className="home-top-locations-meta">
+            {`${movininHelper.formatNumber(topLocations.length, language)} Results Available`}
+          </div>
+          <div className="home-top-locations-grid">
+            {topLocations.slice(0, 6).map((_location) => {
+              const locationImageUrl = getLocationImageUrl(_location)
+              return (
+                <button
+                  key={_location._id}
+                  type="button"
+                  className="home-top-location-item"
+                  onClick={() => {
+                    setLocation(_location._id)
+                    setOpenLocationSearchFormDialog(true)
+                  }}
+                >
+                  <span className="home-top-location-image">
+                    {locationImageUrl ? (
+                      <img src={locationImageUrl} alt={_location.name} loading="lazy" />
+                    ) : (
+                      <span className="home-top-location-placeholder">{_location.name?.charAt(0) || 'L'}</span>
+                    )}
+                  </span>
+                  <span className="home-top-location-name">{_location.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="home-listings home-intent-strip" aria-label={strings.HOME_INTENT_SECTION_LABEL}>
+          <button
+            type="button"
+            className="home-intent-card home-intent-card-sell"
+            onClick={() => {
+              navigate('/sign-up/role')
+            }}
+          >
+            <span className="home-intent-card-deco" aria-hidden />
+            <span className="home-intent-card-title">{strings.SELL_NOW_TITLE}</span>
+            <span className="home-intent-card-text">{strings.SELL_NOW_TEXT}</span>
+            <span className="home-intent-card-link">{strings.LEARN_MORE}</span>
+          </button>
+
+          <button
+            type="button"
+            className="home-intent-card home-intent-card-buy"
+            onClick={() => {
+              navigate('/search')
+            }}
+          >
+            <span className="home-intent-card-deco" aria-hidden />
+            <span className="home-intent-card-title">{strings.BUY_HOME_TITLE}</span>
+            <span className="home-intent-card-text">{strings.BUY_HOME_TEXT}</span>
+            <span className="home-intent-card-link">{strings.LEARN_MORE}</span>
+          </button>
+        </div>
+
         <div className="services">
-
-          <h1>{strings.SERVICES_TITLE}</h1>
-
           <section className="home-different-section" style={differentStyle} ref={differentSectionRef}>
             <div className="home-different-sticky">
               <div className="home-different-orb home-different-orb-one" />
               <div className="home-different-orb home-different-orb-two" />
 
               <div className="home-different-grid">
-                <div className="home-different-text">
-                  {differentSteps.map((step) => (
-                    <div
-                      key={step.id}
-                      className="home-different-step"
-                    >
-                      <span className="home-different-tag" style={{ color: step.color }}>
-                        {step.tag}
-                      </span>
-                      <h2>{step.title}</h2>
-                      <p>{step.description}</p>
-                    </div>
-                  ))}
+                <div className="home-different-copy">
+                  <div className="home-different-heading">
+                    <h1>{strings.SERVICES_TITLE}</h1>
+                  </div>
+                  <div className="home-different-text">
+                    {differentSteps.map((step) => (
+                      <div
+                        key={step.id}
+                        className="home-different-step"
+                      >
+                        <span className="home-different-tag" style={{ color: step.color }}>
+                          {step.tag}
+                        </span>
+                        <h2>{step.title}</h2>
+                        <p>{step.description}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="home-different-visual">
@@ -653,48 +893,8 @@ const Home = () => {
           </section>
           </div>
 
-        {countries.length > 0 && (
-          <div className="destinations">
-            <h1>{strings.DESTINATIONS_TITLE}</h1>
-            <div className="tabs">
-              <Tabs
-                value={tabValue}
-                onChange={handleTabChange}
-                aria-label="destinations"
-                TabIndicatorProps={{ sx: { display: env.isMobile ? 'none' : null } }}
-                sx={{
-                  '& .MuiTabs-flexContainer': {
-                    flexWrap: 'wrap',
-                  },
-                }}
-              >
-                {
-                  countries.map((country, index) => (
-                    <Tab key={country._id} label={country.name?.toUpperCase()} {...a11yProps(index)} />
-                  ))
-                }
-              </Tabs>
-
-              {
-                countries.map((country, index) => (
-                  <TabPanel key={country._id} value={tabValue} index={index}>
-                    <LocationCarrousel
-                      locations={country.locations!}
-                      onSelect={(_location) => {
-                        setLocation(_location._id)
-                        setOpenLocationSearchFormDialog(true)
-                      }}
-                    />
-                  </TabPanel>
-                ))
-              }
-            </div>
-          </div>
-        )}
-
         <div className="home-map">
           <Map
-            title={strings.MAP_TITLE}
             position={new L.LatLng(env.MAP_LATITUDE, env.MAP_LONGITUDE)}
             initialZoom={env.MAP_ZOOM}
             locations={locations}

@@ -84,6 +84,10 @@ const UpdateLocation = () => {
         helper.error()
         return
       }
+      if (!image) {
+        helper.error(undefined, clStrings.IMAGE_REQUIRED)
+        return
+      }
 
       let isValid = true
 
@@ -162,6 +166,7 @@ const UpdateLocation = () => {
               setLongitude((_location.longitude && _location.longitude.toString()) || '')
               setLatitude((_location.latitude && _location.latitude.toString()) || '')
               setParentLocation(_location.parentLocation)
+              setImage(_location.image || '')
               setVisible(true)
               setLoading(false)
             } else {
@@ -202,6 +207,7 @@ const UpdateLocation = () => {
                 record={location}
                 size="large"
                 readonly={false}
+                hideDelete
                 onBeforeUpload={handleBeforeUpload}
                 onChange={handleImageChange}
                 color="disabled"

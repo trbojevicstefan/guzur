@@ -9,6 +9,7 @@ const strings = new LocalizedStrings({
     LOCATION_CREATED: 'Lieu créé avec succès.',
     COUNTRY: 'Pays',
     PARENT_LOCATION: 'Lieu Parent',
+    IMAGE_REQUIRED: "L'image du lieu est obligatoire.",
   },
   en: {
     NEW_LOCATION_HEADING: 'New location',
@@ -17,6 +18,7 @@ const strings = new LocalizedStrings({
     LOCATION_CREATED: 'Location created successfully.',
     COUNTRY: 'Country',
     PARENT_LOCATION: 'Parent Location',
+    IMAGE_REQUIRED: 'Location image is required.',
   },
 })
 

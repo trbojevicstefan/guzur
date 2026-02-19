@@ -54,6 +54,10 @@ const CreateLocation = () => {
         helper.error()
         return
       }
+      if (!image) {
+        helper.error(undefined, strings.IMAGE_REQUIRED)
+        return
+      }
 
       let isValid = true
 
@@ -126,6 +130,7 @@ const CreateLocation = () => {
               record={null}
               size="large"
               readonly={false}
+              hideDelete
               onBeforeUpload={handleBeforeUpload}
               onChange={handleImageChange}
               color="disabled"

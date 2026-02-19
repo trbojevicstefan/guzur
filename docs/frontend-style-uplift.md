@@ -239,10 +239,9 @@ Week 1:
 Week 2:
 - Search cards + listing detail
 - Projects & developers pages
-Week 3:
-- Dashboards + admin polish
-- Motion + micro‑interactions
-
+Week 3: 
+- Dashboards + admin polish 
+- Motion + micro‑interactions 
 ---
 
 ## 6) What I Need From You to Begin

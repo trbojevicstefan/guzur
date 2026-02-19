@@ -90,12 +90,14 @@ export const create = async (req: Request, res: Response) => {
   } = body
 
   try {
-    if (image) {
-      const _image = path.join(env.CDN_TEMP_LOCATIONS, image)
+    if (!image) {
+      throw new Error('Location image is required')
+    }
 
-      if (!(await helper.pathExists(_image))) {
-        throw new Error(`Location image not found: ${_image}`)
-      }
+    const _image = path.join(env.CDN_TEMP_LOCATIONS, image)
+
+    if (!(await helper.pathExists(_image))) {
+      throw new Error(`Location image not found: ${_image}`)
     }
 
     const values: string[] = []
@@ -162,6 +164,10 @@ export const update = async (req: Request, res: Response) => {
         names,
         parentLocation,
       }: movininTypes.UpsertLocationPayload = req.body
+
+      if (!location.image) {
+        throw new Error('Location image is required')
+      }
 
       location.country = new mongoose.Types.ObjectId(country)
       location.longitude = longitude

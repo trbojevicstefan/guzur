@@ -412,22 +412,29 @@ const Header = ({
               aria-label={env.WEBSITE_NAME}
             >
               <img src="/guzurlogo.png" alt={env.WEBSITE_NAME} className="lux-logo-img" />
-              <span className="lux-logo-text">{env.WEBSITE_NAME}</span>
-            </button>
-          </div>
-
-          <div className="lux-nav-center">
-            <button type="button" className="lux-icon-btn" onClick={() => navigate('/search')}>
-              <SearchIcon />
-              <span>{commonStrings.SEARCH.toUpperCase()}</span>
-            </button>
-            <button type="button" className="lux-icon-btn" onClick={() => navigate('/rfq')}>
-              <HomeIcon />
-              <span>{strings.RFQ.toUpperCase()}</span>
             </button>
           </div>
 
           <div className="lux-nav-right">
+            <div className="lux-quick-actions">
+              <button
+                type="button"
+                className="lux-icon-btn lux-icon-btn-search"
+                onClick={() => navigate('/search')}
+              >
+                <SearchIcon />
+                <span>{commonStrings.SEARCH.toUpperCase()}</span>
+              </button>
+              <button
+                type="button"
+                className="lux-icon-btn lux-icon-btn-rfq"
+                onClick={() => navigate('/rfq')}
+              >
+                <HomeIcon />
+                <span>{strings.RFQ.toUpperCase()}</span>
+              </button>
+            </div>
+
             <button
               type="button"
               className="lux-meta-trigger lux-currency-trigger"

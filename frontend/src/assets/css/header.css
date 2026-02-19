@@ -47,15 +47,6 @@
   min-width: 0;
 }
 
-.lux-nav-center {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #f4f4f4;
-  padding: 4px;
-  border-radius: 999px;
-}
-
 .lux-menu-icon {
   width: 22px;
   height: 16px;
@@ -94,16 +85,17 @@
   background: transparent;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   cursor: pointer;
 }
 
 .lux-logo-img {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14);
+  width: auto;
+  height: 42px;
+  max-width: 168px;
+  border-radius: 0;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  filter: drop-shadow(0 2px 3px rgb(15 23 42 / 10%));
 }
 
 .lux-logo-text {
@@ -115,65 +107,85 @@
   line-height: 1;
 }
 
+.lux-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .lux-icon-btn {
-  border: 0;
-  height: 38px;
-  width: 38px;
+  border: 1px solid transparent;
+  height: 36px;
+  width: auto;
   border-radius: 999px;
-  padding: 0 10px;
+  padding: 0 12px;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
+  justify-content: center;
+  gap: 7px;
   cursor: pointer;
-  overflow: hidden;
   white-space: nowrap;
-  color: #ffffff;
-  background: #f43f5e;
-  box-shadow:
-    0 10px 24px rgba(244, 63, 94, 0.3),
-    0 3px 10px rgba(225, 29, 72, 0.24);
+  color: #475569;
+  background: #f9f1f2;
+  border-color: #edd8dc;
+  box-shadow: 0 4px 10px rgb(15 23 42 / 6%);
   transition:
-    width 0.38s cubic-bezier(0.4, 0, 0.2, 1),
     background-color 0.3s ease,
     box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
     transform 0.3s ease;
 }
 
 .lux-icon-btn:hover {
-  width: 170px;
-  background: #e11d48;
-  box-shadow:
-    0 14px 34px rgba(244, 63, 94, 0.38),
-    0 6px 14px rgba(225, 29, 72, 0.28);
+  background: #fff6f7;
+  border-color: #e4c0c8;
+  color: #334155;
+  box-shadow: 0 10px 20px rgb(15 23 42 / 10%);
   transform: translateY(-1px);
 }
 
 .lux-icon-btn:active {
   transform: translateY(0);
-  box-shadow:
-    0 8px 20px rgba(244, 63, 94, 0.3),
-    0 3px 10px rgba(225, 29, 72, 0.24);
+  box-shadow: 0 4px 10px rgb(15 23 42 / 8%);
 }
 
 .lux-icon-btn svg {
-  width: 17px;
-  height: 17px;
-  min-width: 17px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
 }
 
 .lux-icon-btn span {
-  opacity: 0;
-  transform: translateX(-9px);
-  transition: opacity 0.24s ease, transform 0.24s ease;
-  font-size: 0.72rem;
+  opacity: 1;
+  transform: none;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
-.lux-icon-btn:hover span {
-  opacity: 1;
-  transform: translateX(0);
+.lux-icon-btn-search {
+  background: #f4eaf2;
+  border-color: #e6cfe0;
+  color: #6b4f67;
+}
+
+.lux-icon-btn-search:hover {
+  background: #fbf2fa;
+  border-color: #d9bdd2;
+  color: #5c4258;
+}
+
+.lux-icon-btn-rfq {
+  background: #f6efe3;
+  border-color: #ebdcc3;
+  color: #7c6441;
+}
+
+.lux-icon-btn-rfq:hover {
+  background: #fdf8ef;
+  border-color: #dfcaa8;
+  color: #685336;
 }
 
 .lux-meta-trigger {
@@ -385,15 +397,6 @@
     gap: 12px;
     padding: 8px 14px;
   }
-
-  .lux-icon-btn:hover {
-    width: 38px;
-  }
-
-  .lux-icon-btn:hover span {
-    opacity: 0;
-    transform: translateX(-9px);
-  }
 }
 
 @media only screen and (width <=960px) {
@@ -402,7 +405,7 @@
     padding: 8px 12px;
   }
 
-  .lux-nav-center {
+  .lux-quick-actions {
     display: none;
   }
 
@@ -420,10 +423,6 @@
 }
 
 @media only screen and (width <=720px) {
-  .lux-logo-text {
-    display: none;
-  }
-
   .lux-mobile-lang {
     display: inline-flex !important;
   }

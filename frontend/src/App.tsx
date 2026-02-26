@@ -33,6 +33,7 @@ const ToS = lazy(() => import('@/pages/ToS'))
 const About = lazy(() => import('@/pages/About'))
 const ChangePassword = lazy(() => import('@/pages/ChangePassword'))
 const Contact = lazy(() => import('@/pages/Contact'))
+const Concierge = lazy(() => import('@/pages/Concierge'))
 const Onboarding = lazy(() => import('@/pages/Onboarding'))
 const Dashboard = lazy(() => import('@/pages/Dashboard'))
 const BrokerDashboard = lazy(() => import('@/pages/dashboards/BrokerDashboard'))
@@ -122,6 +123,7 @@ const router = createBrowserRouter([
       { path: '/about', element: <About /> },
       { path: '/tos', element: <ToS /> },
       { path: '/contact', element: <Contact /> },
+      { path: '/concierge', element: <Concierge /> },
       { path: '/rfq', element: <Rfq /> },
       { path: '/agencies', element: <Agencies /> },
       { path: '/brokers', element: <Brokerages /> },

@@ -28,6 +28,7 @@ import { strings as changePasswordStrings } from '@/lang/change-password'
 import { strings as checkoutStrings } from '@/lang/checkout'
 import { strings as commonStrings } from '@/lang/common'
 import { strings as contactFormStrings } from '@/lang/contact-form'
+import { strings as conciergeStrings } from '@/lang/concierge'
 import { strings as dashboardStrings } from '@/lang/dashboard'
 import { strings as footerStrings } from '@/lang/footer'
 import { strings as headerStrings } from '@/lang/header'
@@ -133,6 +134,7 @@ if (lang) {
     checkoutStrings.setLanguage(_lang)
     commonStrings.setLanguage(_lang)
     contactFormStrings.setLanguage(_lang)
+    conciergeStrings.setLanguage(_lang)
     dashboardStrings.setLanguage(_lang)
     footerStrings.setLanguage(_lang)
     headerStrings.setLanguage(_lang)

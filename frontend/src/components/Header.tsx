@@ -27,6 +27,7 @@ import {
   Bolt as PulseIcon,
   RequestQuote as RfqIcon,
   Search as SearchIcon,
+  SupportAgent as ConciergeIcon,
 } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import { gsap } from 'gsap'
@@ -345,6 +346,10 @@ const Header = ({
             <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/contact')}>
               <MailIcon />
               <span>{strings.CONTACT}</span>
+            </button>
+            <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/concierge')}>
+              <ConciergeIcon />
+              <span>{strings.CONCIERGE}</span>
             </button>
             <button type="button" className="lux-sidebar-item" onClick={() => navigateAndClose('/rfq')}>
               <RfqIcon />

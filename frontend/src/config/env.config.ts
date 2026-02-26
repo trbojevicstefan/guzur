@@ -126,8 +126,11 @@ const env = {
   MAP_ZOOM: Number(String(import.meta.env.VITE_MI_MAP_ZOOM || '10')),
   MAP_TILE_URL: String(import.meta.env.VITE_MI_MAP_TILE_URL || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   MAP_TILE_ATTRIBUTION: String(import.meta.env.VITE_MI_MAP_TILE_ATTRIBUTION || '(c) OpenStreetMap contributors'),
+  VAPI_PUBLIC_KEY: String(import.meta.env.VITE_VAPI_PUBLIC_KEY || ''),
+  VAPI_DEFAULT_ASSISTANT_ID: String(import.meta.env.VITE_VAPI_DEFAULT_ASSISTANT_ID || ''),
 }
 
 export default env
+
 
 

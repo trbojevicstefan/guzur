@@ -31,6 +31,7 @@
     "@paypal/react-paypal-js": "^8.9.2",
     "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.6.0",
+    "@vapi-ai/web": "^2.5.2",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "github-fork-ribbon-css": "^0.2.3",

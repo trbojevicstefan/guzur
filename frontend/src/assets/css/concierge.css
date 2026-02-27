@@ -191,23 +191,57 @@
   margin-left: 2px;
 }
 
-.concierge-settings-select-wrap {
-  position: relative;
-}
-
-.concierge-settings select {
-  width: 100%;
+.concierge-assistant-list {
+  max-height: 260px;
+  overflow-y: auto;
   border: 1px solid #dbe3ef;
   border-radius: 10px;
-  padding: 10px 12px;
-  font-weight: 600;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   background: #fff;
-  outline: none;
 }
 
-.concierge-settings select:focus {
+.concierge-assistant-item {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #0f172a;
+  cursor: pointer;
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.concierge-assistant-item:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.concierge-assistant-item.is-active {
   border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  background: #f0f9ff;
+}
+
+.concierge-assistant-flag {
+  min-width: 34px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1f2937;
+}
+
+.concierge-assistant-name {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #0f172a;
 }
 
 .concierge-settings-actions {

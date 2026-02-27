@@ -33,22 +33,27 @@ interface FieldErrors {
 interface AssistantOption {
   id: string
   name: string
-  flag: string
 }
 
 const ASSISTANT_STORAGE_KEY = 'mi-fe-concierge-assistant-id'
 const PHONE_PATTERN = /^[0-9()+\-\s]{7,20}$/
 const HARD_CODED_ASSISTANTS: AssistantOption[] = [
-  {
-    id: '66648ea5-e112-4bfc-b894-4e9edd5605c6',
-    name: 'English',
-    flag: '🇬🇧',
-  },
-  {
-    id: '4aae5924-3d5d-4237-a7f6-757d17cb1ba4',
-    name: 'Egyptian',
-    flag: '🇪🇬',
-  },
+  { id: 'd9b38b37-9259-412b-b255-8af818a3ab61', name: 'Arabic Cairo Assistant' },
+  { id: 'f4897380-163c-4fa5-97fe-f23c8960f240', name: 'EG Male 01 - OpenAI Alloy' },
+  { id: '81d9913b-f663-4f31-91c5-d7334ee9da1c', name: 'EG Male 02 - OpenAI Echo' },
+  { id: '8223e022-3ff2-42c7-9990-38d41dca1490', name: 'EG Male 03 - Deepgram Orpheus' },
+  { id: '6ed4fabc-395b-4b85-95f0-f5bb31d65f7f', name: 'EG Male 04 - Deepgram Helios' },
+  { id: '2944e9f8-5782-438d-8d4e-aebe981d590b', name: 'EG Male 05 - Azure Hamed' },
+  { id: '1ed43414-180f-4e9c-b8ba-e7bf6e228341', name: 'EG Male 06 - Azure Hamdan' },
+  { id: 'fe622084-fe8d-4a4c-a7de-cca6e681df43', name: 'EG Male 07 - Azure Jamal' },
+  { id: 'ea8bcbd0-322c-459d-857c-c8215ced9adf', name: 'EG Male 08 - Azure Moaz' },
+  { id: '7a93a630-9c73-4556-9be2-3becba3b0098', name: 'EG Male 09 - Azure Abdullah' },
+  { id: '17768e45-5979-4b91-a163-d26a125751c6', name: 'EG Pure 01 - Calm Professional' },
+  { id: 'cab11d97-014c-4e58-8b53-af8bdf2679a3', name: 'EG Pure 02 - Energetic Fast' },
+  { id: '5d7e50e0-0a56-4ca6-a2f0-36c7b8308d12', name: 'EG Pure 03 - Deep Authoritative' },
+  { id: '3c035a7d-50ea-4da5-bcd8-fa4b6eee7c33', name: 'EG Pure 04 - Friendly Casual' },
+  { id: '60bf6ee6-6df0-4378-bbe5-ae5105929868', name: 'EG Pure 05 - Sales Tone' },
+  { id: '9dcc37b7-084b-42ad-9da6-b723cde42386', name: 'EG Pure 06 - Support Agent' },
 ]
 
 const getErrorMessage = (err: unknown, fallback: string) => {
@@ -494,17 +499,18 @@ const Concierge = () => {
                 {settingsOpen && (
                   <div className="concierge-settings concierge-reveal">
                     <label>{strings.SETTINGS_TITLE}</label>
-                    <div className="concierge-settings-select-wrap">
-                      <select
-                        value={assistantInput}
-                        onChange={(event) => setAssistantInput(event.target.value)}
-                      >
-                        {HARD_CODED_ASSISTANTS.map((assistant) => (
-                          <option key={assistant.id} value={assistant.id}>
-                            {assistant.flag} {assistant.name}
-                          </option>
-                        ))}
-                      </select>
+                    <div className="concierge-assistant-list" role="listbox" aria-label={strings.SETTINGS_TITLE}>
+                      {HARD_CODED_ASSISTANTS.map((assistant) => (
+                        <button
+                          key={assistant.id}
+                          type="button"
+                          className={`concierge-assistant-item${assistantInput === assistant.id ? ' is-active' : ''}`}
+                          onClick={() => setAssistantInput(assistant.id)}
+                        >
+                          <span className="concierge-assistant-flag" aria-hidden>EGY</span>
+                          <span className="concierge-assistant-name">{assistant.name}</span>
+                        </button>
+                      ))}
                     </div>
                     <div className="concierge-settings-actions">
                       <button type="button" onClick={handleSaveAssistant}>{strings.SAVE_ASSISTANT}</button>
@@ -612,7 +618,7 @@ const Concierge = () => {
                     <div className="concierge-stat">
                       <span className="label">{strings.ASSISTANT_ID}</span>
                       <span className="value">
-                        {selectedAssistant ? `${selectedAssistant.flag} ${selectedAssistant.name} (${selectedAssistant.id})` : '-'}
+                        {selectedAssistant ? `EGY ${selectedAssistant.name} (${selectedAssistant.id})` : '-'}
                       </span>
                     </div>
                     <div className="concierge-stat">

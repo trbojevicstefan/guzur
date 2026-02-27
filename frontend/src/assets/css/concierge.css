@@ -249,7 +249,7 @@
   justify-content: flex-end;
 }
 
-.concierge-settings button {
+.concierge-settings-actions button {
   border: none;
   border-radius: 10px;
   padding: 10px 14px;

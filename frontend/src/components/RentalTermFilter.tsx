@@ -10,6 +10,7 @@ import '@/assets/css/rental-term-filter.css'
 
 interface RentalTermFilterProps {
   className?: string
+  value?: movininTypes.RentalTerm[]
   onChange?: (values: movininTypes.RentalTerm[]) => void
 }
 
@@ -17,6 +18,7 @@ const allRentalTerms = movininHelper.getAllRentalTerms()
 
 const RentalTermFilter = ({
   className,
+  value,
   onChange
 }: RentalTermFilterProps) => {
   const [allChecked, setAllChecked] = useState(false)
@@ -40,6 +42,24 @@ const RentalTermFilter = ({
       yearlyRef.current.checked = true
     }
   }, [allChecked])
+
+  useEffect(() => {
+    const selected = value && value.length > 0 && value.length < allRentalTerms.length ? value : []
+    if (monthlyRef.current) {
+      monthlyRef.current.checked = selected.includes(movininTypes.RentalTerm.Monthly)
+    }
+    if (weeklyRef.current) {
+      weeklyRef.current.checked = selected.includes(movininTypes.RentalTerm.Weekly)
+    }
+    if (dailyRef.current) {
+      dailyRef.current.checked = selected.includes(movininTypes.RentalTerm.Daily)
+    }
+    if (yearlyRef.current) {
+      yearlyRef.current.checked = selected.includes(movininTypes.RentalTerm.Yearly)
+    }
+    setValues(selected)
+    setAllChecked(selected.length > 0 && selected.length === allRentalTerms.length)
+  }, [value])
 
   const handleChange = (_values: movininTypes.RentalTerm[]) => {
     if (onChange) {

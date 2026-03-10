@@ -52,6 +52,20 @@ export enum ListingStatus {
   Archived = 'ARCHIVED',
 }
 
+export enum PropertyFeature {
+  Furnished = 'FURNISHED',
+  AirConditioning = 'AIR_CONDITIONING',
+  PetsAllowed = 'PETS_ALLOWED',
+  Parking = 'PARKING',
+  InCompound = 'IN_COMPOUND',
+}
+
+export enum PropertySort {
+  Newest = 'NEWEST',
+  PriceAsc = 'PRICE_ASC',
+  PriceDesc = 'PRICE_DESC',
+}
+
 export enum LeadStatus {
   New = 'NEW',
   Contacted = 'CONTACTED',
@@ -831,6 +845,15 @@ export interface GetPropertiesPayload {
   language?: string
   from?: Date
   to?: Date
+  q?: string
+  keyword?: string
+  priceMin?: number
+  priceMax?: number
+  bedroomsMin?: number
+  areaMin?: number
+  areaMax?: number
+  features?: PropertyFeature[]
+  sort?: PropertySort
 }
 
 export interface Message {
@@ -903,6 +926,7 @@ export interface GetDevelopmentsPayload {
   developerOrgs?: string[]
   status?: DevelopmentStatus
   keyword?: string
+  q?: string
   location?: string
 }
 
@@ -973,6 +997,18 @@ export interface PropertyFilter {
   location: Location
   from?: Date
   to?: Date
+  q?: string
+  listingType?: ListingType
+  priceMin?: number
+  priceMax?: number
+  bedroomsMin?: number
+  areaMin?: number
+  areaMax?: number
+  features?: PropertyFeature[]
+  sort?: PropertySort
+  propertyTypes?: PropertyType[]
+  rentalTerms?: RentalTerm[]
+  agencies?: string[]
 }
 
 export type PropertyFilterSubmitEvent = (filter: PropertyFilter) => void

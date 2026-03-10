@@ -244,3 +244,48 @@ describe('PUT /api/update-development', () => {
     await testHelper.signout(token)
   })
 })
+
+describe('GET /api/frontend-developments/:page/:size', () => {
+  it('should filter frontend developments by keyword, location, and status', async () => {
+    const token = await testHelper.signinAsAdmin()
+    const seed = nanoid(8)
+
+    await createDevelopment(token, {
+      name: `Harbor View ${seed}`,
+      location: 'North Coast',
+      status: movininTypes.DevelopmentStatus.Planning,
+    })
+    await createDevelopment(token, {
+      name: `Palm Residence ${seed}`,
+      location: 'New Cairo',
+      status: movininTypes.DevelopmentStatus.InProgress,
+    })
+    await createDevelopment(token, {
+      name: `Legacy Heights ${seed}`,
+      location: 'October',
+      status: movininTypes.DevelopmentStatus.Completed,
+    })
+
+    let res = await request(app)
+      .get(`/api/frontend-developments/${testHelper.PAGE}/${testHelper.SIZE}?q=${encodeURIComponent(`Palm Residence ${seed}`)}`)
+    expect(res.statusCode).toBe(200)
+    expect(res.body[0].resultData).toHaveLength(1)
+    expect(res.body[0].resultData[0].name).toBe(`Palm Residence ${seed}`)
+
+    res = await request(app)
+      .get(`/api/frontend-developments/${testHelper.PAGE}/${testHelper.SIZE}?location=${encodeURIComponent('North Coast')}`)
+    expect(res.statusCode).toBe(200)
+    expect(res.body[0].resultData.map((development: movininTypes.Development) => development.name)).toEqual(
+      expect.arrayContaining([`Harbor View ${seed}`]),
+    )
+
+    res = await request(app)
+      .get(`/api/frontend-developments/${testHelper.PAGE}/${testHelper.SIZE}?status=${movininTypes.DevelopmentStatus.Completed}`)
+    expect(res.statusCode).toBe(200)
+    expect(res.body[0].resultData.map((development: movininTypes.Development) => development.name)).toEqual(
+      expect.arrayContaining([`Legacy Heights ${seed}`]),
+    )
+
+    await testHelper.signout(token)
+  })
+})

@@ -13,6 +13,9 @@ import * as env from '../config/env.config'
 import * as helper from '../utils/helper'
 import * as logger from '../utils/logger'
 import Location from '../models/Location'
+import LocationValue from '../models/LocationValue'
+import Development from '../models/Development'
+import Organization from '../models/Organization'
 import * as authHelper from '../utils/authHelper'
 import * as notificationHelper from '../utils/notificationHelper'
 
@@ -1054,8 +1057,16 @@ export const getBookingProperties = async (req: Request, res: Response) => {
       const listingTypes = body.listingTypes || []
       const listingStatuses = body.listingStatuses && body.listingStatuses.length > 0
         ? body.listingStatuses
-      : [movininTypes.ListingStatus.Published]
-    const { from, to } = body
+        : [movininTypes.ListingStatus.Published]
+      const features = Array.isArray(body.features) ? body.features : []
+      const q = escapeStringRegexp(String(body.q || body.keyword || req.query.q || req.query.s || ''))
+      const sort = body.sort || movininTypes.PropertySort.Newest
+      const priceMin = typeof body.priceMin === 'number' ? body.priceMin : undefined
+      const priceMax = typeof body.priceMax === 'number' ? body.priceMax : undefined
+      const bedroomsMin = typeof body.bedroomsMin === 'number' ? body.bedroomsMin : undefined
+      const areaMin = typeof body.areaMin === 'number' ? body.areaMin : undefined
+      const areaMax = typeof body.areaMax === 'number' ? body.areaMax : undefined
+      const { from, to } = body
 
     let rentFrom: Date | undefined
     let rentTo: Date | undefined
@@ -1121,42 +1132,93 @@ export const getBookingProperties = async (req: Request, res: Response) => {
       $match.$and!.push({ listingType: { $in: [movininTypes.ListingType.Sale, movininTypes.ListingType.Both] } })
     }
 
-    let $addFields = {}
-    let $sort: Record<string, 1 | -1> = { name: 1, _id: 1 }
-    if (env.DB_SERVER_SIDE_JAVASCRIPT) {
-      $addFields = {
-        dailyPrice:
-        {
-          $function:
-          {
-            body: function (price, rentalTerm) {
-              let dailyPrice = 0
-              const now = new Date()
-              if (rentalTerm === 'MONTHLY') {
-                dailyPrice = price / new Date(now.getFullYear(), now.getMonth(), 0).getDate()
-              } else if (rentalTerm === 'WEEKLY') {
-                dailyPrice = price / 7
-              } else if (rentalTerm === 'DAILY') {
-                dailyPrice = price
-              } else if (rentalTerm === 'YEARLY') {
-                const year = now.getFullYear()
-                dailyPrice = price / (((year % 4 === 0 && year % 100 > 0) || year % 400 === 0) ? 366 : 365)
-              }
+    if (typeof bedroomsMin === 'number') {
+      $match.$and!.push({ bedrooms: { $gte: bedroomsMin } })
+    }
+    if (typeof areaMin === 'number' || typeof areaMax === 'number') {
+      const sizeMatch: { $gte?: number, $lte?: number } = {}
+      if (typeof areaMin === 'number') {
+        sizeMatch.$gte = areaMin
+      }
+      if (typeof areaMax === 'number') {
+        sizeMatch.$lte = areaMax
+      }
+      $match.$and!.push({ size: sizeMatch })
+    }
 
-              dailyPrice = Number((Math.trunc(dailyPrice * 100) / 100).toFixed(2))
-              if (dailyPrice % 1 === 0) {
-                return Math.round(dailyPrice)
-              }
-              return dailyPrice
-            },
-            args: ['$price', '$rentalTerm'],
-            lang: 'js',
-          },
-        },
+    if (features.includes(movininTypes.PropertyFeature.Furnished)) {
+      $match.$and!.push({ furnished: true })
+    }
+    if (features.includes(movininTypes.PropertyFeature.AirConditioning)) {
+      $match.$and!.push({ aircon: true })
+    }
+    if (features.includes(movininTypes.PropertyFeature.PetsAllowed)) {
+      $match.$and!.push({ petsAllowed: true })
+    }
+    if (features.includes(movininTypes.PropertyFeature.Parking)) {
+      $match.$and!.push({ parkingSpaces: { $gt: 0 } })
+    }
+    if (features.includes(movininTypes.PropertyFeature.InCompound)) {
+      $match.$and!.push({ developmentId: { $exists: true, $ne: null } })
+    }
+
+    if (q) {
+      const [matchedLocationValues, matchedDevelopments, matchedOrganizations, matchedUsers] = await Promise.all([
+        LocationValue.find({ value: { $regex: q, $options: 'i' } }).select('_id').lean(),
+        Development.find({ name: { $regex: q, $options: 'i' } }).select('_id').lean(),
+        Organization.find({ name: { $regex: q, $options: 'i' } }).select('_id').lean(),
+        User.find({
+          $or: [
+            { fullName: { $regex: q, $options: 'i' } },
+            { company: { $regex: q, $options: 'i' } },
+            { email: { $regex: q, $options: 'i' } },
+          ],
+        }).select('_id').lean(),
+      ])
+
+      const matchedLocationIds = matchedLocationValues.length > 0
+        ? await Location.find({ values: { $in: matchedLocationValues.map((value) => value._id) } }).select('_id').lean()
+        : []
+
+      const keywordOr: mongoose.QueryFilter<movininTypes.Property>[] = [
+        { name: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+        { address: { $regex: q, $options: 'i' } },
+      ]
+
+      if (matchedLocationIds.length > 0) {
+        keywordOr.push({ location: { $in: matchedLocationIds.map((location) => location._id) } })
+      }
+      if (matchedDevelopments.length > 0) {
+        keywordOr.push({ developmentId: { $in: matchedDevelopments.map((development) => development._id) } })
+      }
+      if (matchedOrganizations.length > 0) {
+        const orgIds = matchedOrganizations.map((organization) => organization._id)
+        keywordOr.push({ developerOrg: { $in: orgIds } })
+        keywordOr.push({ brokerageOrg: { $in: orgIds } })
+      }
+      if (matchedUsers.length > 0) {
+        const userIds = matchedUsers.map((user) => user._id)
+        keywordOr.push({ agency: { $in: userIds } })
+        keywordOr.push({ broker: { $in: userIds } })
+        keywordOr.push({ developer: { $in: userIds } })
+        keywordOr.push({ owner: { $in: userIds } })
       }
 
-      $sort = { dailyPrice: 1, name: 1, _id: 1 }
+      $match.$and!.push({ $or: keywordOr })
     }
+
+    const priceExpression = hasSaleSelection && !hasRentSelection
+      ? { $ifNull: ['$salePrice', '$price'] }
+      : includeAllListingTypes
+        ? {
+          $cond: [
+            { $eq: ['$listingType', movininTypes.ListingType.Sale] },
+            { $ifNull: ['$salePrice', '$price'] },
+            '$price',
+          ],
+        }
+        : '$price'
 
     const pipeline: mongoose.PipelineStage[] = [
       { $match },
@@ -1175,8 +1237,24 @@ export const getBookingProperties = async (req: Request, res: Response) => {
           as: 'agency',
         },
       },
-      { $unwind: { path: '$agency', preserveNullAndEmptyArrays: false } },
+      { $unwind: { path: '$agency', preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          searchPrice: priceExpression,
+        },
+      },
     ]
+
+    if (typeof priceMin === 'number' || typeof priceMax === 'number') {
+      const priceMatch: { $gte?: number, $lte?: number } = {}
+      if (typeof priceMin === 'number') {
+        priceMatch.$gte = priceMin
+      }
+      if (typeof priceMax === 'number') {
+        priceMatch.$lte = priceMax
+      }
+      pipeline.push({ $match: { searchPrice: priceMatch } })
+    }
 
     if (hasRentSelection && rentFrom && rentTo) {
       pipeline.push(
@@ -1238,40 +1316,29 @@ export const getBookingProperties = async (req: Request, res: Response) => {
       )
     }
 
-    pipeline.push(
-      // {
-      //   $lookup: {
-      //     from: 'Location',
-      //     let: { location: '$location' },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: { $eq: ['$_id', '$$location'] },
-      //         },
-      //       },
-      //     ],
-      //     as: 'location',
-      //   },
-      // },
-      {
-        $addFields,
+    const sortStage: mongoose.PipelineStage.Sort['$sort'] = sort === movininTypes.PropertySort.PriceAsc
+      ? { searchPrice: 1, updatedAt: -1, _id: 1 }
+      : sort === movininTypes.PropertySort.PriceDesc
+        ? { searchPrice: -1, updatedAt: -1, _id: 1 }
+        : { updatedAt: -1, _id: 1 }
+
+    pipeline.push({
+      $facet: {
+        resultData: [{ $sort: sortStage }, { $skip: (page - 1) * size }, { $limit: size }],
+        pageInfo: [
+          {
+            $count: 'totalRecords',
+          },
+        ],
       },
-      {
-        $facet: {
-          resultData: [{ $sort }, { $skip: (page - 1) * size }, { $limit: size }],
-          pageInfo: [
-            {
-              $count: 'totalRecords',
-            },
-          ],
-        },
-      },
-    )
+    })
 
     const data = await Property.aggregate(pipeline, { collation: { locale: env.DEFAULT_LANGUAGE, strength: 2 } })
     for (const property of data[0].resultData) {
-      const { _id, fullName, avatar } = property.agency
-      property.agency = { _id, fullName, avatar }
+      if (property.agency) {
+        const { _id, fullName, avatar } = property.agency
+        property.agency = { _id, fullName, avatar }
+      }
     }
 
     res.json(data)

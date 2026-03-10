@@ -17,6 +17,7 @@ import Progress from './Progress'
 import '@/assets/css/property-list.css'
 
 interface PropertyListProps {
+  q?: string
   agencies?: string[]
   brokerageOrgs?: string[]
   developerOrgs?: string[]
@@ -26,6 +27,13 @@ interface PropertyListProps {
   location?: string
   from?: Date
   to?: Date
+  priceMin?: number
+  priceMax?: number
+  bedroomsMin?: number
+  areaMin?: number
+  areaMax?: number
+  features?: movininTypes.PropertyFeature[]
+  sort?: movininTypes.PropertySort
   reload?: boolean
   properties?: movininTypes.Property[]
   className?: string
@@ -38,6 +46,7 @@ interface PropertyListProps {
 }
 
 const PropertyList = ({
+  q,
   agencies,
   brokerageOrgs,
   developerOrgs,
@@ -47,6 +56,13 @@ const PropertyList = ({
   location,
   from,
   to,
+  priceMin,
+  priceMax,
+  bedroomsMin,
+  areaMin,
+  areaMax,
+  features,
+  sort,
   reload,
   properties,
   className,
@@ -88,6 +104,7 @@ const PropertyList = ({
       setLoading(true)
 
       const payload: movininTypes.GetPropertiesPayload = {
+        q,
         agencies: agencies ?? [],
         brokerageOrgs,
         developerOrgs,
@@ -97,6 +114,13 @@ const PropertyList = ({
         location,
         from,
         to,
+        priceMin,
+        priceMax,
+        bedroomsMin,
+        areaMin,
+        areaMax,
+        features,
+        sort,
       }
       const data = await PropertyService.getProperties(payload, _page, env.PROPERTIES_PAGE_SIZE)
 
@@ -148,7 +172,7 @@ const PropertyList = ({
       }
       setInit(false)
     }
-  }, [page, agencies, brokerageOrgs, developerOrgs, types, rentalTerms, listingTypes, location, from, to]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, q, agencies, brokerageOrgs, developerOrgs, types, rentalTerms, listingTypes, location, from, to, priceMin, priceMax, bedroomsMin, areaMin, areaMax, features, sort]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (properties) {
@@ -166,6 +190,7 @@ const PropertyList = ({
     setPage(1)
   }, [
     agencies,
+    q,
     brokerageOrgs,
     developerOrgs,
     types,
@@ -174,6 +199,13 @@ const PropertyList = ({
     location,
     from,
     to,
+    priceMin,
+    priceMax,
+    bedroomsMin,
+    areaMin,
+    areaMax,
+    features,
+    sort,
   ])
 
   useEffect(() => {
@@ -181,7 +213,7 @@ const PropertyList = ({
       setPage(1)
       fetchData(1)
     }
-  }, [reload, agencies, brokerageOrgs, developerOrgs, types, rentalTerms, listingTypes, location]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [reload, q, agencies, brokerageOrgs, developerOrgs, types, rentalTerms, listingTypes, location, priceMin, priceMax, bedroomsMin, areaMin, areaMax, features, sort]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

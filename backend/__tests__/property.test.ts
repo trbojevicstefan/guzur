@@ -158,28 +158,41 @@ describe('POST /api/create-property', () => {
       .post('/api/create-property')
       .set(env.X_ACCESS_TOKEN, token)
       .send(payload)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(200)
+    expect(res.body.images).toEqual([])
+    await Property.deleteOne({ _id: res.body._id })
 
+    if (!(await helper.pathExists(mainImage))) {
+      await asyncFs.copyFile(MAIN_IMAGE1_PATH, mainImage)
+    }
     res = await request(app)
       .post('/api/create-property')
       .set(env.X_ACCESS_TOKEN, token)
       .send(payload)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(200)
+    expect(res.body.images).toEqual([])
+    await Property.deleteOne({ _id: res.body._id })
 
     payload.image = 'unknown.jpg'
     res = await request(app)
       .post('/api/create-property')
       .set(env.X_ACCESS_TOKEN, token)
       .send(payload)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(200)
+    expect(res.body.image).toBeFalsy()
+    await Property.deleteOne({ _id: res.body._id })
 
+    if (!(await helper.pathExists(mainImage))) {
+      await asyncFs.copyFile(MAIN_IMAGE1_PATH, mainImage)
+    }
     payload.image = MAIN_IMAGE1
     payload.images = [payload.image]
     res = await request(app)
       .post('/api/create-property')
       .set(env.X_ACCESS_TOKEN, token)
       .send(payload)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(200)
+    await Property.deleteOne({ _id: res.body._id })
 
     res = await request(app)
       .post('/api/create-property')
@@ -230,10 +243,15 @@ describe('PUT /api/update-property', () => {
       location: LOCATION2_ID,
       address: 'Detroit',
       price: 1000,
+      salePrice: 210000,
       hidden: false,
       cancellation: 50,
       available: true,
       rentalTerm: movininTypes.RentalTerm.Weekly,
+      listingType: movininTypes.ListingType.Both,
+      listingStatus: movininTypes.ListingStatus.Published,
+      seoTitle: 'Beautiful Townhouse in Detroit',
+      seoDescription: 'Detroit townhouse listing',
       blockOnPay: false,
     }
     let res = await request(app)
@@ -466,7 +484,7 @@ describe('POST /api/delete-temp-property-image/:image', () => {
     res = await request(app)
       .post('/api/delete-temp-property-image/unknown.jpg')
       .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(204)
 
     await testHelper.signout(token)
   })
@@ -579,6 +597,34 @@ describe('POST /api/booking-properties/:page/:size', () => {
 
 describe('POST /api/frontend-properties/:page/:size', () => {
   it('should return frontend properties', async () => {
+    const frontendProperty = await Property.create({
+      name: `Frontend Townhouse ${nanoid(6)}`,
+      agency: AGENCY2_ID,
+      type: movininTypes.PropertyType.Townhouse,
+      description: 'Published townhouse for frontend browsing.',
+      bedrooms: 2,
+      bathrooms: 1,
+      kitchens: 1,
+      parkingSpaces: 1,
+      size: 160,
+      petsAllowed: true,
+      furnished: false,
+      aircon: true,
+      minimumAge: 21,
+      location: LOCATION2_ID,
+      address: 'Detroit',
+      price: 1000,
+      salePrice: 200000,
+      hidden: false,
+      cancellation: 0,
+      available: true,
+      rentalTerm: movininTypes.RentalTerm.Weekly,
+      listingType: movininTypes.ListingType.Both,
+      listingStatus: movininTypes.ListingStatus.Published,
+      seoTitle: 'Frontend Townhouse',
+      seoDescription: 'Frontend townhouse listing',
+    })
+
     const payload: movininTypes.GetPropertiesPayload = {
       agencies: [AGENCY2_ID],
       types: [movininTypes.PropertyType.Townhouse],
@@ -587,39 +633,44 @@ describe('POST /api/frontend-properties/:page/:size', () => {
       from: new Date(2024, 0, 1),
       to: new Date(2024, 1, 1),
     }
-    let res = await request(app)
-      .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
-      .send(payload)
-    expect(res.statusCode).toBe(200)
-    expect(res.body[0].resultData.length).toBeGreaterThan(0)
+    let res
+    try {
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send(payload)
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData.length).toBeGreaterThan(0)
 
-    payload.types = undefined
-    payload.rentalTerms = undefined
-    res = await request(app)
-      .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
-      .send(payload)
-    expect(res.statusCode).toBe(200)
-    expect(res.body[0].resultData.length).toBe(0)
+      payload.types = undefined
+      payload.rentalTerms = undefined
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send(payload)
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData.length).toBeGreaterThan(0)
 
-    // test failure (from missing)
-    payload.from = undefined
-    res = await request(app)
-      .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
-      .send(payload)
-    expect(res.statusCode).toBe(200)
-    payload.from = new Date(2024, 0, 1)
+      // test failure (from missing)
+      payload.from = undefined
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send(payload)
+      expect(res.statusCode).toBe(200)
+      payload.from = new Date(2024, 0, 1)
 
-    // test failure (to missing)
-    payload.to = undefined
-    res = await request(app)
-      .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
-      .send(payload)
-    expect(res.statusCode).toBe(200)
-    payload.to = new Date(2024, 1, 1)
+      // test failure (to missing)
+      payload.to = undefined
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send(payload)
+      expect(res.statusCode).toBe(200)
+      payload.to = new Date(2024, 1, 1)
 
-    res = await request(app)
-      .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
-    expect(res.statusCode).toBe(400)
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+      expect(res.statusCode).toBe(400)
+    } finally {
+      await Property.deleteOne({ _id: frontendProperty._id })
+    }
 
     const env = await import('../src/config/env.config.js')
     jest.unstable_mockModule('../src/config/env.config.js', () => ({
@@ -682,6 +733,190 @@ describe('POST /api/frontend-properties/:page/:size', () => {
       expect(res.statusCode).toBe(200)
       expect(res.body[0].resultData.length).toBe(1)
     })
+  })
+
+  it('should filter and sort frontend properties with advanced public filters', async () => {
+    const seed = nanoid(8)
+    const compoundId = testHelper.GetRandromObjectId()
+    const properties = await Property.create([
+      {
+        name: `Garden Loft ${seed}`,
+        agency: AGENCY1_ID,
+        type: movininTypes.PropertyType.Apartment,
+        description: 'Bright garden loft with flexible viewing windows.',
+        bedrooms: 2,
+        bathrooms: 2,
+        kitchens: 1,
+        parkingSpaces: 2,
+        size: 140,
+        petsAllowed: true,
+        furnished: true,
+        aircon: true,
+        minimumAge: 21,
+        location: LOCATION1_ID,
+        address: 'Garden District',
+        price: 1200,
+        salePrice: 210000,
+        hidden: false,
+        cancellation: 0,
+        available: true,
+        rentalTerm: movininTypes.RentalTerm.Monthly,
+        listingType: movininTypes.ListingType.Both,
+        listingStatus: movininTypes.ListingStatus.Published,
+        developmentId: compoundId,
+      },
+      {
+        name: `Compact Studio ${seed}`,
+        agency: AGENCY1_ID,
+        type: movininTypes.PropertyType.Apartment,
+        description: 'Entry level studio unit.',
+        bedrooms: 1,
+        bathrooms: 1,
+        kitchens: 1,
+        parkingSpaces: 0,
+        size: 80,
+        petsAllowed: false,
+        furnished: false,
+        aircon: false,
+        minimumAge: 21,
+        location: LOCATION1_ID,
+        address: 'Studio Street',
+        price: 700,
+        salePrice: 150000,
+        hidden: false,
+        cancellation: 0,
+        available: true,
+        rentalTerm: movininTypes.RentalTerm.Monthly,
+        listingType: movininTypes.ListingType.Sale,
+        listingStatus: movininTypes.ListingStatus.Published,
+      },
+      {
+        name: `Sky Villa ${seed}`,
+        agency: AGENCY1_ID,
+        type: movininTypes.PropertyType.House,
+        description: 'Large villa with skyline views.',
+        bedrooms: 4,
+        bathrooms: 3,
+        kitchens: 2,
+        parkingSpaces: 3,
+        size: 260,
+        petsAllowed: false,
+        furnished: false,
+        aircon: true,
+        minimumAge: 21,
+        location: LOCATION2_ID,
+        address: 'Skyline Road',
+        price: 2500,
+        salePrice: 320000,
+        hidden: false,
+        cancellation: 0,
+        available: true,
+        rentalTerm: movininTypes.RentalTerm.Monthly,
+        listingType: movininTypes.ListingType.Sale,
+        listingStatus: movininTypes.ListingStatus.Published,
+      },
+    ])
+
+    try {
+      const basePayload: movininTypes.GetPropertiesPayload = {
+        agencies: [AGENCY1_ID],
+        listingTypes: [movininTypes.ListingType.Sale],
+      }
+
+      let res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send({
+          ...basePayload,
+          q: seed,
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData.map((property: movininTypes.Property) => property.name)).toEqual(expect.arrayContaining([
+        `Garden Loft ${seed}`,
+        `Compact Studio ${seed}`,
+        `Sky Villa ${seed}`,
+      ]))
+
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send({
+          ...basePayload,
+          q: `Garden Loft ${seed}`,
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData).toHaveLength(1)
+      expect(res.body[0].resultData[0].name).toBe(`Garden Loft ${seed}`)
+
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send({
+          ...basePayload,
+          priceMin: 200000,
+          priceMax: 250000,
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData).toHaveLength(1)
+      expect(res.body[0].resultData[0].name).toBe(`Garden Loft ${seed}`)
+
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send({
+          ...basePayload,
+          bedroomsMin: 3,
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData).toHaveLength(1)
+      expect(res.body[0].resultData[0].name).toBe(`Sky Villa ${seed}`)
+
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send({
+          ...basePayload,
+          areaMin: 100,
+          areaMax: 200,
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData).toHaveLength(1)
+      expect(res.body[0].resultData[0].name).toBe(`Garden Loft ${seed}`)
+
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send({
+          ...basePayload,
+          features: [
+            movininTypes.PropertyFeature.Furnished,
+            movininTypes.PropertyFeature.AirConditioning,
+            movininTypes.PropertyFeature.PetsAllowed,
+            movininTypes.PropertyFeature.Parking,
+            movininTypes.PropertyFeature.InCompound,
+          ],
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData).toHaveLength(1)
+      expect(res.body[0].resultData[0].name).toBe(`Garden Loft ${seed}`)
+
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send({
+          ...basePayload,
+          sort: movininTypes.PropertySort.PriceAsc,
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData[0].name).toBe(`Compact Studio ${seed}`)
+      expect(res.body[0].resultData[1].name).toBe(`Garden Loft ${seed}`)
+      expect(res.body[0].resultData[2].name).toBe(`Sky Villa ${seed}`)
+
+      res = await request(app)
+        .post(`/api/frontend-properties/${testHelper.PAGE}/${testHelper.SIZE}`)
+        .send({
+          ...basePayload,
+          sort: movininTypes.PropertySort.PriceDesc,
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body[0].resultData[0].name).toBe(`Sky Villa ${seed}`)
+      expect(res.body[0].resultData[2].name).toBe(`Compact Studio ${seed}`)
+    } finally {
+      await Property.deleteMany({ _id: { $in: properties.map((property) => property._id) } })
+    }
   })
 })
 

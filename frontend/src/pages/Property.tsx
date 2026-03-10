@@ -348,7 +348,8 @@ const Property = () => {
         setPriceLabel(nextPriceLabel)
 
         setHideAction(!rentListing)
-        setShowReveal(true)
+        setShowReveal(false)
+        setIntroComplete(true)
       } else {
         setShowReveal(false)
         setIntroComplete(false)
@@ -461,25 +462,6 @@ const Property = () => {
 
   return (
     <Layout onLoad={onLoad}>
-      {!loading && property && showReveal && (
-        <DetailLoadingReveal
-          visible={showReveal}
-          title={property.name || commonStrings.PROPERTY}
-          subtitle={strings.DETAILS}
-          description={revealDescription || locationName || property.address || ''}
-          images={revealImages.length > 0 ? revealImages : ['/cover.webp']}
-          stats={revealStats}
-          phases={propertyRevealPhases}
-          finalActions={revealActionButtons}
-          accent={property.listingType === movininTypes.ListingType.Rent ? '#9eb8cd' : '#d97d74'}
-          secondary={property.listingType === movininTypes.ListingType.Sale ? '#d4bc8d' : '#a8b69f'}
-          durationMs={21000}
-          motionMode="full"
-          holdOnCompleteUntilClick
-          onComplete={handleRevealComplete}
-        />
-      )}
-
       {
         !loading && property && introComplete
         && (
@@ -492,15 +474,6 @@ const Property = () => {
                   onClick={() => navigate(-1)}
                 >
                   {strings.BACK_TO_LISTINGS}
-                </button>
-                <button
-                  type="button"
-                  className="property-presentation-play"
-                  onClick={() => {
-                    setShowReveal(true)
-                  }}
-                >
-                  {strings.PLAY_PRESENTATION}
                 </button>
               </div>
 
@@ -640,6 +613,7 @@ const Property = () => {
                           position={[property.latitude, property.longitude]}
                           initialZoom={13}
                           showTileToggle
+                          showLocationSearch
                           className="property-map"
                           clickToActivate
                           activationTheme="home-different"

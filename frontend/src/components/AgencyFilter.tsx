@@ -9,6 +9,7 @@ import '@/assets/css/agency-filter.css'
 
 interface AgencyFilterProps {
   agencies: movininTypes.User[]
+  value?: string[]
   collapse?: boolean
   className?: string
   onChange?: (value: string[]) => void
@@ -16,6 +17,7 @@ interface AgencyFilterProps {
 
 const AgencyFilter = ({
   agencies: filterAgencies,
+  value,
   collapse,
   className,
   onChange
@@ -28,6 +30,17 @@ const AgencyFilter = ({
   useEffect(() => {
     setAgencies(filterAgencies)
   }, [filterAgencies])
+
+  useEffect(() => {
+    const selectedIds = value && value.length > 0 ? value : []
+    refs.current.forEach((checkbox) => {
+      if (checkbox) {
+        checkbox.checked = selectedIds.includes(checkbox.dataset.id || '')
+      }
+    })
+    setCheckedAgencies(selectedIds)
+    setAllChecked(selectedIds.length > 0 && selectedIds.length === filterAgencies.length)
+  }, [filterAgencies, value])
 
   const handleCheckAgencyChange = (e: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>) => {
     const agencyId = e.currentTarget.getAttribute('data-id') as string

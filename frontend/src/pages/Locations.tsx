@@ -7,6 +7,7 @@ import * as LocationService from '@/services/LocationService'
 import Layout from '@/components/Layout'
 import Map from '@/components/Map'
 import { strings as mapStrings } from '@/lang/map'
+import { strings as developmentStrings } from '@/lang/developments'
 import SearchForm from '@/components/SearchForm'
 import Footer from '@/components/Footer'
 
@@ -25,11 +26,19 @@ const Locations = () => {
   return (
     <Layout onLoad={onLoad} strict={false}>
       <div className="locations">
+        <div className="locations-intro">
+          <span className="locations-intro-kicker">{developmentStrings.BROWSE_BY_LOCATION}</span>
+          <h1>{developmentStrings.LOCATION}</h1>
+          <p>{developmentStrings.SUBHEADING}</p>
+        </div>
         <Map
           position={new L.LatLng(env.MAP_LATITUDE, env.MAP_LONGITUDE)}
           initialZoom={env.MAP_ZOOM}
           locations={locations}
           showTileToggle
+          showLocationSearch
+          clickToActivate
+          lockOnMouseLeave
           streetLabel={mapStrings.STREET}
           satelliteLabel={mapStrings.SATELLITE}
           onSelelectLocation={async (locationId) => {

@@ -21,6 +21,7 @@ const strings = new LocalizedStrings({
     SECURE_PAYMENT: `Paiement 100% sÃ©curisÃ© avec ${env.WEBSITE_NAME}`,
     PRIVACY_POLICY: 'Politique de ConfidentialitÃ©',
     COOKIE_POLICY: 'Politique de cookies',
+    BRAND_DESCRIPTION: 'Marketplace immobilier pour l’achat, la vente et la location dans les destinations les plus recherchées.',
   },
   ar: {
 
@@ -39,6 +40,7 @@ const strings = new LocalizedStrings({
     SECURE_PAYMENT: `100% secure payment with ${env.WEBSITE_NAME}`,
     PRIVACY_POLICY: 'Privacy Policy',
     COOKIE_POLICY: 'Cookie Policy',
+    BRAND_DESCRIPTION: 'Property marketplace for buying, selling, and renting in sought-after destinations.',
   },
   en: {
     COPYRIGHT_PART1,
@@ -56,6 +58,7 @@ const strings = new LocalizedStrings({
     SECURE_PAYMENT: `100% secure payment with ${env.WEBSITE_NAME}`,
     PRIVACY_POLICY: 'Privacy Policy',
     COOKIE_POLICY: 'Cookie Policy',
+    BRAND_DESCRIPTION: 'Property marketplace for buying, selling, and renting in sought-after destinations.',
   },
 })
 

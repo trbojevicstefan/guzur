@@ -24,8 +24,24 @@ const Footer = () => {
 
   return (
     <div className="footer">
-      <div className="header">{env.WEBSITE_NAME}</div>
+      <section className="footer-brand">
+        <img src="/guzurlogo.png" alt={env.WEBSITE_NAME} className="footer-logo" />
+        <div className="footer-brand-copy">
+          <div className="header">{env.WEBSITE_NAME}</div>
+          <p>{strings.BRAND_DESCRIPTION}</p>
+        </div>
+      </section>
+
       <section className="main">
+        <div className="main-section">
+          <div className="title">{strings.RENT}</div>
+          <ul className="links">
+            <li onClick={() => navigate('/brokers')}>{strings.BROKERS}</li>
+            <li onClick={() => navigate('/developers')}>{strings.DEVELOPERS}</li>
+            <li onClick={() => navigate('/destinations')}>{strings.LOCATIONS}</li>
+          </ul>
+        </div>
+
         <div className="main-section">
           <div className="title">{strings.CORPORATE}</div>
           <ul className="links">
@@ -35,15 +51,8 @@ const Footer = () => {
             <li onClick={() => navigate('/tos')}>{strings.TOS}</li>
           </ul>
         </div>
-        <div className="main-section">
-          <div className="title">{strings.RENT}</div>
-          <ul className="links">
-            <li onClick={() => navigate('/brokers')}>{strings.BROKERS}</li>
-            <li onClick={() => navigate('/developers')}>{strings.DEVELOPERS}</li>
-            <li onClick={() => navigate('/destinations')}>{strings.LOCATIONS}</li>
-          </ul>
-        </div>
-        <div className="main-section">
+
+        <div className="main-section support-section">
           <div className="title">{strings.SUPPORT}</div>
           <ul className="links">
             <li onClick={() => navigate('/contact')}>{strings.CONTACT}</li>
@@ -52,22 +61,24 @@ const Footer = () => {
             <MailOutline className="icon" />
             <a href={`mailto:${env.CONTACT_EMAIL}`}>{env.CONTACT_EMAIL}</a>
           </div>
-          <div className="footer-contact">
+          <div className="footer-socials">
             <IconButton href="https://www.facebook.com/" target="_blank" aria-label="Facebook" className="social-icon"><FacebookIcon /></IconButton>
             <IconButton href="https://x.com/" target="_blank" aria-label="X" className="social-icon"><X /></IconButton>
             <IconButton href="https://www.linkedin.com/" target="_blank" aria-label="LinkedIn" className="social-icon"><LinkedIn /></IconButton>
             <IconButton href="https://www.instagram.com/" target="_blank" aria-label="Instagram" className="social-icon"><Instagram /></IconButton>
           </div>
+        </div>
+
+        <div className="main-section newsletter-section">
+          <div className="title">{strings.SUPPORT}</div>
           <div className="newsletter">
             <NewsletterForm />
           </div>
         </div>
       </section>
+
       <section className="payment">
-        <div
-          className="payment-text"
-          style={{ margin: env.PAYMENT_GATEWAY === movininTypes.PaymentGateway.PayPal ? '0 20px' : '-25px 10px 0 0' }}
-        >
+        <div className="payment-text">
           {strings.SECURE_PAYMENT}
         </div>
         <img
@@ -76,8 +87,9 @@ const Footer = () => {
           style={{ height: env.PAYMENT_GATEWAY === movininTypes.PaymentGateway.PayPal ? 64 : 'auto' }}
         />
       </section>
+
       <section className="copyright">
-        <div className="copyright">
+        <div className="copyright-copy">
           <span>{strings.COPYRIGHT_PART1}</span>
           <span>{strings.COPYRIGHT_PART2}</span>
         </div>
@@ -85,4 +97,5 @@ const Footer = () => {
     </div>
   )
 }
+
 export default Footer

@@ -5,38 +5,61 @@ div.footer {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  background: #f2f2f2;
-  color: #1a1a1a;
-  border-top: 1px solid #ebebeb;
-  font-size: 12px;
-  padding: 12px;
+  gap: 28px;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  color: #0f172a;
+  border-top: 1px solid #e2e8f0;
+  font-size: 13px;
+  padding: 28px 16px 18px;
   transform: translate3d(0, 0, 0);
 }
 
-div.footer div.header {
+div.footer .footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+div.footer .footer-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+div.footer .footer-brand-copy .header {
   text-decoration: none;
-  font-size: 18px;
-  font-weight: 500;
-  color: #121212;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+div.footer .footer-brand-copy p {
+  margin: 0;
+  max-width: 520px;
+  color: #64748b;
+  line-height: 1.6;
 }
 
 div.footer section.main {
   width: 100%;
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 15px;
-  padding-bottom: 80px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
 }
 
 div.footer div.main-section {
-  flex: 1 1 0%;
+  min-width: 0;
 }
 
 div.footer div.main-section div.title {
   text-align: left;
-  margin-bottom: 10px;
-  color: #1a1a1a;
-  font-weight: bold;
+  margin-bottom: 14px;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 div.footer ul.links {
@@ -49,6 +72,7 @@ div.footer ul.links li {
   cursor: pointer;
   margin: 10px 0;
   width: fit-content;
+  color: #334155;
 }
 
 div.footer ul.links li:hover {
@@ -59,89 +83,103 @@ div.footer div.footer-contact {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin: 10px 0;
+  margin: 14px 0 10px;
+  gap: 8px;
 }
 
 div.footer div.footer-contact .icon {
-  color: #525252;
-  margin-right: 5px;
+  color: #475569;
 }
 
 div.footer div.footer-contact a {
   text-decoration: none;
-  color: #1a1a1a;
+  color: #0f172a;
 }
 
 div.footer div.footer-contact a:hover {
-  /* opacity: 0.85; */
   text-decoration: underline;
 }
 
-div.footer div.footer-contact .social-icon {
-  color: #525252;
-  /* margin-right: 12px; */
+div.footer .footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-div.footer div.footer-contact .social-icon:hover {
-  color: #1a1a1a;
+div.footer .footer-socials .social-icon {
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+div.footer .footer-socials .social-icon:hover {
+  color: #0f172a;
 }
 
 div.footer div.newsletter {
-  margin-top: 80px;
+  margin-top: 0;
 }
 
 div.footer section.payment {
   width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
-  border-top: 1px solid #dbdbdb;
-  border-bottom: 1px solid #dbdbdb;
-  padding: 10px 0;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 0;
 }
 
 div.footer section.payment div.payment-text {
+  color: #475569;
+  font-weight: 600;
+}
+
+div.footer section.copyright {
+  width: 100%;
+  padding: 0;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+div.footer .copyright-copy {
+  display: flex;
+  gap: 6px;
+  color: #64748b;
 }
 
 @media only screen and (width <=960px) {
   div.footer section.main {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
-  div.footer div.main-section {
-    margin: 10px;
+  div.footer .footer-brand {
+    align-items: flex-start;
   }
 
   div.footer section.payment {
-    display: flex;
     flex-direction: column;
-  }
-
-  div.footer section.payment div.payment-text {
-    margin: 5px 0;
-    padding-left: 8px;
     align-items: flex-start;
   }
 
   div.footer section.payment img {
     max-width: 100%;
   }
-}
 
-div.footer section.copyright {
-  width: 100%;
-  padding: 40px 0 15px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  div.footer section.copyright {
+    justify-content: flex-start;
+  }
+
+  div.footer .copyright-copy {
+    flex-wrap: wrap;
+  }
 }
 
 @media only screen and (width >=960px) {
   div.footer {
-    padding: 12px 10%;
+    padding: 32px 10% 20px;
   }
 }

@@ -6,7 +6,10 @@ import {
   BathtubOutlined,
   Straighten,
   DirectionsCarFilledOutlined,
-  CheckBox,
+  HeadsetMicOutlined,
+  MailOutlined,
+  ForumOutlined,
+  VerifiedOutlined,
   ChevronLeft,
   ChevronRight,
 } from '@mui/icons-material'
@@ -52,10 +55,12 @@ const Home = () => {
   const [loadedListingImages, setLoadedListingImages] = useState<Record<string, boolean>>({})
   const [failedListingImages, setFailedListingImages] = useState<Record<string, boolean>>({})
   const [activeDifferentStep, setActiveDifferentStep] = useState(0)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const featuredRowRef = useRef<HTMLDivElement | null>(null)
   const projectsRowRef = useRef<HTMLDivElement | null>(null)
   const differentSectionRef = useRef<HTMLElement | null>(null)
   const heroVideoRef = useRef<HTMLVideoElement | null>(null)
+  const supportEmail = env.CONTACT_EMAIL || 'support@guzur.com'
 
   const resolveImageName = useCallback((value?: string) => {
     if (!value) {
@@ -237,7 +242,31 @@ const Home = () => {
   const differentStyle = {
     '--home-different-accent': activeStepColor,
     '--home-different-secondary': nextStepColor,
+    '--home-different-steps': String(differentSteps.length),
   } as React.CSSProperties
+  const heroPoints = [
+    strings.HERO_POINT_SALE,
+    strings.HERO_POINT_RENT,
+    strings.HERO_POINT_PROJECTS,
+  ]
+  const customerCareCards = [
+    {
+      icon: <HeadsetMicOutlined className="customer-care-card-icon" />,
+      title: strings.CUSTOMER_CARE_ASSISTANCE,
+    },
+    {
+      icon: <ForumOutlined className="customer-care-card-icon" />,
+      title: strings.CUSTOMER_CARE_MODIFICATION,
+    },
+    {
+      icon: <VerifiedOutlined className="customer-care-card-icon" />,
+      title: strings.CUSTOMER_CARE_GUIDANCE,
+    },
+    {
+      icon: <MailOutlined className="customer-care-card-icon" />,
+      title: strings.CUSTOMER_CARE_SUPPORT,
+    },
+  ]
 
   const onLoad = async () => {
     try {
@@ -321,6 +350,26 @@ const Home = () => {
     }
   }, [videoEnded])
 
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const handleChange = (event: MediaQueryListEvent) => {
+      setPrefersReducedMotion(event.matches)
+    }
+
+    setPrefersReducedMotion(media.matches)
+    if (media.addEventListener) {
+      media.addEventListener('change', handleChange)
+      return () => {
+        media.removeEventListener('change', handleChange)
+      }
+    }
+
+    media.addListener(handleChange)
+    return () => {
+      media.removeListener(handleChange)
+    }
+  }, [])
+
   useLayoutEffect(() => {
     const section = differentSectionRef.current
     if (!section) {
@@ -333,106 +382,121 @@ const Home = () => {
     const bubbleNodes = Array.from(section.querySelectorAll<HTMLDivElement>('.home-different-bubble'))
     const frameNode = section.querySelector<HTMLDivElement>('.home-different-frame')
     const glowNode = section.querySelector<HTMLDivElement>('.home-different-glow')
+    const stickyNode = section.querySelector<HTMLDivElement>('.home-different-sticky')
     const totalSteps = differentSteps.length
 
     if (stepNodes.length === 0 || imageNodes.length === 0 || totalSteps === 0) {
       return undefined
     }
 
-    gsap.set(stepNodes, { autoAlpha: 0, y: 40 })
-    gsap.set(imageNodes, { autoAlpha: 0, scale: 1.14 })
-    gsap.set(bubbleNodes, { autoAlpha: 0, y: 20, scale: 0.88 })
-    gsap.set(stepNodes[0], { autoAlpha: 1, y: 0 })
-    gsap.set(imageNodes[0], { autoAlpha: 1, scale: 1 })
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
     let refreshHandle = 0
     const ctx = gsap.context(() => {
       const ringBaseOpacity = [0.12, 0.2, 0.42, 0.62]
+      section.classList.toggle('is-reduced-motion', prefersReducedMotion)
 
       if (prefersReducedMotion) {
-        gsap.set(bubbleNodes, { autoAlpha: 1, y: 0, scale: 1 })
-      } else {
-        const ringMeta = ringNodes.map((ring, index) => ({
-          ring,
-          baseOpacity: ringBaseOpacity[index] || 0.22,
-        }))
-        const waveOrder = [...ringMeta].reverse()
-
-        ringMeta.forEach(({ ring, baseOpacity }) => {
-          gsap.set(ring, {
-            scale: 1,
-            opacity: baseOpacity,
-            transformOrigin: '50% 50%',
-          })
-        })
-
-        const waveTimeline = gsap.timeline({
-          repeat: -1,
-          defaults: { ease: 'sine.inOut' },
-        })
-        waveOrder.forEach(({ ring, baseOpacity }, waveIndex) => {
-          const peakScale = 1.12 - (waveIndex * 0.02)
-          const peakOpacity = Math.min(baseOpacity + 0.28, 0.86)
-          const startAt = waveIndex * 0.14
-
-          waveTimeline.to(ring, {
-            scale: peakScale,
-            opacity: peakOpacity,
-            duration: 0.3,
-            ease: 'sine.out',
-          }, startAt)
-          waveTimeline.to(ring, {
-            scale: 1,
-            opacity: baseOpacity,
-            duration: 1.05,
-            ease: 'sine.inOut',
-          }, startAt + 0.3)
-        })
-        waveTimeline.to({}, { duration: 0.2 })
-
-        if (glowNode) {
-          gsap.to(glowNode, {
-            scale: 1.18,
-            opacity: 0.34,
-            duration: 0.62,
-            yoyo: true,
-            repeat: -1,
-            ease: 'sine.inOut',
-            transformOrigin: '50% 50%',
-          })
-        }
-
-        if (frameNode) {
-          gsap.to(frameNode, {
-            y: -14,
-            duration: 3.4,
-            yoyo: true,
-            repeat: -1,
-            ease: 'sine.inOut',
-          })
-        }
-  
-        gsap.to(bubbleNodes, {
+        setActiveDifferentStep(0)
+        gsap.set(stepNodes, {
+          clearProps: 'all',
           autoAlpha: 1,
           y: 0,
-          scale: 1,
-          duration: 0.7,
-          stagger: 0.08,
-          ease: 'power2.out',
+          x: 0,
         })
-        bubbleNodes.forEach((bubble, index) => {
-          gsap.to(bubble, {
-            y: -(8 + (index * 2)),
-            duration: 2.4 + (index * 0.3),
-            repeat: -1,
-            yoyo: true,
-            delay: 0.65 + (index * 0.12),
-            ease: 'sine.inOut',
-          })
+        gsap.set(imageNodes, { autoAlpha: 0, scale: 1 })
+        gsap.set(imageNodes[0], { autoAlpha: 1, scale: 1 })
+        gsap.set(bubbleNodes, { autoAlpha: 1, y: 0, scale: 1 })
+        gsap.set(ringNodes, { clearProps: 'all' })
+        gsap.set(section, {
+          '--home-different-accent': DIFFERENT_STEP_COLORS[0],
+          '--home-different-secondary': DIFFERENT_STEP_COLORS[1],
+        })
+        return
+      }
+
+      gsap.set(stepNodes, { autoAlpha: 0, y: 40 })
+      gsap.set(imageNodes, { autoAlpha: 0, scale: 1.14 })
+      gsap.set(bubbleNodes, { autoAlpha: 0, y: 20, scale: 0.88 })
+      gsap.set(stepNodes[0], { autoAlpha: 1, y: 0 })
+      gsap.set(imageNodes[0], { autoAlpha: 1, scale: 1 })
+
+      const ringMeta = ringNodes.map((ring, index) => ({
+        ring,
+        baseOpacity: ringBaseOpacity[index] || 0.22,
+      }))
+      const waveOrder = [...ringMeta].reverse()
+
+      ringMeta.forEach(({ ring, baseOpacity }) => {
+        gsap.set(ring, {
+          scale: 1,
+          opacity: baseOpacity,
+          transformOrigin: '50% 50%',
+        })
+      })
+
+      const waveTimeline = gsap.timeline({
+        repeat: -1,
+        defaults: { ease: 'sine.inOut' },
+      })
+      waveOrder.forEach(({ ring, baseOpacity }, waveIndex) => {
+        const peakScale = 1.12 - (waveIndex * 0.02)
+        const peakOpacity = Math.min(baseOpacity + 0.28, 0.86)
+        const startAt = waveIndex * 0.14
+
+        waveTimeline.to(ring, {
+          scale: peakScale,
+          opacity: peakOpacity,
+          duration: 0.3,
+          ease: 'sine.out',
+        }, startAt)
+        waveTimeline.to(ring, {
+          scale: 1,
+          opacity: baseOpacity,
+          duration: 1.05,
+          ease: 'sine.inOut',
+        }, startAt + 0.3)
+      })
+      waveTimeline.to({}, { duration: 0.2 })
+
+      if (glowNode) {
+        gsap.to(glowNode, {
+          scale: 1.18,
+          opacity: 0.34,
+          duration: 0.62,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut',
+          transformOrigin: '50% 50%',
         })
       }
+
+      if (frameNode) {
+        gsap.to(frameNode, {
+          y: -14,
+          duration: 3.4,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut',
+        })
+      }
+
+      gsap.to(bubbleNodes, {
+        autoAlpha: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.7,
+        stagger: 0.08,
+        ease: 'power2.out',
+      })
+      bubbleNodes.forEach((bubble, index) => {
+        gsap.to(bubble, {
+          y: -(8 + (index * 2)),
+          duration: 2.4 + (index * 0.3),
+          repeat: -1,
+          yoyo: true,
+          delay: 0.65 + (index * 0.12),
+          ease: 'sine.inOut',
+        })
+      })
 
       const animateStep = (index: number) => {
         setActiveDifferentStep((prev) => (prev === index ? prev : index))
@@ -482,13 +546,25 @@ const Home = () => {
       ScrollTrigger.create({
         trigger: section,
         start: 'top top',
-        end: 'bottom bottom',
-        // Use a 1s catch-up for smoother, less robotic scroll-linked motion.
+        end: () => {
+          const stickyHeight = stickyNode?.offsetHeight || window.innerHeight
+          const releaseOffset = Math.min(Math.round(stickyHeight * 0.16), 140)
+          const availableScroll = Math.max(section.offsetHeight - stickyHeight - releaseOffset, stickyHeight * 0.78)
+          return `+=${availableScroll}`
+        },
         scrub: 1,
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onLeave: () => {
+          currentStep = totalSteps - 1
+          animateStep(totalSteps - 1)
+        },
+        onLeaveBack: () => {
+          currentStep = 0
+          animateStep(0)
+        },
         onUpdate: (self) => {
-          const nextStep = Math.min(totalSteps - 1, Math.floor(self.progress * totalSteps))
+          const nextStep = Math.min(totalSteps - 1, Math.round(self.progress * (totalSteps - 1)))
           if (nextStep !== currentStep) {
             currentStep = nextStep
             animateStep(nextStep)
@@ -507,7 +583,7 @@ const Home = () => {
       }
       ctx.revert()
     }
-  }, [differentSteps])
+  }, [differentSteps, prefersReducedMotion])
 
   const setListingImageLoaded = (imageUrl: string) => {
     setLoadedListingImages((prev) => {
@@ -822,14 +898,42 @@ const Home = () => {
             )}
           </div>
 
-          <div className="home-title">
-            <span className="home-title-line">{strings.TITLE_LINE1}</span>
-            <span className="home-title-line home-title-line-secondary">{strings.TITLE_LINE2}</span>
+          <div className="home-cover">
+            <span className="home-hero-kicker">{strings.HERO_KICKER}</span>
+            <div className="home-title">
+              <span className="home-title-line">{strings.TITLE_LINE1}</span>
+              <span className="home-title-line home-title-line-secondary">{strings.TITLE_LINE2}</span>
+            </div>
+            <p className="home-hero-subtitle">{strings.HERO_SUBTITLE}</p>
+            <div className="home-hero-points" aria-label={strings.HOME_INTENT_SECTION_LABEL}>
+              {heroPoints.map((point) => (
+                <span key={point} className="home-hero-point">{point}</span>
+              ))}
+            </div>
           </div>
-          {strings.COVER && (
-            <div className="home-cover">{strings.COVER}</div>
-          )}
-          {/* <div className="home-subtitle">{strings.SUBTITLE}</div> */}
+          <div className="home-hero-actions">
+            <Button variant="contained" className="btn-primary btn-home" onClick={() => navigate('/search')} data-testid="home-cta-explore">
+              {strings.EXPLORE_PROPERTIES}
+            </Button>
+            <Button
+              variant="outlined"
+              className="btn-secondary btn-home"
+              onClick={() => navigate(`/search?listingType=${movininTypes.ListingType.Sale}`)}
+              data-testid="home-cta-unit"
+            >
+              {strings.FIND_YOUR_UNIT}
+            </Button>
+            <Button variant="outlined" className="btn-secondary btn-home" onClick={() => navigate('/projects')} data-testid="home-cta-projects">
+              {strings.BROWSE_PROJECTS}
+            </Button>
+          </div>
+          <div className="home-search-panel" data-testid="home-search-panel">
+            <SearchForm
+              listingTypeOptions={[movininTypes.ListingType.Both, movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
+              defaultListingType={movininTypes.ListingType.Both}
+              requireLocation={false}
+            />
+          </div>
 
         </div>
 
@@ -840,6 +944,17 @@ const Home = () => {
           ) : (
             renderListingsRow(featuredListings, featuredRowRef)
           )}
+        </div>
+
+        <div className="home-about">
+          <div className="home-about-copy">
+            <span className="home-about-kicker">{strings.ABOUT_TITLE}</span>
+            <h2>{strings.ABOUT_TITLE}</h2>
+            <p>{strings.ABOUT_TEXT}</p>
+          </div>
+          <Button variant="contained" className="btn-primary btn-home" onClick={() => navigate('/about')}>
+            {strings.ABOUT_CTA}
+          </Button>
         </div>
 
         <div className="home-listings all-listings home-projects">
@@ -912,7 +1027,7 @@ const Home = () => {
         </div>
 
         <div className="services">
-          <section className="home-different-section" style={differentStyle} ref={differentSectionRef}>
+          <section className={`home-different-section${prefersReducedMotion ? ' is-reduced-motion' : ''}`} style={differentStyle} ref={differentSectionRef}>
             <div className="home-different-sticky">
               <div className="home-different-orb home-different-orb-one" />
               <div className="home-different-orb home-different-orb-two" />
@@ -983,11 +1098,13 @@ const Home = () => {
             locations={locations}
             properties={homeListings}
             showTileToggle
+            showLocationSearch
             clickToActivate
             activationTheme="home-different"
             lockOnMouseLeave
             streetLabel={mapStrings.STREET}
             satelliteLabel={mapStrings.SATELLITE}
+            onSelectProperty={(propertyId) => navigate(`/property/${propertyId}`)}
             onSelelectLocation={async (locationId) => {
               setLocation(locationId)
               setOpenLocationSearchFormDialog(true)
@@ -997,39 +1114,36 @@ const Home = () => {
 
         <div className="customer-care">
           <div className="customer-care-wrapper">
-            <div className="customer-care-text">
-              <h1>{strings.CUSTOMER_CARE_TITLE}</h1>
+            <div className="customer-care-panel">
+              <span className="customer-care-kicker">{strings.CUSTOMER_CARE_TITLE}</span>
               <h2>{strings.CUSTOMER_CARE_SUBTITLE}</h2>
-              <div className="customer-care-content">{strings.CUSTOMER_CARE_TEXT}</div>
-              <div className="customer-care-boxes">
-                <div className="customer-care-box">
-                  <CheckBox className="customer-care-icon" />
-                  <span>{strings.CUSTOMER_CARE_ASSISTANCE}</span>
-                </div>
-                <div className="customer-care-box">
-                  <CheckBox className="customer-care-icon" />
-                  <span>{strings.CUSTOMER_CARE_MODIFICATION}</span>
-                </div>
-                <div className="customer-care-box">
-                  <CheckBox className="customer-care-icon" />
-                  <span>{strings.CUSTOMER_CARE_GUIDANCE}</span>
-                </div>
-                <div className="customer-care-box">
-                  <CheckBox className="customer-care-icon" />
-                  <span>{strings.CUSTOMER_CARE_SUPPORT}</span>
-                </div>
-              </div>
-              <Button
-                variant="contained"
-                className="btn-primary btn-home"
-                onClick={() => navigate('/contact')}
-              >
-                {strings.CONTACT_US}
-              </Button>
-            </div>
+              <p className="customer-care-content">{strings.CUSTOMER_CARE_TEXT}</p>
 
-            <div className="customer-care-img">
-              <img src="/customer-care.png" alt="" />
+              <div className="customer-care-contact-row">
+                <span className="customer-care-contact-label">{strings.SUPPORT_EMAIL_LABEL}</span>
+                <a className="customer-care-email" href={`mailto:${supportEmail}`}>{supportEmail}</a>
+                <span className="customer-care-response">{strings.SUPPORT_RESPONSE_TIME}</span>
+              </div>
+
+              <div className="customer-care-grid">
+                {customerCareCards.map((card) => (
+                  <div key={card.title} className="customer-care-card">
+                    {card.icon}
+                    <span>{card.title}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="customer-care-actions">
+                <Button
+                  variant="contained"
+                  className="btn-primary btn-home"
+                  onClick={() => navigate('/contact')}
+                >
+                  {strings.CONTACT_SUPPORT}
+                </Button>
+                <a className="customer-care-link" href={`mailto:${supportEmail}`}>{supportEmail}</a>
+              </div>
             </div>
           </div>
         </div>
@@ -1050,9 +1164,9 @@ const Home = () => {
             listingTypeOptions={[movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
             defaultListingType={movininTypes.ListingType.Sale}
             requireLocation={false}
-          // onCancel={() => {
-          //   setOpenLocationSearchFormDialog(false)
-          // }}
+            onCancel={() => {
+              setOpenLocationSearchFormDialog(false)
+            }}
           />
         </DialogContent>
       </Dialog>

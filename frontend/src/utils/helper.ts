@@ -254,6 +254,88 @@ export const selectionIncludesSale = (listingType?: movininTypes.ListingType) =>
   listingType === movininTypes.ListingType.Sale || listingType === movininTypes.ListingType.Both
 
 /**
+ * Get all public property features.
+ *
+ * @returns {movininTypes.PropertyFeature[]}
+ */
+export const getPropertyFeatures = () => [
+  movininTypes.PropertyFeature.Furnished,
+  movininTypes.PropertyFeature.AirConditioning,
+  movininTypes.PropertyFeature.PetsAllowed,
+  movininTypes.PropertyFeature.Parking,
+  movininTypes.PropertyFeature.InCompound,
+]
+
+/**
+ * Get property feature label.
+ *
+ * @param {movininTypes.PropertyFeature} feature
+ * @returns {string}
+ */
+export const getPropertyFeatureLabel = (feature: movininTypes.PropertyFeature) => {
+  switch (feature) {
+    case movininTypes.PropertyFeature.Furnished:
+      return commonStrings.FEATURE_FURNISHED
+    case movininTypes.PropertyFeature.AirConditioning:
+      return commonStrings.FEATURE_AIR_CONDITIONING
+    case movininTypes.PropertyFeature.PetsAllowed:
+      return commonStrings.FEATURE_PETS_ALLOWED
+    case movininTypes.PropertyFeature.Parking:
+      return commonStrings.FEATURE_PARKING
+    case movininTypes.PropertyFeature.InCompound:
+      return commonStrings.FEATURE_IN_COMPOUND
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get property sort label.
+ *
+ * @param {movininTypes.PropertySort} sort
+ * @returns {string}
+ */
+export const getPropertySortLabel = (sort: movininTypes.PropertySort) => {
+  switch (sort) {
+    case movininTypes.PropertySort.PriceAsc:
+      return commonStrings.SORT_BY_PRICE_LOW
+    case movininTypes.PropertySort.PriceDesc:
+      return commonStrings.SORT_BY_PRICE_HIGH
+    case movininTypes.PropertySort.Newest:
+    default:
+      return commonStrings.SORT_BY_NEWEST
+  }
+}
+
+/**
+ * Check whether a property matches a derived public feature.
+ *
+ * @param {movininTypes.Property | undefined} property
+ * @param {movininTypes.PropertyFeature} feature
+ * @returns {boolean}
+ */
+export const propertyHasFeature = (property: movininTypes.Property | undefined, feature: movininTypes.PropertyFeature) => {
+  if (!property) {
+    return false
+  }
+
+  switch (feature) {
+    case movininTypes.PropertyFeature.Furnished:
+      return Boolean(property.furnished)
+    case movininTypes.PropertyFeature.AirConditioning:
+      return Boolean(property.aircon)
+    case movininTypes.PropertyFeature.PetsAllowed:
+      return Boolean(property.petsAllowed)
+    case movininTypes.PropertyFeature.Parking:
+      return Number(property.parkingSpaces || 0) > 0
+    case movininTypes.PropertyFeature.InCompound:
+      return Boolean(property.developmentId)
+    default:
+      return false
+  }
+}
+
+/**
  * Get bedrooms tooltip.
  *
  * @param {number} bedrooms

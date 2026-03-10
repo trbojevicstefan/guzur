@@ -1,3 +1,158 @@
+.properties-page {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-x: clip;
+}
+
+.properties-page .search-header {
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--surface-border);
+  background:
+    radial-gradient(circle at 14% 18%, rgb(255 56 92 / 8%), transparent 38%),
+    radial-gradient(circle at 92% 86%, rgb(37 99 235 / 8%), transparent 42%),
+    var(--surface-glass);
+  box-shadow: var(--shadow-ambient);
+}
+
+.properties-page .search-breadcrumbs {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-weight: 600;
+}
+
+.properties-page .search-breadcrumbs .separator {
+  opacity: 0.55;
+  font-size: 10px;
+}
+
+.properties-page .search-top-bar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) repeat(3, auto);
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+.properties-page .search-input {
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  padding: 10px 14px;
+  box-shadow: var(--shadow-ambient);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.properties-page .search-input .search-input-icon {
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex: 0 0 18px;
+}
+
+.properties-page .search-input input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-strong);
+}
+
+.properties-page .search-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgb(255 255 255 / 86%);
+  padding: 10px 14px;
+  min-height: 48px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.properties-page .search-sort label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.properties-page .search-sort select {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-strong);
+  font-weight: 600;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.properties-page .search-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-strong);
+  text-transform: none;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.properties-page .search-title {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.properties-page .search-title h1 {
+  font-size: 24px;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.properties-page .search-title span {
+  color: var(--text-muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.properties-page .search-requires-dates {
+  width: 100%;
+  max-width: 1000px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-border);
+  background: var(--surface-glass);
+  color: var(--text-muted);
+  box-shadow: var(--shadow-ambient);
+  margin: 0 auto;
+}
+
 div.properties {
   display: flex;
   flex: 1 0 auto;
@@ -5,6 +160,7 @@ div.properties {
   gap: 24px;
   align-items: flex-start;
   padding: 18px clamp(10px, 2vw, 24px) 34px;
+  overflow-x: clip;
 }
 
 div.properties .search-header {
@@ -172,6 +328,21 @@ div.properties .property-list-list article.property .right-panel .price .price-m
 /* Device width is less than or equal to 960px */
 
 @media only screen and (width <=960px) {
+  .properties-page .search-header {
+    margin: 10px 8px 0;
+    padding: 14px;
+  }
+
+  .properties-page .search-top-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .properties-page .search-action,
+  .properties-page .search-sort {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   div.properties {
     flex: 0 1 auto;
     flex-direction: column;
@@ -189,11 +360,14 @@ div.properties .property-list-list article.property .right-panel .price .price-m
 
   div.properties div.col-1 {
     width: 100%;
-    padding: 10px;
+    max-width: 100%;
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 12px;
+    box-sizing: border-box;
+    min-width: 0;
   }
 
   div.properties div.col-1 div.col-1-container {
@@ -207,10 +381,13 @@ div.properties .property-list-list article.property .right-panel .price .price-m
 
   div.properties div.col-2 {
     margin-top: 3px;
-    padding: 1px;
+    padding: 1px 0;
     width: 100%;
     display: flex;
     justify-content: center;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
   }
 
   div.properties div.col-1 .property-count {
@@ -237,6 +414,8 @@ div.properties .property-list-list article.property .right-panel .price .price-m
     max-height: calc(100vh - 96px);
     overflow: auto;
     padding-right: 4px;
+    box-sizing: border-box;
+    min-width: 0;
   }
 
   div.properties div.col-2 {
@@ -244,6 +423,7 @@ div.properties .property-list-list article.property .right-panel .price .price-m
     flex-direction: column;
     align-items: center;
     flex: 1 0 auto;
+    min-width: 0;
   }
 
   div.properties div.search {
@@ -282,6 +462,7 @@ div.properties .property-list-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 div.properties .search-requires-dates {
@@ -297,17 +478,13 @@ div.properties .search-requires-dates {
 }
 
 @media only screen and (width <=960px) {
-  div.properties .search-header {
-    margin: 10px 8px;
-    padding: 14px;
-  }
-
-  div.properties .search-top-bar {
-    grid-template-columns: 1fr;
-  }
-
   div.properties {
     padding: 10px 8px 24px;
+  }
+
+  .properties-page .search-header {
+    width: calc(100% - 16px);
+    box-sizing: border-box;
   }
 
   div.properties .search-action {

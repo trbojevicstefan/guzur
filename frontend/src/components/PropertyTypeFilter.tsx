@@ -10,6 +10,7 @@ import '@/assets/css/property-type-filter.css'
 
 interface PropertyTypeFilterProps {
   className?: string
+  value?: movininTypes.PropertyType[]
   onChange?: (values: movininTypes.PropertyType[]) => void
 }
 
@@ -17,6 +18,7 @@ const allPropertyTypes = movininHelper.getAllPropertyTypes()
 
 const PropertyTypeFilter = ({
   className,
+  value,
   onChange
 }: PropertyTypeFilterProps) => {
   const [allChecked, setAllChecked] = useState(false)
@@ -49,6 +51,33 @@ const PropertyTypeFilter = ({
       townhouseRef.current.checked = true
     }
   }, [allChecked])
+
+  useEffect(() => {
+    const selected = value && value.length > 0 && value.length < allPropertyTypes.length ? value : []
+    if (apartmentRef.current) {
+      apartmentRef.current.checked = selected.includes(movininTypes.PropertyType.Apartment)
+    }
+    if (commercialRef.current) {
+      commercialRef.current.checked = selected.includes(movininTypes.PropertyType.Commercial)
+    }
+    if (farmRef.current) {
+      farmRef.current.checked = selected.includes(movininTypes.PropertyType.Farm)
+    }
+    if (houseRef.current) {
+      houseRef.current.checked = selected.includes(movininTypes.PropertyType.House)
+    }
+    if (industrialRef.current) {
+      industrialRef.current.checked = selected.includes(movininTypes.PropertyType.Industrial)
+    }
+    if (plotRef.current) {
+      plotRef.current.checked = selected.includes(movininTypes.PropertyType.Plot)
+    }
+    if (townhouseRef.current) {
+      townhouseRef.current.checked = selected.includes(movininTypes.PropertyType.Townhouse)
+    }
+    setValues(selected)
+    setAllChecked(selected.length > 0 && selected.length === allPropertyTypes.length)
+  }, [value])
 
   const handleChange = (_values: movininTypes.PropertyType[]) => {
     if (onChange) {

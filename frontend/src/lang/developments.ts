@@ -26,6 +26,8 @@ const strings = new LocalizedStrings({
     BROWSE_BY_LOCATION: 'Parcourir par localisation',
     CLEAR_LOCATION: 'Effacer la localisation',
     FILTERED_BY_LOCATION: 'Filtres par localisation',
+    TBA: 'À confirmer',
+    LOAD_ERROR: 'Impossible de charger les projets pour le moment.',
   },
   ar: {
 
@@ -52,6 +54,8 @@ const strings = new LocalizedStrings({
     BROWSE_BY_LOCATION: 'Browse by location',
     CLEAR_LOCATION: 'Clear location',
     FILTERED_BY_LOCATION: 'Filtered by location',
+    TBA: 'TBA',
+    LOAD_ERROR: 'Unable to load projects right now.',
   },
   en: {
     HEADING: 'Projects',
@@ -77,6 +81,8 @@ const strings = new LocalizedStrings({
     BROWSE_BY_LOCATION: 'Browse by location',
     CLEAR_LOCATION: 'Clear location',
     FILTERED_BY_LOCATION: 'Filtered by location',
+    TBA: 'TBA',
+    LOAD_ERROR: 'Unable to load projects right now.',
   },
 })
 

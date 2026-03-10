@@ -26,8 +26,8 @@ export const getDevelopments = (data: movininTypes.GetDevelopmentsPayload, page:
   if (data.location) {
     params.set('location', data.location)
   }
-  if (data.keyword) {
-    params.set('s', data.keyword)
+  if (data.q || data.keyword) {
+    params.set('q', data.q || data.keyword || '')
   }
   const query = params.toString()
   return axiosInstance
@@ -63,8 +63,8 @@ export const getFrontendDevelopments = (data: movininTypes.GetDevelopmentsPayloa
   if (data.location) {
     params.set('location', data.location)
   }
-  if (data.keyword) {
-    params.set('s', data.keyword)
+  if (data.q || data.keyword) {
+    params.set('q', data.q || data.keyword || '')
   }
   const query = params.toString()
   return axiosInstance

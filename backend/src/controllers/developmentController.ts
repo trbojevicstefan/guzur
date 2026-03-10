@@ -395,7 +395,7 @@ export const getDevelopments = async (req: Request, res: Response) => {
   try {
     const page = Number.parseInt(helper.normalizeParam(req.params.page) ?? '0', 10)
     const size = Number.parseInt(helper.normalizeParam(req.params.size) ?? '0', 10)
-    const keyword = escapeStringRegexp(String(req.query.s || ''))
+    const keyword = escapeStringRegexp(String(req.query.q || req.query.s || ''))
     const options = 'i'
 
     const developer = req.query.developer as string | undefined
@@ -484,7 +484,7 @@ export const getFrontendDevelopments = async (req: Request, res: Response) => {
   try {
     const page = Number.parseInt(helper.normalizeParam(req.params.page) ?? '0', 10)
     const size = Number.parseInt(helper.normalizeParam(req.params.size) ?? '0', 10)
-    const keyword = escapeStringRegexp(String(req.query.s || ''))
+    const keyword = escapeStringRegexp(String(req.query.q || req.query.s || ''))
     const options = 'i'
 
     const developer = req.query.developer as string | undefined

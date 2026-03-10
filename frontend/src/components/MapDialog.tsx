@@ -15,6 +15,7 @@ interface MapDialogProps {
   onClose: () => void
   onSelectProperty?: (propertyId: string) => void
   showTileToggle?: boolean
+  showLocationSearch?: boolean
 }
 
 const MapDialog = ({
@@ -25,6 +26,7 @@ const MapDialog = ({
   onClose,
   onSelectProperty,
   showTileToggle = false,
+  showLocationSearch = false,
 }: MapDialogProps) => {
   const [openMapDialog, setOpenMapDialog] = useState(openMapDialogProp)
 
@@ -94,6 +96,7 @@ const MapDialog = ({
           onSelectProperty={onSelectProperty}
           className="map"
           showTileToggle={showTileToggle}
+          showLocationSearch={showLocationSearch}
         />
       </DialogContent>
     </Dialog>

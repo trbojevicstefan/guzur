@@ -3,19 +3,20 @@ import React, {
   ReactNode,
   SetStateAction,
   useEffect,
-  useMemo,
   useState,
 } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import L, { LatLngExpression } from 'leaflet'
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
+import * as movininHelper from ':movinin-helper'
 import * as movininTypes from ':movinin-types'
 // import * as UserService from '@/services/UserService'
 import { strings } from '@/lang/map'
 import * as LocationService from '@/services/LocationService'
 import * as helper from '@/utils/helper'
 import env from '@/config/env.config'
+import LocationSelectList from '@/components/LocationSelectList'
 
 import 'leaflet-boundary-canvas'
 import 'leaflet/dist/leaflet.css'
@@ -85,6 +86,7 @@ interface MapProps {
   showTileToggle?: boolean
   streetLabel?: string
   satelliteLabel?: string
+  showLocationSearch?: boolean
   clickToActivate?: boolean
   lockOnMouseLeave?: boolean
   activationTheme?: 'default' | 'home-different'
@@ -103,6 +105,7 @@ const Map = ({
   showTileToggle = false,
   streetLabel = 'Street',
   satelliteLabel = 'Satellite',
+  showLocationSearch = false,
   clickToActivate = false,
   lockOnMouseLeave = true,
   activationTheme = 'default',
@@ -111,6 +114,7 @@ const Map = ({
   const [zoom, setZoom] = useState(_initialZoom)
   const [map, setMap] = useState<L.Map | null>(null)
   const [isMapInteractive, setIsMapInteractive] = useState(!clickToActivate)
+  const [selectedSearchLocation, setSelectedSearchLocation] = useState<movininTypes.Location | undefined>(undefined)
 
   useEffect(() => {
     setIsMapInteractive(!clickToActivate)
@@ -152,18 +156,15 @@ const Map = ({
   //
 
   const [tileMode, setTileMode] = useState<'street' | 'satellite'>('street')
-  const tileConfig = useMemo(() => {
-    if (tileMode === 'satellite') {
-      return {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles (c) Esri',
-      }
+  const tileConfig = tileMode === 'satellite'
+    ? {
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles (c) Esri',
     }
-    return {
+    : {
       url: env.MAP_TILE_URL,
       attribution: env.MAP_TILE_ATTRIBUTION,
     }
-  }, [tileMode])
   // const language = UserService.getLanguage()
   // let tileURL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
   // if (language === 'fr') {
@@ -189,7 +190,9 @@ const Map = ({
         id: property._id,
         name: property.name,
         listingType: property.listingType,
+        image: property.image || property.images?.[0] || '',
         locationName: typeof property.location === 'object' ? property.location?.name : undefined,
+        address: property.address,
         position: new L.LatLng(property.latitude as number, property.longitude as number),
       }))
   )
@@ -198,9 +201,19 @@ const Map = ({
     getPropertyMarkers().map((marker) => (
       <Marker key={marker.id} position={marker.position}>
         <Popup className="marker">
-          <div className="name">{marker.name}</div>
-          {marker.locationName && <div className="meta">{marker.locationName}</div>}
-          {marker.listingType && <div className="meta">{helper.getListingType(marker.listingType)}</div>}
+          <div className="map-property-popup">
+            {marker.image && (
+              <div className="map-property-popup-media">
+                <img
+                  src={marker.image.startsWith('http') ? marker.image : movininHelper.joinURL(env.CDN_PROPERTIES, marker.image)}
+                  alt={marker.name}
+                />
+              </div>
+            )}
+            <div className="name">{marker.name}</div>
+            {(marker.locationName || marker.address) && <div className="meta">{marker.locationName || marker.address}</div>}
+            {marker.listingType && <div className="meta">{helper.getListingType(marker.listingType)}</div>}
+          </div>
           <div className="action">
             {!!onSelectProperty && (
               <button
@@ -261,6 +274,29 @@ const Map = ({
           }
         }}
       >
+        {showLocationSearch && (
+          <div className="map-search">
+            <LocationSelectList
+              label={strings.SEARCH_LOCATION}
+              hidePopupIcon
+              variant="outlined"
+              init
+              value={selectedSearchLocation}
+              onChange={async (values) => {
+                const nextLocation = values[0] as movininTypes.Location | undefined
+                setSelectedSearchLocation(nextLocation)
+                if (!nextLocation?.latitude || !nextLocation?.longitude) {
+                  return
+                }
+                setIsMapInteractive(true)
+                map?.flyTo([nextLocation.latitude, nextLocation.longitude], 12, { animate: true })
+                if (nextLocation._id && onSelelectLocation) {
+                  onSelelectLocation(nextLocation._id)
+                }
+              }}
+            />
+          </div>
+        )}
         <MapContainer
           center={position}
           zoom={_initialZoom}

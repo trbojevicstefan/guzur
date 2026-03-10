@@ -5,6 +5,7 @@ const strings = new LocalizedStrings({
   fr: {
     SELECT_LOCATION: 'Choisir cette destination',
     VIEW_PROPERTY: 'Voir la propriÃ©tÃ©',
+    SEARCH_LOCATION: 'Rechercher un lieu',
     STREET: 'Rue',
     SATELLITE: 'Satellite',
     MAP_INACTIVE: 'Carte verrouillÃ©e',
@@ -16,6 +17,7 @@ const strings = new LocalizedStrings({
 
     SELECT_LOCATION: 'Select Destination',
     VIEW_PROPERTY: 'View Property',
+    SEARCH_LOCATION: 'Search location',
     STREET: 'Street',
     SATELLITE: 'Satellite',
     MAP_INACTIVE: 'Map locked',
@@ -26,6 +28,7 @@ const strings = new LocalizedStrings({
   en: {
     SELECT_LOCATION: 'Select Destination',
     VIEW_PROPERTY: 'View Property',
+    SEARCH_LOCATION: 'Search location',
     STREET: 'Street',
     SATELLITE: 'Satellite',
     MAP_INACTIVE: 'Map locked',

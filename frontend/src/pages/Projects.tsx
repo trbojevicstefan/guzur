@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useMediaQuery } from '@mui/material'
 import {
   Search,
-  FilterList,
   GridView,
   ViewList,
   TrendingUp,
@@ -23,128 +23,120 @@ import * as LocationService from '@/services/LocationService'
 import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 import * as movininHelper from ':movinin-helper'
+import {
+  buildProjectBrowseParams,
+  parseProjectBrowseParams,
+} from '@/utils/publicSearch'
 
 import '@/assets/css/developments.css'
 
-const cairoLocations = [
-  'Fifth Settlement, New Cairo',
-  'Sheikh Zayed City',
-  'Zamalek, Cairo',
-  'Maadi, Cairo',
-  'Heliopolis, Cairo',
-  'New Capital, Cairo',
-]
-
 const Projects = () => {
   const navigate = useNavigate()
+  const isCompactViewport = useMediaQuery('(max-width:900px)')
   const [searchParams, setSearchParams] = useSearchParams()
-  const [keyword, setKeyword] = useState('')
-  const [location, setLocation] = useState('')
+  const browseState = parseProjectBrowseParams(searchParams)
+
+  const [keywordInput, setKeywordInput] = useState(browseState.q)
   const [selectedLocation, setSelectedLocation] = useState<movininTypes.Location | undefined>(undefined)
-  const [status] = useState<movininTypes.DevelopmentStatus | ''>('')
   const [developments, setDevelopments] = useState<movininTypes.Development[]>([])
   const [loading, setLoading] = useState(false)
-  const [page, setPage] = useState(1)
+  const [error, setError] = useState('')
   const [rowCount, setRowCount] = useState(0)
   const [totalRecords, setTotalRecords] = useState(0)
-  const [projectLayout, setProjectLayout] = useState<'grid' | 'list'>('grid')
+  const [knownLocations, setKnownLocations] = useState<movininTypes.Location[]>([])
+
+  const updateBrowseState = (partial: Partial<typeof browseState>) => {
+    const nextState = {
+      ...browseState,
+      ...partial,
+    }
+    const params = buildProjectBrowseParams(nextState)
+    setSearchParams(params, { replace: false })
+  }
+
+  useEffect(() => {
+    setKeywordInput(browseState.q)
+  }, [browseState.q])
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      if (keywordInput !== browseState.q) {
+        updateBrowseState({ q: keywordInput, page: 1 })
+      }
+    }, 350)
+
+    return () => {
+      window.clearTimeout(handle)
+    }
+  }, [browseState.q, keywordInput])
+
+  useEffect(() => {
+    const loadLocations = async () => {
+      try {
+        const data = await LocationService.getLocations('', 1, 500)
+        const rows = data?.[0]?.resultData ?? []
+        setKnownLocations(Array.isArray(rows) ? rows : [])
+      } catch (err) {
+        helper.error(err)
+      }
+    }
+
+    loadLocations()
+  }, [])
+
+  useEffect(() => {
+    if (!browseState.location || knownLocations.length === 0) {
+      setSelectedLocation(undefined)
+      return
+    }
+
+    const matchedLocation = knownLocations.find((location) => location.name === browseState.location)
+    setSelectedLocation(matchedLocation)
+  }, [browseState.location, knownLocations])
 
   useEffect(() => {
     const fetchDevelopments = async () => {
       try {
         setLoading(true)
+        setError('')
         const payload: movininTypes.GetDevelopmentsPayload = {
-          keyword,
-          location: location || undefined,
-          status: status || undefined,
+          q: browseState.q || undefined,
+          location: browseState.location || undefined,
+          status: browseState.status || undefined,
         }
-        const data = await DevelopmentService.getFrontendDevelopments(payload, page, env.PAGE_SIZE)
+        const data = await DevelopmentService.getFrontendDevelopments(payload, browseState.page, env.PAGE_SIZE)
         const rows = data?.[0]?.resultData ?? []
         const total = Array.isArray(data?.[0]?.pageInfo) && data?.[0]?.pageInfo.length > 0
           ? data[0].pageInfo[0].totalRecords
           : rows.length
         setDevelopments(rows)
-        setRowCount((page - 1) * env.PAGE_SIZE + rows.length)
+        setRowCount((browseState.page - 1) * env.PAGE_SIZE + rows.length)
         setTotalRecords(total)
       } catch (err) {
         helper.error(err)
+        setError(developmentStrings.LOAD_ERROR)
       } finally {
         setLoading(false)
       }
     }
 
     fetchDevelopments()
-  }, [keyword, location, status, page])
-
-  useEffect(() => {
-    const initLocation = async () => {
-      const paramLocation = searchParams.get('location') || ''
-      if (!paramLocation) {
-        setLocation('')
-        setSelectedLocation(undefined)
-        setPage(1)
-        return
-      }
-      if (paramLocation !== location) {
-        setLocation(paramLocation)
-        setPage(1)
-        try {
-          const loc = await LocationService.getLocation(paramLocation)
-          setSelectedLocation(loc)
-        } catch (err) {
-          helper.error(err)
-        }
-      }
-    }
-
-    initLocation()
-  }, [location, searchParams])
+  }, [browseState.location, browseState.page, browseState.q, browseState.status])
 
   const formatCompletionDate = (value?: Date | string) => {
     if (!value) {
-      return ''
+      return developmentStrings.TBA
     }
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) {
-      return ''
+      return developmentStrings.TBA
     }
     return format(date, 'MMM yyyy')
   }
 
-  const getOpenDate = (development: movininTypes.Development) => {
-    const explicitCompletion = formatCompletionDate(development.completionDate)
-    if (explicitCompletion) {
-      return explicitCompletion
-    }
-
-    const base = development.updatedAt ? new Date(development.updatedAt) : new Date()
-    let monthsToAdd = 18
-    if (development.status === movininTypes.DevelopmentStatus.InProgress) {
-      monthsToAdd = 12
-    }
-    if (development.status === movininTypes.DevelopmentStatus.Completed) {
-      monthsToAdd = 6
-    }
-    if (development.status === movininTypes.DevelopmentStatus.Planning) {
-      monthsToAdd = 24
-    }
-    const future = new Date(base)
-    future.setMonth(future.getMonth() + monthsToAdd)
-    if (future <= new Date()) {
-      future.setMonth(future.getMonth() + 6)
-    }
-    return format(future, 'MMM yyyy')
-  }
-
   const getDisplayLocation = (development: movininTypes.Development) => {
-    if (selectedLocation?.name) {
-      return selectedLocation.name
-    }
-    if (development.location && !/\d/.test(development.location)) {
-      return development.location
-    }
-    const seed = (development.name || '').length
-    return cairoLocations[seed % cairoLocations.length]
+    const locationLabel = typeof development.location === 'string' ? development.location.trim() : ''
+    return locationLabel || developmentStrings.TBA
   }
 
   const statusLabel = (value?: movininTypes.DevelopmentStatus) => {
@@ -202,9 +194,7 @@ const Projects = () => {
     event.currentTarget.style.opacity = '0'
   }
 
-  const visibleDevelopments = useMemo(() => developments, [developments])
-
-  const pageStart = totalRecords > 0 ? (page - 1) * env.PAGE_SIZE + 1 : 0
+  const pageStart = totalRecords > 0 ? (browseState.page - 1) * env.PAGE_SIZE + 1 : 0
   const pageEnd = rowCount > 0 ? rowCount : 0
 
   return (
@@ -224,15 +214,15 @@ const Projects = () => {
             <div className="projects-layout-toggle">
               <button
                 type="button"
-                className={projectLayout === 'grid' ? 'is-active' : ''}
-                onClick={() => setProjectLayout('grid')}
+                className={browseState.layout === 'grid' ? 'is-active' : ''}
+                onClick={() => updateBrowseState({ layout: 'grid' })}
               >
                 <GridView fontSize="small" />
               </button>
               <button
                 type="button"
-                className={projectLayout === 'list' ? 'is-active' : ''}
-                onClick={() => setProjectLayout('list')}
+                className={browseState.layout === 'list' ? 'is-active' : ''}
+                onClick={() => updateBrowseState({ layout: 'list' })}
               >
                 <ViewList fontSize="small" />
               </button>
@@ -245,11 +235,10 @@ const Projects = () => {
             <Search fontSize="small" />
             <input
               type="text"
-              value={keyword}
+              value={keywordInput}
               placeholder={developmentStrings.SEARCH_PLACEHOLDER}
               onChange={(e) => {
-                setKeyword(e.target.value)
-                setPage(1)
+                setKeywordInput(e.target.value)
               }}
             />
           </div>
@@ -265,19 +254,11 @@ const Projects = () => {
               init
               value={selectedLocation}
               onChange={(values) => {
-                const selected = values[0]
-                const nextLocation = selected?._id || ''
-                setLocation(nextLocation)
-                setSelectedLocation(selected as movininTypes.Location)
-                setPage(1)
-                setSearchParams((prev) => {
-                  const next = new URLSearchParams(prev)
-                  if (nextLocation) {
-                    next.set('location', nextLocation)
-                  } else {
-                    next.delete('location')
-                  }
-                  return next
+                const selected = values[0] as movininTypes.Location | undefined
+                setSelectedLocation(selected)
+                updateBrowseState({
+                  location: selected?.name || '',
+                  page: 1,
                 })
               }}
             />
@@ -285,17 +266,35 @@ const Projects = () => {
 
           <div className="projects-divider" />
 
-          <button type="button" className="projects-more-filters">
-            <FilterList fontSize="small" />
-            {developmentStrings.MORE_FILTERS}
-          </button>
+          <label className="projects-status" htmlFor="projects-status-select">
+            <span>{developmentStrings.STATUS}</span>
+            <select
+              id="projects-status-select"
+              value={browseState.status}
+              onChange={(event) => {
+                updateBrowseState({
+                  status: event.target.value as movininTypes.DevelopmentStatus | '',
+                  page: 1,
+                })
+              }}
+            >
+              <option value="">{developmentStrings.ALL_STATUSES}</option>
+              <option value={movininTypes.DevelopmentStatus.Planning}>{commonStrings.DEVELOPMENT_STATUS_PLANNING}</option>
+              <option value={movininTypes.DevelopmentStatus.InProgress}>{commonStrings.DEVELOPMENT_STATUS_IN_PROGRESS}</option>
+              <option value={movininTypes.DevelopmentStatus.Completed}>{commonStrings.DEVELOPMENT_STATUS_COMPLETED}</option>
+            </select>
+          </label>
         </div>
 
         {loading ? (
           <div className="projects-loading">{commonStrings.LOADING}</div>
-        ) : projectLayout === 'grid' ? (
+        ) : error ? (
+          <div className="projects-loading">{error}</div>
+        ) : developments.length === 0 ? (
+          <div className="projects-loading">{developmentStrings.EMPTY}</div>
+        ) : browseState.layout === 'grid' || isCompactViewport ? (
           <div className="projects-grid">
-            {visibleDevelopments.map((project) => {
+            {developments.map((project) => {
               const projectImage = getDevelopmentImage(project)
               return (
                 <div key={project._id} className="project-card">
@@ -326,13 +325,13 @@ const Projects = () => {
                       {getDisplayLocation(project)}
                     </div>
                     <h3>{project.name}</h3>
-                    <p>{developmentStrings.DEVELOPED_BY.replace('{name}', getDevelopmentName(project) || '-')}</p>
+                    <p>{developmentStrings.DEVELOPED_BY.replace('{name}', getDevelopmentName(project) || developmentStrings.TBA)}</p>
                     <div className="project-card-footer">
                       <div>
                         <span>{developmentStrings.OPEN_DATE}</span>
                         <div>
                           <AccessTime fontSize="inherit" />
-                          {getOpenDate(project)}
+                          {formatCompletionDate(project.completionDate)}
                         </div>
                       </div>
                       <button type="button" onClick={() => project._id && navigate(`/projects/${project._id}`)}>
@@ -358,7 +357,7 @@ const Projects = () => {
                 </tr>
               </thead>
               <tbody>
-                {visibleDevelopments.map((project) => {
+                {developments.map((project) => {
                   const projectImage = getDevelopmentImage(project)
                   return (
                     <tr key={project._id}>
@@ -390,11 +389,11 @@ const Projects = () => {
                           {getDisplayLocation(project)}
                         </span>
                       </td>
-                      <td>{getDevelopmentName(project) || '-'}</td>
+                      <td>{getDevelopmentName(project) || developmentStrings.TBA}</td>
                       <td className="project-table-units">{project.unitsCount || 0}</td>
                       <td className="project-table-date">
                         <AccessTime fontSize="inherit" />
-                        {getOpenDate(project)}
+                        {formatCompletionDate(project.completionDate)}
                       </td>
                       <td className="project-table-actions">
                         <button type="button" onClick={() => project._id && navigate(`/projects/${project._id}`)}>
@@ -410,28 +409,20 @@ const Projects = () => {
         )}
 
         <div className="projects-pagination">
-          <span>{`${pageStart}-${pageEnd} ${commonStrings.OF} ${totalRecords} ${developmentStrings.TOTAL}`}</span>
-          <div>
+          <span className="projects-pagination-summary">{`${pageStart}-${pageEnd} ${commonStrings.OF} ${totalRecords} ${developmentStrings.TOTAL}`}</span>
+          <div className="projects-pagination-controls">
             <button
               type="button"
-              disabled={page === 1}
-              onClick={() => {
-                const _page = page - 1
-                setRowCount(_page < Math.ceil(totalRecords / env.PAGE_SIZE) ? (_page - 1) * env.PAGE_SIZE + env.PAGE_SIZE : totalRecords)
-                setPage(_page)
-              }}
+              disabled={browseState.page === 1}
+              onClick={() => updateBrowseState({ page: browseState.page - 1 })}
             >
               <ChevronLeft fontSize="small" />
             </button>
-            <span>{page}</span>
+            <span className="projects-pagination-page">{browseState.page}</span>
             <button
               type="button"
-              disabled={(page - 1) * env.PAGE_SIZE + developments.length >= totalRecords}
-              onClick={() => {
-                const _page = page + 1
-                setRowCount(_page < Math.ceil(totalRecords / env.PAGE_SIZE) ? (_page - 1) * env.PAGE_SIZE + env.PAGE_SIZE : totalRecords)
-                setPage(_page)
-              }}
+              disabled={(browseState.page - 1) * env.PAGE_SIZE + developments.length >= totalRecords}
+              onClick={() => updateBrowseState({ page: browseState.page + 1 })}
             >
               <ChevronRight fontSize="small" />
             </button>

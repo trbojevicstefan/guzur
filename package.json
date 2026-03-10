@@ -31,7 +31,8 @@
     "pre-commit": "node pre-commit.js",
     "releases": "node releases.js",
     "prepare": "husky install",
-    "lint": "eslint . --cache --cache-location .eslintcache"
+    "lint": "eslint . --cache --cache-location .eslintcache",
+    "test:smoke": "playwright test"
   },
   "devDependencies": {
     "chalk": "^5.4.1",

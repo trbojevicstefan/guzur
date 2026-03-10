@@ -36,6 +36,31 @@ form.home-search-form .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notch
   box-shadow: 0 0 0 3px rgba(255, 56, 92, 0.08);
 }
 
+form.home-search-form .search-form-features {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+form.home-search-form .search-form-feature {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-strong);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+form.home-search-form .search-form-feature.is-active {
+  border-color: rgba(255, 56, 92, 0.28);
+  background: rgba(255, 56, 92, 0.1);
+  color: #b91c1c;
+}
+
 /* Dropdown menu surface */
 .MuiMenu-paper {
   border-radius: 18px !important;
@@ -75,7 +100,13 @@ form.home-search-form .btn-cancel:hover {
   }
 
   form.home-search-form .location,
+  form.home-search-form .keyword,
   form.home-search-form .listing-type,
+  form.home-search-form .price-min,
+  form.home-search-form .price-max,
+  form.home-search-form .bedrooms-min,
+  form.home-search-form .area-min,
+  form.home-search-form .area-max,
   form.home-search-form .from,
   form.home-search-form .to {
     width: 100%;
@@ -101,6 +132,11 @@ form.home-search-form .btn-cancel:hover {
     width: 100%;
   }
 
+  form.home-search-form .keyword {
+    flex: 1 1 220px;
+    padding: 0;
+  }
+
   form.home-search-form .location {
     flex: 1 1 260px;
     padding-right: 0;
@@ -113,8 +149,13 @@ form.home-search-form .btn-cancel:hover {
   }
 
   form.home-search-form .from,
-  form.home-search-form .to {
-    flex: 0 0 200px;
+  form.home-search-form .to,
+  form.home-search-form .price-min,
+  form.home-search-form .price-max,
+  form.home-search-form .bedrooms-min,
+  form.home-search-form .area-min,
+  form.home-search-form .area-max {
+    flex: 0 0 180px;
     padding: 0;
   }
 

@@ -199,7 +199,7 @@ const Home = () => {
     {
       id: 'selection',
       color: DIFFERENT_STEP_COLORS[0],
-      tag: strings.SERVICES_FLEET_TITLE,
+      tag: strings.SERVICES_FLEET_TAG,
       title: strings.SERVICES_FLEET_TITLE,
       description: strings.SERVICES_FLEET,
       image: differentStepImages[0],
@@ -207,7 +207,7 @@ const Home = () => {
     {
       id: 'availability',
       color: DIFFERENT_STEP_COLORS[1],
-      tag: strings.SERVICES_FLEXIBLE_TITLE,
+      tag: strings.SERVICES_FLEXIBLE_TAG,
       title: strings.SERVICES_FLEXIBLE_TITLE,
       description: strings.SERVICES_FLEXIBLE,
       image: differentStepImages[1],
@@ -215,7 +215,7 @@ const Home = () => {
     {
       id: 'value',
       color: DIFFERENT_STEP_COLORS[2],
-      tag: strings.SERVICES_PRICES_TITLE,
+      tag: strings.SERVICES_PRICES_TAG,
       title: strings.SERVICES_PRICES_TITLE,
       description: strings.SERVICES_PRICES,
       image: differentStepImages[2],
@@ -223,7 +223,7 @@ const Home = () => {
     {
       id: 'process',
       color: DIFFERENT_STEP_COLORS[3],
-      tag: strings.SERVICES_BOOKING_ONLINE_TITLE,
+      tag: strings.SERVICES_BOOKING_ONLINE_TAG,
       title: strings.SERVICES_BOOKING_ONLINE_TITLE,
       description: strings.SERVICES_BOOKING_ONLINE,
       image: differentStepImages[3],
@@ -231,7 +231,7 @@ const Home = () => {
     {
       id: 'commitment',
       color: DIFFERENT_STEP_COLORS[4],
-      tag: strings.SERVICE_INSTANT_BOOKING_TITLE,
+      tag: strings.SERVICE_INSTANT_BOOKING_TAG,
       title: strings.SERVICE_INSTANT_BOOKING_TITLE,
       description: strings.SERVICE_INSTANT_BOOKING,
       image: differentStepImages[4],
@@ -385,7 +385,7 @@ const Home = () => {
     const stickyNode = section.querySelector<HTMLDivElement>('.home-different-sticky')
     const totalSteps = differentSteps.length
 
-    if (stepNodes.length === 0 || imageNodes.length === 0 || totalSteps === 0) {
+    if (stepNodes.length === 0 || imageNodes.length === 0 || totalSteps === 0 || !stickyNode) {
       return undefined
     }
 
@@ -546,8 +546,10 @@ const Home = () => {
       ScrollTrigger.create({
         trigger: section,
         start: 'top top',
+        pin: stickyNode,
+        pinSpacing: false,
         end: () => {
-          const stickyHeight = stickyNode?.offsetHeight || window.innerHeight
+          const stickyHeight = stickyNode.offsetHeight || window.innerHeight
           const releaseOffset = Math.min(Math.round(stickyHeight * 0.16), 140)
           const availableScroll = Math.max(section.offsetHeight - stickyHeight - releaseOffset, stickyHeight * 0.78)
           return `+=${availableScroll}`

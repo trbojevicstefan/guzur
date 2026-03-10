@@ -35,6 +35,13 @@ const waitForRouteReady = async (page: Page, route: string) => {
   }
 }
 
+const getActiveDifferentStepTitle = async (page: Page) => page.locator('.home-different-section').evaluate((section) => {
+  const activeStep = Array.from(section.querySelectorAll<HTMLElement>('.home-different-step'))
+    .find((step) => Number(window.getComputedStyle(step).opacity) > 0.5)
+
+  return activeStep?.querySelector('h2')?.textContent?.trim() || ''
+})
+
 const selectMuiOption = async (page: Page, triggerSelector: string, optionLabel: string | RegExp) => {
   await page.locator(triggerSelector).click()
   if (typeof optionLabel === 'string') {
@@ -104,6 +111,23 @@ test('home CTA routing, hero search URL state, and home map lock', async ({ page
   await expect(page.locator('.home-map .map-activation-mask')).toBeVisible()
   await page.locator('.home-map .map-activation-mask').click()
   await expect(page.locator('.home-map .map-activation-state')).toBeVisible()
+})
+
+test('home story section advances on desktop scroll', async ({ page }) => {
+  test.skip(desktopOnly(), 'Story animation is validated on the desktop project only.')
+
+  await page.goto('/')
+  const section = page.locator('.home-different-section')
+  await section.scrollIntoViewIfNeeded()
+  await page.evaluate(() => {
+    window.scrollBy(0, 120)
+  })
+
+  await expect.poll(async () => getActiveDifferentStepTitle(page)).toBe('Wide Range Of Properties')
+
+  await page.mouse.wheel(0, 1500)
+
+  await expect.poll(async () => getActiveDifferentStepTitle(page)).not.toBe('Wide Range Of Properties')
 })
 
 test('projects filters update in place and sticky filters stay below the header', async ({ page }) => {

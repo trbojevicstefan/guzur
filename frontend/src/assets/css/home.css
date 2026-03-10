@@ -884,8 +884,7 @@ div.home .home-different-section {
 }
 
 div.home .home-different-sticky {
-  position: sticky;
-  top: 0;
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;

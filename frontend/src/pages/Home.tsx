@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Dialog, DialogContent, Button } from '@mui/material'
 import {
@@ -13,8 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from '@mui/icons-material'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import L from 'leaflet'
 import * as movininTypes from ':movinin-types'
 import * as movininHelper from ':movinin-helper'
@@ -34,7 +32,6 @@ import Footer from '@/components/Footer'
 
 import '@/assets/css/home.css'
 
-gsap.registerPlugin(ScrollTrigger)
 const DIFFERENT_STEP_COLORS = ['#d97d74', '#a8b69f', '#d4bc8d', '#9eb8cd', '#b8a9c9']
 
 const Home = () => {
@@ -55,10 +52,8 @@ const Home = () => {
   const [loadedListingImages, setLoadedListingImages] = useState<Record<string, boolean>>({})
   const [failedListingImages, setFailedListingImages] = useState<Record<string, boolean>>({})
   const [activeDifferentStep, setActiveDifferentStep] = useState(0)
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const featuredRowRef = useRef<HTMLDivElement | null>(null)
   const projectsRowRef = useRef<HTMLDivElement | null>(null)
-  const differentSectionRef = useRef<HTMLElement | null>(null)
   const heroVideoRef = useRef<HTMLVideoElement | null>(null)
   const supportEmail = env.CONTACT_EMAIL || 'support@guzur.com'
 
@@ -239,11 +234,14 @@ const Home = () => {
   ]), [differentStepImages])
   const activeStepColor = differentSteps[activeDifferentStep]?.color || DIFFERENT_STEP_COLORS[0]
   const nextStepColor = differentSteps[(activeDifferentStep + 1) % differentSteps.length]?.color || DIFFERENT_STEP_COLORS[1]
+  const activeDifferentStepData = differentSteps[activeDifferentStep] || differentSteps[0]
   const differentStyle = {
     '--home-different-accent': activeStepColor,
     '--home-different-secondary': nextStepColor,
-    '--home-different-steps': String(differentSteps.length),
   } as React.CSSProperties
+  const handleDifferentStepSelect = useCallback((index: number) => {
+    setActiveDifferentStep((prev) => (prev === index ? prev : index))
+  }, [])
   const heroPoints = [
     strings.HERO_POINT_SALE,
     strings.HERO_POINT_RENT,
@@ -349,243 +347,6 @@ const Home = () => {
       video.removeEventListener('canplay', tryPlay)
     }
   }, [videoEnded])
-
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const handleChange = (event: MediaQueryListEvent) => {
-      setPrefersReducedMotion(event.matches)
-    }
-
-    setPrefersReducedMotion(media.matches)
-    if (media.addEventListener) {
-      media.addEventListener('change', handleChange)
-      return () => {
-        media.removeEventListener('change', handleChange)
-      }
-    }
-
-    media.addListener(handleChange)
-    return () => {
-      media.removeListener(handleChange)
-    }
-  }, [])
-
-  useLayoutEffect(() => {
-    const section = differentSectionRef.current
-    if (!section) {
-      return undefined
-    }
-
-    const stepNodes = Array.from(section.querySelectorAll<HTMLDivElement>('.home-different-step'))
-    const imageNodes = Array.from(section.querySelectorAll<HTMLImageElement>('.home-different-frame img'))
-    const ringNodes = Array.from(section.querySelectorAll<HTMLDivElement>('.home-different-ring'))
-    const bubbleNodes = Array.from(section.querySelectorAll<HTMLDivElement>('.home-different-bubble'))
-    const frameNode = section.querySelector<HTMLDivElement>('.home-different-frame')
-    const glowNode = section.querySelector<HTMLDivElement>('.home-different-glow')
-    const stickyNode = section.querySelector<HTMLDivElement>('.home-different-sticky')
-    const totalSteps = differentSteps.length
-
-    if (stepNodes.length === 0 || imageNodes.length === 0 || totalSteps === 0 || !stickyNode) {
-      return undefined
-    }
-
-    let refreshHandle = 0
-    const ctx = gsap.context(() => {
-      const ringBaseOpacity = [0.12, 0.2, 0.42, 0.62]
-      section.classList.toggle('is-reduced-motion', prefersReducedMotion)
-
-      if (prefersReducedMotion) {
-        setActiveDifferentStep(0)
-        gsap.set(stepNodes, {
-          clearProps: 'all',
-          autoAlpha: 1,
-          y: 0,
-          x: 0,
-        })
-        gsap.set(imageNodes, { autoAlpha: 0, scale: 1 })
-        gsap.set(imageNodes[0], { autoAlpha: 1, scale: 1 })
-        gsap.set(bubbleNodes, { autoAlpha: 1, y: 0, scale: 1 })
-        gsap.set(ringNodes, { clearProps: 'all' })
-        gsap.set(section, {
-          '--home-different-accent': DIFFERENT_STEP_COLORS[0],
-          '--home-different-secondary': DIFFERENT_STEP_COLORS[1],
-        })
-        return
-      }
-
-      gsap.set(stepNodes, { autoAlpha: 0, y: 40 })
-      gsap.set(imageNodes, { autoAlpha: 0, scale: 1.14 })
-      gsap.set(bubbleNodes, { autoAlpha: 0, y: 20, scale: 0.88 })
-      gsap.set(stepNodes[0], { autoAlpha: 1, y: 0 })
-      gsap.set(imageNodes[0], { autoAlpha: 1, scale: 1 })
-
-      const ringMeta = ringNodes.map((ring, index) => ({
-        ring,
-        baseOpacity: ringBaseOpacity[index] || 0.22,
-      }))
-      const waveOrder = [...ringMeta].reverse()
-
-      ringMeta.forEach(({ ring, baseOpacity }) => {
-        gsap.set(ring, {
-          scale: 1,
-          opacity: baseOpacity,
-          transformOrigin: '50% 50%',
-        })
-      })
-
-      const waveTimeline = gsap.timeline({
-        repeat: -1,
-        defaults: { ease: 'sine.inOut' },
-      })
-      waveOrder.forEach(({ ring, baseOpacity }, waveIndex) => {
-        const peakScale = 1.12 - (waveIndex * 0.02)
-        const peakOpacity = Math.min(baseOpacity + 0.28, 0.86)
-        const startAt = waveIndex * 0.14
-
-        waveTimeline.to(ring, {
-          scale: peakScale,
-          opacity: peakOpacity,
-          duration: 0.3,
-          ease: 'sine.out',
-        }, startAt)
-        waveTimeline.to(ring, {
-          scale: 1,
-          opacity: baseOpacity,
-          duration: 1.05,
-          ease: 'sine.inOut',
-        }, startAt + 0.3)
-      })
-      waveTimeline.to({}, { duration: 0.2 })
-
-      if (glowNode) {
-        gsap.to(glowNode, {
-          scale: 1.18,
-          opacity: 0.34,
-          duration: 0.62,
-          yoyo: true,
-          repeat: -1,
-          ease: 'sine.inOut',
-          transformOrigin: '50% 50%',
-        })
-      }
-
-      if (frameNode) {
-        gsap.to(frameNode, {
-          y: -14,
-          duration: 3.4,
-          yoyo: true,
-          repeat: -1,
-          ease: 'sine.inOut',
-        })
-      }
-
-      gsap.to(bubbleNodes, {
-        autoAlpha: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.7,
-        stagger: 0.08,
-        ease: 'power2.out',
-      })
-      bubbleNodes.forEach((bubble, index) => {
-        gsap.to(bubble, {
-          y: -(8 + (index * 2)),
-          duration: 2.4 + (index * 0.3),
-          repeat: -1,
-          yoyo: true,
-          delay: 0.65 + (index * 0.12),
-          ease: 'sine.inOut',
-        })
-      })
-
-      const animateStep = (index: number) => {
-        setActiveDifferentStep((prev) => (prev === index ? prev : index))
-        const activeColor = differentSteps[index]?.color || DIFFERENT_STEP_COLORS[0]
-        const nextColor = differentSteps[(index + 1) % totalSteps]?.color || DIFFERENT_STEP_COLORS[1]
-
-        gsap.to(section, {
-          '--home-different-accent': activeColor,
-          '--home-different-secondary': nextColor,
-          duration: 0.7,
-          ease: 'power2.out',
-          overwrite: 'auto',
-        })
-        gsap.to(ringNodes, {
-          borderColor: activeColor,
-          duration: 0.7,
-          stagger: 0.03,
-          ease: 'power2.out',
-          overwrite: 'auto',
-        })
-
-        stepNodes.forEach((stepNode, stepIndex) => {
-          gsap.to(stepNode, {
-            autoAlpha: stepIndex === index ? 1 : 0,
-            y: stepIndex === index ? 0 : 40,
-            x: stepIndex === index ? 0 : -10,
-            duration: 0.5,
-            ease: 'power2.out',
-            overwrite: 'auto',
-          })
-        })
-
-        imageNodes.forEach((imageNode, imageIndex) => {
-          gsap.to(imageNode, {
-            autoAlpha: imageIndex === index ? 1 : 0,
-            scale: imageIndex === index ? 1 : 1.14,
-            duration: 0.8,
-            ease: 'power3.out',
-            overwrite: 'auto',
-          })
-        })
-      }
-
-      let currentStep = 0
-      animateStep(0)
-
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        pin: stickyNode,
-        pinSpacing: false,
-        end: () => {
-          const stickyHeight = stickyNode.offsetHeight || window.innerHeight
-          const releaseOffset = Math.min(Math.round(stickyHeight * 0.16), 140)
-          const availableScroll = Math.max(section.offsetHeight - stickyHeight - releaseOffset, stickyHeight * 0.78)
-          return `+=${availableScroll}`
-        },
-        scrub: 1,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onLeave: () => {
-          currentStep = totalSteps - 1
-          animateStep(totalSteps - 1)
-        },
-        onLeaveBack: () => {
-          currentStep = 0
-          animateStep(0)
-        },
-        onUpdate: (self) => {
-          const nextStep = Math.min(totalSteps - 1, Math.round(self.progress * (totalSteps - 1)))
-          if (nextStep !== currentStep) {
-            currentStep = nextStep
-            animateStep(nextStep)
-          }
-        },
-      })
-    }, section)
-    refreshHandle = window.requestAnimationFrame(() => {
-      ScrollTrigger.sort()
-      ScrollTrigger.refresh()
-    })
-
-    return () => {
-      if (refreshHandle) {
-        window.cancelAnimationFrame(refreshHandle)
-      }
-      ctx.revert()
-    }
-  }, [differentSteps, prefersReducedMotion])
 
   const setListingImageLoaded = (imageUrl: string) => {
     setLoadedListingImages((prev) => {
@@ -1029,69 +790,89 @@ const Home = () => {
         </div>
 
         <div className="services">
-          <section className={`home-different-section${prefersReducedMotion ? ' is-reduced-motion' : ''}`} style={differentStyle} ref={differentSectionRef}>
-            <div className="home-different-sticky">
-              <div className="home-different-orb home-different-orb-one" />
-              <div className="home-different-orb home-different-orb-two" />
+          <section className="home-different-section" style={differentStyle}>
+            <div className="home-different-orb home-different-orb-one" />
+            <div className="home-different-orb home-different-orb-two" />
+
+            <div className="home-different-shell">
+              <div className="home-different-heading">
+                <h1>{strings.SERVICES_TITLE}</h1>
+              </div>
 
               <div className="home-different-grid">
-                <div className="home-different-copy">
-                  <div className="home-different-heading">
-                    <h1>{strings.SERVICES_TITLE}</h1>
+                <div className="home-different-visual">
+                  <div className="home-different-preview">
+                    <div className="home-different-preview-media">
+                      {differentSteps.map((step, index) => (
+                        <img
+                          key={`${step.id}-image`}
+                          className={`home-different-preview-image${index === activeDifferentStep ? ' is-active' : ''}`}
+                          src={step.image}
+                          alt={step.title}
+                          loading="lazy"
+                        />
+                      ))}
+                      <div className="home-different-preview-overlay" />
+                      <div className="home-different-preview-copy">
+                        <span className="home-different-preview-index">
+                          {String(activeDifferentStep + 1).padStart(2, '0')}
+                        </span>
+                        <span className="home-different-tag" style={{ color: activeDifferentStepData?.color }}>
+                          {activeDifferentStepData?.tag}
+                        </span>
+                        <h2 className="home-different-preview-title">{activeDifferentStepData?.title}</h2>
+                      </div>
+                    </div>
+
+                    <div className="home-different-stats">
+                      {differentStats.map((stat) => (
+                        <div key={stat.label} className="home-different-stat">
+                          <span className="label">{stat.label}</span>
+                          <span className="value">{stat.value}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="home-different-text">
-                    {differentSteps.map((step) => (
-                      <div
-                        key={step.id}
-                        className="home-different-step"
-                      >
+                </div>
+
+                <div className="home-different-list">
+                  {differentSteps.map((step, index) => (
+                    <button
+                      key={step.id}
+                      type="button"
+                      data-step-index={index}
+                      className={`home-different-step${index === activeDifferentStep ? ' is-active' : ''}`}
+                      aria-pressed={index === activeDifferentStep}
+                      onClick={() => {
+                        handleDifferentStepSelect(index)
+                      }}
+                      onMouseEnter={() => {
+                        handleDifferentStepSelect(index)
+                      }}
+                      onFocus={() => {
+                        handleDifferentStepSelect(index)
+                      }}
+                    >
+                      <span className="home-different-step-index">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+
+                      <div className="home-different-step-copy">
                         <span className="home-different-tag" style={{ color: step.color }}>
                           {step.tag}
                         </span>
                         <h2>{step.title}</h2>
                         <p>{step.description}</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="home-different-visual">
-                  <div className="home-different-glow" />
-
-                  <div className="home-different-ring-container">
-                    <div className="home-different-ring home-different-ring-1" />
-                    <div className="home-different-ring home-different-ring-2" />
-                    <div className="home-different-ring home-different-ring-3" />
-                    <div className="home-different-ring home-different-ring-4" />
-                  </div>
-
-                  <div className="home-different-frame">
-                    {differentSteps.map((step) => (
-                      <img
-                        key={`${step.id}-image`}
-                        src={step.image}
-                        alt={step.title}
-                        loading="lazy"
-                      />
-                    ))}
-                  </div>
-
-                  <div className="home-different-bubbles">
-                    {differentStats.map((stat, index) => (
-                      <div
-                        key={`${stat.label}-${index}`}
-                        className={`home-different-bubble home-different-bubble-${index + 1}`}
-                      >
-                        <span className="label">{stat.label}</span>
-                        <span className="value">{stat.value}</span>
-                      </div>
-                    ))}
-                  </div>
+                      <span className="home-different-step-indicator" aria-hidden />
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           </section>
-          </div>
+        </div>
 
         <div className="home-map">
           <Map

@@ -442,6 +442,27 @@ export const OPENAI_API_KEY = __env__('MI_OPENAI_API_KEY', false)
 export const OPENAI_MODEL = __env__('MI_OPENAI_MODEL', false, 'gpt-4o-mini')
 
 /**
+ * Gemini API key used by the concierge live voice bridge.
+ *
+ * @type {string}
+ */
+export const GEMINI_API_KEY = __env__('MI_GEMINI_API_KEY', false)
+
+/**
+ * Gemini Live model used by concierge voice sessions.
+ *
+ * @type {string}
+ */
+export const GEMINI_LIVE_MODEL = __env__('MI_GEMINI_LIVE_MODEL', false, 'gemini-live-2.5-flash-preview')
+
+/**
+ * Gemini Live prebuilt voice used for assistant speech output.
+ *
+ * @type {string}
+ */
+export const GEMINI_LIVE_VOICE = __env__('MI_GEMINI_LIVE_VOICE', false, 'Zephyr')
+
+/**
  * ipinfo.io API key.
  * Required for more tha, 1000 requests/day.
  *

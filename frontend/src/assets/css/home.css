@@ -5,6 +5,8 @@ div.home {
   align-items: center;
   overflow: visible;
   background: var(--bg-base);
+  --home-hero-radius: 32px;
+  --home-hero-width: min(1500px, calc(100% - 52px));
 }
 
 div.home div.home-content {
@@ -15,25 +17,24 @@ div.home div.home-content {
   align-items: center;
   width: 100%;
   z-index: 1;
-  padding: 152px 0 120px;
-  gap: 18px;
+  padding: 146px 0 124px;
+  gap: 22px;
   text-align: center;
-  min-height: 760px;
+  min-height: 780px;
   overflow: hidden;
 }
 
 div.home div.home-content .video {
-  --hero-radius: 28px;
   position: absolute;
-  height: calc(100% - 32px);
-  width: min(1500px, calc(100% - 64px));
-  top: 16px;
+  height: calc(100% - 24px);
+  width: var(--home-hero-width);
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: -1;
-  border-radius: var(--hero-radius);
+  border-radius: var(--home-hero-radius);
   overflow: hidden;
-  box-shadow: 0 24px 48px rgba(8, 13, 21, 0.38);
+  box-shadow: 0 28px 62px rgba(8, 13, 21, 0.36);
   background: transparent;
 }
 
@@ -44,8 +45,8 @@ div.home div.home-content video {
   object-position: 50% 42%;
   position: relative;
   z-index: 2;
-  border-radius: var(--hero-radius);
-  clip-path: inset(0 round var(--hero-radius));
+  border-radius: var(--home-hero-radius);
+  clip-path: inset(0 round var(--home-hero-radius));
 }
 
 div.home div.home-content video.home-hero-video {
@@ -73,8 +74,8 @@ div.home div.home-content div.video-background {
   background-size: cover;
   background-position: 50% 42%;
   z-index: 1;
-  border-radius: var(--hero-radius);
-  clip-path: inset(0 round var(--hero-radius));
+  border-radius: var(--home-hero-radius);
+  clip-path: inset(0 round var(--home-hero-radius));
 }
 
 div.home div.home-content::after {
@@ -82,36 +83,35 @@ div.home div.home-content::after {
 }
 
 div.home div.home-content::before {
-  --hero-radius: 28px;
   content: '';
   position: absolute;
-  width: min(1500px, calc(100% - 64px));
-  height: calc(100% - 32px);
-  top: 16px;
+  width: var(--home-hero-width);
+  height: calc(100% - 24px);
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: var(--hero-radius);
+  border-radius: var(--home-hero-radius);
   background:
-    linear-gradient(180deg, rgb(15 23 42 / 32%) 0%, rgb(15 23 42 / 58%) 56%, rgb(15 23 42 / 74%) 100%),
-    radial-gradient(circle at 18% 22%, rgb(255 255 255 / 16%), transparent 34%);
+    linear-gradient(180deg, rgb(11 19 32 / 24%) 0%, rgb(11 19 32 / 56%) 48%, rgb(11 19 32 / 78%) 100%),
+    radial-gradient(circle at 18% 22%, rgb(255 255 255 / 22%), transparent 36%);
   z-index: 0;
 }
 
 div.home-title {
   color: #fff;
-  font-size: clamp(34px, 5vw, 64px);
+  font-size: clamp(34px, 5.2vw, 72px);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   text-transform: none;
   text-align: center;
-  padding: 0 20px;
-  max-width: 980px;
-  line-height: 1.08;
+  padding: 0 12px;
+  max-width: 920px;
+  line-height: 1.03;
   margin-bottom: 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin: 0;
 }
 
@@ -120,7 +120,7 @@ div.home-title .home-title-line {
 }
 
 div.home-title .home-title-line-secondary {
-  font-size: clamp(28px, 4.2vw, 52px);
+  font-size: clamp(28px, 4.1vw, 50px);
   white-space: normal;
 }
 
@@ -128,15 +128,46 @@ div.home .home-hero-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 14px;
+  margin-bottom: 6px;
   z-index: 2;
-  padding: 0 18px;
+  padding: 0 14px;
 }
 
 div.home .home-search-panel {
-  width: min(1320px, calc(100% - 40px));
+  width: min(1360px, calc(100% - 28px));
   z-index: 2;
+  margin-top: 2px;
+}
+
+div.home .home-hero-actions .btn-home {
+  min-height: 52px;
+  border-radius: 14px;
+  padding: 0 22px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+div.home .home-hero-actions .btn-home:hover {
+  transform: translateY(-1px);
+}
+
+div.home .home-hero-actions .btn-home.btn-primary {
+  background: linear-gradient(145deg, #f5f6f8 0%, #ffffff 100%) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 14px 30px rgba(8, 13, 21, 0.28);
+}
+
+div.home .home-hero-actions .btn-home.btn-secondary {
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.42) !important;
+  background: linear-gradient(160deg, rgba(15, 23, 42, 0.32) 0%, rgba(15, 23, 42, 0.2) 100%) !important;
+  box-shadow: 0 10px 24px rgba(8, 13, 21, 0.22);
 }
 
 div.home .home-about {
@@ -180,20 +211,20 @@ div.home div.home-cover {
   text-align: center;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.02em;
-  width: min(980px, calc(100% - 40px));
+  width: min(1040px, calc(100% - 24px));
   max-width: none;
-  padding: 34px 40px;
+  padding: 38px 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  border-radius: 30px;
-  border: 1px solid rgb(255 255 255 / 18%);
+  gap: 16px;
+  border-radius: 34px;
+  border: 1px solid rgb(255 255 255 / 26%);
   background:
-    linear-gradient(180deg, rgb(15 23 42 / 18%) 0%, rgb(15 23 42 / 34%) 100%),
-    rgb(15 23 42 / 22%);
-  box-shadow: 0 24px 44px rgb(8 13 21 / 22%);
-  backdrop-filter: blur(10px);
+    linear-gradient(180deg, rgb(15 23 42 / 16%) 0%, rgb(15 23 42 / 36%) 100%),
+    rgb(15 23 42 / 24%);
+  box-shadow: 0 30px 52px rgb(8 13 21 / 24%);
+  backdrop-filter: blur(12px);
 }
 
 div.home .home-hero-kicker {
@@ -203,21 +234,21 @@ div.home .home-hero-kicker {
   min-height: 32px;
   padding: 0 16px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.21em;
   text-transform: uppercase;
   color: rgb(248 250 252 / 92%);
-  background: rgb(255 255 255 / 12%);
-  border: 1px solid rgb(255 255 255 / 22%);
+  background: rgb(255 255 255 / 14%);
+  border: 1px solid rgb(255 255 255 / 32%);
 }
 
 div.home .home-hero-subtitle {
   margin: 0;
-  max-width: 760px;
-  color: rgb(226 232 240 / 92%);
-  font-size: clamp(15px, 1.6vw, 19px);
-  line-height: 1.65;
+  max-width: 700px;
+  color: rgb(226 232 240 / 95%);
+  font-size: clamp(15px, 1.45vw, 18px);
+  line-height: 1.58;
 }
 
 div.home .home-hero-points {
@@ -225,21 +256,23 @@ div.home .home-hero-points {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 div.home .home-hero-point {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
-  padding: 0 16px;
+  min-height: 40px;
+  padding: 0 17px;
   border-radius: 999px;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  background: rgb(255 255 255 / 10%);
-  border: 1px solid rgb(255 255 255 / 16%);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgb(255 255 255 / 12%);
+  border: 1px solid rgb(255 255 255 / 22%);
 }
 
 div.home-subtitle {
@@ -1147,8 +1180,8 @@ div.home div.home-content div.video-background.video-background-parallax {
   pointer-events: none;
   transition: opacity 320ms ease;
   will-change: opacity;
-  border-radius: var(--hero-radius);
-  clip-path: inset(0 round var(--hero-radius));
+  border-radius: var(--home-hero-radius);
+  clip-path: inset(0 round var(--home-hero-radius));
 }
 
 div.home div.home-content div.video-background.video-background-parallax.is-active {
@@ -1400,27 +1433,30 @@ div.home div.customer-care .customer-care-link {
 
 @media only screen and (width <=960px) {
   div.home div.home-content {
-    padding: 108px 0 88px;
+    padding: 110px 0 86px;
     justify-content: flex-start;
     min-height: 0;
+    gap: 16px;
   }
 
   div.home div.home-content .video {
-    --hero-radius: 18px;
-    width: calc(100% - 16px);
+    --home-hero-radius: 18px;
+    --home-hero-width: calc(100% - 12px);
+    width: var(--home-hero-width);
     height: calc(100% - 12px);
     top: 6px;
   }
 
   div.home div.home-content::before {
-    --hero-radius: 18px;
-    width: calc(100% - 16px);
+    --home-hero-radius: 18px;
+    --home-hero-width: calc(100% - 12px);
+    width: var(--home-hero-width);
     height: calc(100% - 12px);
     top: 6px;
   }
 
   div.home div.home-title {
-    font-size: clamp(32px, 10vw, 44px);
+    font-size: clamp(31px, 9.6vw, 42px);
     font-weight: 700;
     padding: 0;
   }
@@ -1445,17 +1481,19 @@ div.home div.customer-care .customer-care-link {
 
   div.home .home-hero-actions {
     flex-direction: column;
-    width: calc(100% - 20px);
+    width: calc(100% - 16px);
     padding: 0;
+    gap: 10px;
   }
 
   div.home .home-hero-actions .btn-home {
     width: 100%;
     margin: 0;
+    min-height: 48px;
   }
 
   div.home .home-search-panel {
-    width: calc(100% - 20px);
+    width: calc(100% - 16px);
   }
 
   div.home .home-about {
@@ -1465,8 +1503,8 @@ div.home div.customer-care .customer-care-link {
   }
 
   div.home div.home-cover {
-    width: calc(100% - 20px);
-    padding: 24px 18px;
+    width: calc(100% - 16px);
+    padding: 24px 16px;
     gap: 12px;
     border-radius: 24px;
   }
@@ -1653,11 +1691,11 @@ div.home div.customer-care .customer-care-link {
 
 @media only screen and (width >=960px) {
   div.home div.home-content {
-    min-height: 720px;
+    min-height: 760px;
   }
 
   div.home div.home-cover {
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
 
   div.home div.search div.home-search {
@@ -1666,7 +1704,7 @@ div.home div.customer-care .customer-care-link {
   }
 
   div.home .home-hero-actions .btn-home {
-    min-width: 190px;
+    min-width: 196px;
   }
 
   div.home div.customer-care .customer-care-panel {

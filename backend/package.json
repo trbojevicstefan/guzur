@@ -24,6 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^2.6.0",
     "@sentry/node": "^10.32.1",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
@@ -45,7 +46,8 @@
     "nodemailer": "^7.0.11",
     "stripe": "^20.1.0",
     "validator": "^13.15.26",
-    "winston": "^3.19.0"
+    "winston": "^3.19.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.3",

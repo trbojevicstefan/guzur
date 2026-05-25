@@ -7,6 +7,7 @@ import * as env from './config/env.config'
 import * as databaseHelper from './utils/databaseHelper'
 import app from './app'
 import * as logger from './utils/logger'
+import { attachConciergeLiveServer } from './live/conciergeLiveServer'
 
 /**
  * Creates and returns an HTTP or HTTPS server based on environment configuration.
@@ -51,6 +52,7 @@ const start = async (): Promise<void> => {
 
     const protocol = env.HTTPS ? 'HTTPS' : 'HTTP'
     const server = await createServer()
+    attachConciergeLiveServer(server)
 
     server.listen(env.PORT, () => {
       logger.info(`${protocol} server is running on port ${env.PORT}`)

@@ -1,106 +1,172 @@
 form.home-search-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  --search-radius: 24px;
+  --search-field-radius: 14px;
+  --search-border: rgba(71, 55, 34, 0.16);
+  --search-shadow: 0 20px 44px rgba(20, 17, 12, 0.12);
+
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 12px;
   width: 100%;
-  align-items: center;
-  padding: 12px;
-  border-radius: var(--radius-xl);
-  background: var(--surface-glass);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(24px);
-  box-shadow: var(--shadow-ambient);
+  align-items: start;
+  padding: 14px;
+  border-radius: var(--search-radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.74) 100%);
+  border: 1px solid var(--search-border);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--search-shadow);
+}
+
+form.home-search-form > .MuiFormControl-root {
+  min-width: 0;
 }
 
 form.home-search-form .MuiOutlinedInput-root,
 form.home-search-form .MuiInputBase-root {
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--search-field-radius);
+  background: #fff;
 }
 
-form.home-search-form .MuiAutocomplete-root .MuiOutlinedInput-root {
-  border-radius: var(--radius-pill);
+form.home-search-form .MuiInputBase-input,
+form.home-search-form .MuiInputBase-input::placeholder {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+form.home-search-form .MuiInputLabel-root {
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+
+form.home-search-form .MuiOutlinedInput-root .MuiInputBase-input {
+  min-height: 14px;
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 
 form.home-search-form .MuiOutlinedInput-notchedOutline {
-  border-color: rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
   border-width: 1px;
 }
 
 form.home-search-form .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-  border-color: rgba(15, 23, 42, 0.12) !important;
+  border-color: rgba(15, 23, 42, 0.2) !important;
 }
 
 form.home-search-form .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: rgba(255, 56, 92, 0.4) !important;
-  box-shadow: 0 0 0 3px rgba(255, 56, 92, 0.08);
+  border-color: rgba(188, 108, 37, 0.42) !important;
+  box-shadow: 0 0 0 3px rgba(188, 108, 37, 0.1);
+}
+
+form.home-search-form .keyword {
+  grid-column: span 3;
+}
+
+form.home-search-form .location {
+  grid-column: span 3;
+}
+
+form.home-search-form .listing-type {
+  grid-column: span 2;
+}
+
+form.home-search-form .price-min,
+form.home-search-form .price-max {
+  grid-column: span 2;
+}
+
+form.home-search-form .bedrooms-min,
+form.home-search-form .area-min,
+form.home-search-form .area-max,
+form.home-search-form .from,
+form.home-search-form .to {
+  grid-column: span 2;
 }
 
 form.home-search-form .search-form-features {
   width: 100%;
+  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 2px;
 }
 
 form.home-search-form .search-form-feature {
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--text-strong);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(255, 255, 255, 0.82);
+  color: #1f2937;
   border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 7px 13px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+form.home-search-form .search-form-feature:hover {
+  border-color: rgba(188, 108, 37, 0.48);
+  transform: translateY(-1px);
 }
 
 form.home-search-form .search-form-feature.is-active {
-  border-color: rgba(255, 56, 92, 0.28);
-  background: rgba(255, 56, 92, 0.1);
-  color: #b91c1c;
-}
-
-/* Dropdown menu surface */
-.MuiMenu-paper {
-  border-radius: 18px !important;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  border-color: rgba(188, 108, 37, 0.62);
+  background: rgba(188, 108, 37, 0.14);
+  color: #7c3f16;
 }
 
 form.home-search-form .btn-search,
 form.home-search-form .btn-cancel {
-  font-size: 16px;
-  font-weight: 600;
-  height: 52px;
-  min-width: 170px;
-  border-radius: var(--radius-pill);
+  min-height: 50px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin: 0;
 }
 
 form.home-search-form .btn-search {
+  grid-column: 11 / span 2;
+  background: linear-gradient(145deg, #5a5a40 0%, #454534 100%);
   color: #fff;
-  border: 0;
-  margin: 0;
-  white-space: nowrap;
-  background: var(--accent);
-  box-shadow: 0 12px 30px rgba(255, 56, 92, 0.25);
+  border: 1px solid rgba(69, 69, 52, 0.9);
+  box-shadow: 0 14px 26px rgba(36, 33, 25, 0.24);
+  justify-self: stretch;
+}
+
+form.home-search-form .btn-cancel {
+  grid-column: 9 / span 2;
+  color: #1f2937;
+  border-color: rgba(15, 23, 42, 0.2);
+  background: rgba(255, 255, 255, 0.88);
+  justify-self: stretch;
 }
 
 form.home-search-form .btn-search:hover,
 form.home-search-form .btn-cancel:hover {
-  opacity: 0.95;
+  opacity: 0.96;
 }
 
-@media only screen and (width <=960px) {
+/* Dropdown menu surface */
+.MuiMenu-paper {
+  border-radius: 16px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.13);
+}
+
+@media only screen and (width <=1280px) and (width >960px) {
   form.home-search-form {
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 520px;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 
-  form.home-search-form .location,
   form.home-search-form .keyword,
+  form.home-search-form .location {
+    grid-column: span 4;
+  }
+
   form.home-search-form .listing-type,
   form.home-search-form .price-min,
   form.home-search-form .price-max,
@@ -109,61 +175,45 @@ form.home-search-form .btn-cancel:hover {
   form.home-search-form .area-max,
   form.home-search-form .from,
   form.home-search-form .to {
-    width: 100%;
-    padding: 6px;
+    grid-column: span 2;
   }
 
-  form.home-search-form .btn-search,
   form.home-search-form .btn-cancel {
-    width: calc(100% - 20px);
+    grid-column: 5 / span 2;
   }
 
   form.home-search-form .btn-search {
-    margin: 4px 0;
-  }
-
-  form.home-search-form .btn-cancel {
-    margin: 5px 0;
+    grid-column: 7 / span 2;
   }
 }
 
-@media only screen and (width >=960px) {
+@media only screen and (width <=960px) {
   form.home-search-form {
+    grid-template-columns: 1fr;
+    gap: 10px;
     width: 100%;
+    max-width: 580px;
+    padding: 12px;
+    border-radius: 20px;
   }
 
-  form.home-search-form .keyword {
-    flex: 1 1 220px;
-    padding: 0;
-  }
-
-  form.home-search-form .location {
-    flex: 1 1 260px;
-    padding-right: 0;
-    padding-bottom: 0;
-  }
-
-  form.home-search-form .listing-type {
-    flex: 0 0 200px;
-    padding: 0;
-  }
-
-  form.home-search-form .from,
-  form.home-search-form .to,
+  form.home-search-form .keyword,
+  form.home-search-form .location,
+  form.home-search-form .listing-type,
   form.home-search-form .price-min,
   form.home-search-form .price-max,
   form.home-search-form .bedrooms-min,
   form.home-search-form .area-min,
-  form.home-search-form .area-max {
-    flex: 0 0 180px;
-    padding: 0;
-  }
-
-  form.home-search-form .btn-search {
-    margin: 0;
-  }
-
+  form.home-search-form .area-max,
+  form.home-search-form .from,
+  form.home-search-form .to,
+  form.home-search-form .btn-search,
   form.home-search-form .btn-cancel {
-    margin: 0;
+    grid-column: 1 / -1;
+  }
+
+  form.home-search-form .btn-search,
+  form.home-search-form .btn-cancel {
+    min-height: 48px;
   }
 }

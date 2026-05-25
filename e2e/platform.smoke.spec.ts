@@ -205,6 +205,23 @@ test('property details open directly, gallery works, and rent and sale actions s
   await expect(page.getByRole('dialog')).toBeHidden()
 })
 
+test('concierge intake moves to voice session and renders live transcript', async ({ page }) => {
+  await page.goto('/concierge')
+  await expect(page.locator('.concierge-hero-v2')).toBeVisible()
+
+  await page.getByRole('button', { name: /begin your journey/i }).click()
+
+  await expect(page.locator('.concierge-intake-form')).toBeVisible()
+  await page.locator('.concierge-intake-form input[type="text"]').fill('Omar Khalid')
+  await page.locator('.concierge-intake-form input[type="email"]').fill('omar@example.com')
+  await page.locator('.concierge-intake-form input[type="tel"]').fill('+20 100 000 0000')
+  await page.getByRole('button', { name: /continue/i }).click()
+
+  await expect(page.locator('.concierge-voice')).toBeVisible()
+  await expect(page.locator('.concierge-status')).toContainText(/READY/)
+  await expect(page.locator('.concierge-log-head')).toContainText('Transcript')
+})
+
 test('affected pages stay within the viewport at QA breakpoints and the search rail stays below the header', async ({ page }) => {
   test.skip(desktopOnly(), 'Viewport sweep runs once on the desktop project.')
 

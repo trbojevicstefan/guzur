@@ -14,12 +14,7 @@ const LANGUAGES = [
   {
     code: 'ar',
     countryCode: 'eg',
-    label: 'Arabic',
-  },
-  {
-    code: 'fr',
-    countryCode: 'fr',
-    label: 'Français',
+    label: 'Arabic (Egypt)',
   },
 ]
 
@@ -131,6 +126,3 @@ const env = {
 }
 
 export default env
-
-
-

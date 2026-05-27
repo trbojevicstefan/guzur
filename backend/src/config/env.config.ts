@@ -31,7 +31,7 @@ export const __env__ = (name: string, required?: boolean, defaultValue?: string)
  */
 export const LANGUAGES = [
   'en',
-  'fr',
+  'ar',
 ]
 
 /**
@@ -327,7 +327,7 @@ export const FRONTEND_HOST = __env__('MI_FRONTEND_HOST', true)
 export const CORS_ORIGINS = __env__('MI_CORS_ORIGINS', false, '')
 
 /**
- * Default language. Default is en. Available options: en, fr.
+ * Default language. Default is en. Available options: en, ar.
  *
  * @type {string}
  */

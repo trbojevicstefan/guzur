@@ -10,6 +10,9 @@ import * as movininTypes from ':movinin-types'
 
 axiosHelper.init(axiosInstance)
 
+const supportedLanguageCodes = env.LANGUAGES.map((language) => language.code)
+const normalizeLanguage = (value?: string | null) => (value && supportedLanguageCodes.includes(value) ? value : '')
+
 /**
  * Get authentication header.
  *
@@ -277,22 +280,31 @@ export const getLanguage = async () => {
   const user = await AsyncStorage.getObject<movininTypes.User>('mi-user')
 
   if (user && user.language) {
-    return user.language
+    const normalized = normalizeLanguage(user.language)
+    if (normalized) {
+      return normalized
+    }
   }
-  let lang = await AsyncStorage.getString('mi-language')
+  const lang = await AsyncStorage.getString('mi-language')
+  const normalizedStored = normalizeLanguage(lang)
 
-  if (lang && lang.length === 2) {
-    return lang
+  if (normalizedStored) {
+    return normalizedStored
   }
 
-  lang = getDefaultLanguage()
-  return lang
+  return getDefaultLanguage()
 }
 
 export const getDefaultLanguage = () => {
   const locales = Localization.getLocales()
-  const lang = locales.length > 0 && locales[0].languageCode === 'fr' ? 'fr' : env.DEFAULT_LANGUAGE
-  return lang
+  const localeLanguage = locales.length > 0 ? locales[0].languageCode : ''
+  const normalizedLocaleLanguage = normalizeLanguage(localeLanguage)
+  if (normalizedLocaleLanguage) {
+    return normalizedLocaleLanguage
+  }
+
+  const normalizedDefaultLanguage = normalizeLanguage(env.DEFAULT_LANGUAGE)
+  return normalizedDefaultLanguage || supportedLanguageCodes[0] || 'en'
 }
 
 /**
@@ -327,7 +339,8 @@ export const updateLanguage = async (data: movininTypes.UpdateLanguagePayload) =
  * @returns {void}
  */
 export const setLanguage = async (lang: string) => {
-  await AsyncStorage.storeString('mi-language', lang)
+  const nextLanguage = normalizeLanguage(lang) || normalizeLanguage(env.DEFAULT_LANGUAGE) || supportedLanguageCodes[0] || 'en'
+  await AsyncStorage.storeString('mi-language', nextLanguage)
 }
 
 /**

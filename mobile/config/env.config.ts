@@ -26,12 +26,12 @@ import {
  */
 export const LANGUAGES = [
   {
-    code: 'fr',
-    label: 'Français',
-  },
-  {
     code: 'en',
     label: 'English',
+  },
+  {
+    code: 'ar',
+    label: 'Arabic (Egypt)',
   },
 ]
 
@@ -222,3 +222,4 @@ export const STRIPE_COUNTRY_CODE: string = MI_STRIPE_COUNTRY_CODE
  * @type {string}
  */
 export const BASE_CURRENCY: string = MI_BASE_CURRENCY || 'USD'
+

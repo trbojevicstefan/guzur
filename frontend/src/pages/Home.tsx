@@ -692,9 +692,10 @@ const Home = () => {
           </div>
           <div className="home-search-panel" data-testid="home-search-panel">
             <SearchForm
-              listingTypeOptions={[movininTypes.ListingType.Both, movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
-              defaultListingType={movininTypes.ListingType.Both}
+              listingTypeOptions={[movininTypes.ListingType.Sale]}
+              defaultListingType={movininTypes.ListingType.Sale}
               requireLocation={false}
+              hideFeatures
             />
           </div>
 
@@ -944,9 +945,10 @@ const Home = () => {
         <DialogContent className="search-dialog-content">
           <SearchForm
             location={location}
-            listingTypeOptions={[movininTypes.ListingType.Sale, movininTypes.ListingType.Rent]}
+            listingTypeOptions={[movininTypes.ListingType.Sale]}
             defaultListingType={movininTypes.ListingType.Sale}
             requireLocation={false}
+            hideFeatures
             onCancel={() => {
               setOpenLocationSearchFormDialog(false)
             }}

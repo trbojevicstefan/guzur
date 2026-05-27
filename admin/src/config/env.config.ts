@@ -7,12 +7,12 @@ import Const from './const'
 //
 const LANGUAGES = [
   {
-    code: 'fr',
-    label: 'Français',
-  },
-  {
     code: 'en',
     label: 'English',
+  },
+  {
+    code: 'ar',
+    label: 'Arabic (Egypt)',
   },
 ]
 
@@ -62,3 +62,4 @@ const env = {
 }
 
 export default env
+

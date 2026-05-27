@@ -8,9 +8,9 @@ import createCache from '@emotion/cache'
 import rtlPlugin from 'stylis-plugin-rtl'
 import { prefixer } from 'stylis'
 
-import { frFR as corefrFR, enUS as coreenUS, arEG as corearEG } from '@mui/material/locale'
-import { frFR, enUS } from '@mui/x-date-pickers/locales'
-import { frFR as dataGridfrFR, enUS as dataGridenUS, arSD as dataGridarSD } from '@mui/x-data-grid/locales'
+import { enUS as coreenUS, arEG as corearEG } from '@mui/material/locale'
+import { enUS } from '@mui/x-date-pickers/locales'
+import { enUS as dataGridenUS, arSD as dataGridarSD } from '@mui/x-data-grid/locales'
 import { disableDevTools } from ':disable-react-devtools'
 import * as helper from '@/utils/helper'
 import * as UserService from '@/services/UserService'
@@ -165,8 +165,8 @@ if (lang) {
   if (env.SET_LANGUAGE_FROM_IP && !storedLang) {
     const country = await IpInfoService.getCountryCode()
 
-    if (['FR', 'MA'].includes(country)) {
-      updateLang('fr')
+    if (country === 'EG') {
+      updateLang('ar')
     } else if (['US', 'GB', 'AU'].includes(country)) {
       updateLang('en')
     } else {
@@ -176,7 +176,6 @@ if (lang) {
 }
 
 language = UserService.getLanguage()
-const isFr = language === 'fr'
 const isAr = language === 'ar'
 const isRtl = isAr
 
@@ -188,9 +187,9 @@ const rtlCache = createCache({
   stylisPlugins: [prefixer, rtlPlugin],
 })
 
-const pickerLocale = isAr ? enUS : isFr ? frFR : enUS
-const dataGridLocale = isAr ? dataGridarSD : isFr ? dataGridfrFR : dataGridenUS
-const coreLocale = isAr ? corearEG : isFr ? corefrFR : coreenUS
+const pickerLocale = enUS
+const dataGridLocale = isAr ? dataGridarSD : dataGridenUS
+const coreLocale = isAr ? corearEG : coreenUS
 
 const theme = createTheme(
   {

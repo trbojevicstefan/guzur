@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FormControl, Button, TextField } from '@mui/material'
 import { DateTimeValidationError } from '@mui/x-date-pickers'
@@ -28,6 +28,10 @@ interface SearchFormProps {
   listingTypeOptions?: movininTypes.ListingType[]
   defaultListingType?: movininTypes.ListingType
   requireLocation?: boolean
+  featureOptions?: movininTypes.PropertyFeature[]
+  hideFeatures?: boolean
+  hideListingTypeWhenSingle?: boolean
+  requireRentDates?: boolean
 }
 
 const parseNumberInput = (value: string) => {
@@ -46,6 +50,10 @@ const SearchForm = ({
   listingTypeOptions,
   defaultListingType,
   requireLocation = true,
+  featureOptions,
+  hideFeatures = false,
+  hideListingTypeWhenSingle = true,
+  requireRentDates = false,
 }: SearchFormProps) => {
   const navigate = useNavigate()
 
@@ -73,8 +81,13 @@ const SearchForm = ({
   const [areaMin, setAreaMin] = useState(initialState?.areaMin ? String(initialState.areaMin) : '')
   const [areaMax, setAreaMax] = useState(initialState?.areaMax ? String(initialState.areaMax) : '')
   const [features, setFeatures] = useState<movininTypes.PropertyFeature[]>(initialState?.features || [])
+  const availableFeatures = useMemo(
+    () => (featureOptions && featureOptions.length > 0 ? featureOptions : helper.getPropertyFeatures()),
+    [featureOptions],
+  )
 
-  const requiresDates = helper.selectionIncludesRent(listingType)
+  const requiresDates = requireRentDates && helper.selectionIncludesRent(listingType)
+  const showListingType = !(hideListingTypeWhenSingle && listingTypeOptions && listingTypeOptions.length <= 1)
 
   useEffect(() => {
     if (listingTypeOptions && listingTypeOptions.length > 0 && !listingTypeOptions.includes(listingType)) {
@@ -101,6 +114,18 @@ const SearchForm = ({
     }
     init()
   }, [initialState?.locationId, locationProp])
+
+  useEffect(() => {
+    if (hideFeatures) {
+      setFeatures((current) => (current.length === 0 ? current : []))
+      return
+    }
+
+    setFeatures((current) => {
+      const next = current.filter((feature) => availableFeatures.includes(feature))
+      return next.length === current.length ? current : next
+    })
+  }, [availableFeatures, hideFeatures])
 
   const handleLocationChange = async (values: movininTypes.Option[]) => {
     const locationId = (values.length > 0 && values[0]._id) || ''
@@ -175,23 +200,25 @@ const SearchForm = ({
           onChange={handleLocationChange}
         />
       </FormControl>
-      <FormControl className="listing-type">
-        <ListingTypeSelect
-          label=""
-          value={listingType}
-          options={listingTypeOptions}
-          variant="outlined"
-          onChange={(value) => {
-            setListingType(value)
-            if (!helper.selectionIncludesRent(value)) {
-              setFrom(undefined)
-              setTo(undefined)
-              setFromError(false)
-              setToError(false)
-            }
-          }}
-        />
-      </FormControl>
+      {showListingType && (
+        <FormControl className="listing-type">
+          <ListingTypeSelect
+            label=""
+            value={listingType}
+            options={listingTypeOptions}
+            variant="outlined"
+            onChange={(value) => {
+              setListingType(value)
+              if (!helper.selectionIncludesRent(value)) {
+                setFrom(undefined)
+                setTo(undefined)
+                setFromError(false)
+                setToError(false)
+              }
+            }}
+          />
+        </FormControl>
+      )}
       <FormControl className="price-min">
         <TextField
           type="number"
@@ -291,18 +318,20 @@ const SearchForm = ({
           </FormControl>
         </>
       )}
-      <div className="search-form-features" aria-label={commonStrings.FEATURES}>
-        {helper.getPropertyFeatures().map((feature) => (
-          <button
-            key={feature}
-            type="button"
-            className={`search-form-feature ${features.includes(feature) ? 'is-active' : ''}`}
-            onClick={() => toggleFeature(feature)}
-          >
-            {helper.getPropertyFeatureLabel(feature)}
-          </button>
-        ))}
-      </div>
+      {!hideFeatures && availableFeatures.length > 0 && (
+        <div className="search-form-features" aria-label={commonStrings.FEATURES}>
+          {availableFeatures.map((feature) => (
+            <button
+              key={feature}
+              type="button"
+              className={`search-form-feature ${features.includes(feature) ? 'is-active' : ''}`}
+              onClick={() => toggleFeature(feature)}
+            >
+              {helper.getPropertyFeatureLabel(feature)}
+            </button>
+          ))}
+        </div>
+      )}
       <Button type="submit" variant="contained" className="btn-search">
         {commonStrings.SEARCH}
       </Button>

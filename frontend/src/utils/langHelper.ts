@@ -25,7 +25,11 @@ export const getLanguage = () => {
  */
 export const setLanguage = (strings: LocalizedStrings, language?: string) => {
   const lang = language || getLanguage()
-  strings.setLanguage(lang)
+  const availableLanguages = (strings as unknown as { getAvailableLanguages?: () => string[] }).getAvailableLanguages?.() || []
+  const resolvedLanguage = availableLanguages.includes(lang)
+    ? lang
+    : (availableLanguages.includes('en') ? 'en' : availableLanguages[0] || env.DEFAULT_LANGUAGE)
+  strings.setLanguage(resolvedLanguage)
 }
 
 /**

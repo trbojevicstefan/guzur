@@ -211,10 +211,6 @@ const Properties = () => {
             </div>
           </div>
 
-          {requiresDates && (!searchState.from || !searchState.to) && (
-            <div className="search-requires-dates">{strings.SELECT_DATES_TO_SEARCH_RENTALS}</div>
-          )}
-
           <div className="properties">
             <div className="col-1">
               <PropertyFilter

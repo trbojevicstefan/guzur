@@ -204,16 +204,23 @@ export const resendLink = (data: movininTypes.ResendLinkPayload): Promise<number
  * @returns {string}
  */
 export const getLanguage = (): string => {
+  const normalizeLanguage = (value?: string | null) => (value && env.LANGUAGES.includes(value) ? value : '')
   const user = JSON.parse(localStorage.getItem('mi-be-user') ?? 'null')
 
   if (user && user.language) {
-    return user.language as string
+    const normalized = normalizeLanguage(user.language as string)
+    if (normalized) {
+      return normalized
+    }
   }
+
   const lang = localStorage.getItem('mi-be-language')
-  if (lang && lang.length === 2) {
-    return lang
+  const normalizedStored = normalizeLanguage(lang)
+  if (normalizedStored) {
+    return normalizedStored
   }
-  return env.DEFAULT_LANGUAGE
+
+  return env.LANGUAGES.includes(env.DEFAULT_LANGUAGE) ? env.DEFAULT_LANGUAGE : env.LANGUAGES[0]
 }
 
 /**
@@ -257,7 +264,8 @@ export const updateLanguage = (data: movininTypes.UpdateLanguagePayload) =>
  * @param {string} lang
  */
 export const setLanguage = (lang: string) => {
-  localStorage.setItem('mi-be-language', lang)
+  const nextLanguage = env.LANGUAGES.includes(lang) ? lang : env.DEFAULT_LANGUAGE
+  localStorage.setItem('mi-be-language', nextLanguage)
 }
 
 /**
@@ -531,3 +539,4 @@ export const sendEmail = (payload: movininTypes.SendEmailPayload): Promise<numbe
       payload,
     )
     .then((res) => res.status)
+

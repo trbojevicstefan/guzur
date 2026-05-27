@@ -13,6 +13,43 @@ import LocationValue from '../models/LocationValue'
 import Property from '../models/Property'
 import * as logger from '../utils/logger'
 
+const getPreferredLanguages = (language: string) => Array.from(new Set([language, env.DEFAULT_LANGUAGE]))
+
+const buildLocalizedValueLookupPipeline = (language: string, keyword: string, options: string): any[] => {
+  const preferredLanguages = getPreferredLanguages(language)
+
+  return [
+    {
+      $match: {
+        $and: [
+          { $expr: { $in: ['$_id', '$$values'] } },
+          { $expr: { $in: ['$language', preferredLanguages] } },
+          { $expr: { $regexMatch: { input: '$value', regex: keyword, options } } },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        _langPriority: { $cond: [{ $eq: ['$language', language] }, 0, 1] },
+      },
+    },
+    {
+      $sort: { _langPriority: 1 as const, _id: 1 as const },
+    },
+    {
+      $limit: 1,
+    },
+    {
+      $project: { _langPriority: 0 },
+    },
+  ]
+}
+
+const getLocalizedValue = (values: env.LocationValue[], language: string) =>
+  values.find((value) => value.language === language)
+  || values.find((value) => value.language === env.DEFAULT_LANGUAGE)
+  || values[0]
+
 /**
  * Validate a Location name with language code.
  *
@@ -276,15 +313,18 @@ export const getLocation = async (req: Request, res: Response) => {
 
     if (location) {
       const language = helper.normalizeParam(req.params.language) as string
-      const name = (location.values as env.LocationValue[]).filter((value) => value.language === language)[0].value
+      const localizedLocationValue = getLocalizedValue(location.values as env.LocationValue[], language)
+      const name = localizedLocationValue?.value || ''
 
       if (location.country) {
-        const countryName = ((location.country as env.CountryInfo).values as env.LocationValue[]).filter((value) => value.language === language)[0].value
+        const countryLocalizedValue = getLocalizedValue((location.country as env.CountryInfo).values as env.LocationValue[], language)
+        const countryName = countryLocalizedValue?.value || ''
         location.country.name = countryName
       }
       let parentLocation: env.LocationInfo | undefined
       if (location.parentLocation) {
-        const parentLocationName = (location.parentLocation.values as env.LocationValue[]).filter((value) => value.language === language)[0].value
+        const parentLocalizedValue = getLocalizedValue(location.parentLocation.values as env.LocationValue[], language)
+        const parentLocationName = parentLocalizedValue?.value || ''
         parentLocation = { ...location.parentLocation, name: parentLocationName }
       }
       const loc = { ...location, name, parentLocation }
@@ -322,17 +362,7 @@ export const getLocations = async (req: Request, res: Response) => {
           $lookup: {
             from: 'LocationValue',
             let: { values: '$values' },
-            pipeline: [
-              {
-                $match: {
-                  $and: [
-                    { $expr: { $in: ['$_id', '$$values'] } },
-                    { $expr: { $eq: ['$language', language] } },
-                    { $expr: { $regexMatch: { input: '$value', regex: keyword, options } } },
-                  ],
-                },
-              },
-            ],
+            pipeline: buildLocalizedValueLookupPipeline(language, keyword, options),
             as: 'value',
           },
         },
@@ -353,16 +383,7 @@ export const getLocations = async (req: Request, res: Response) => {
                 $lookup: {
                   from: 'LocationValue',
                   let: { values: '$values' },
-                  pipeline: [
-                    {
-                      $match: {
-                        $and: [
-                          { $expr: { $in: ['$_id', '$$values'] } },
-                          { $expr: { $eq: ['$language', language] } },
-                        ],
-                      },
-                    },
-                  ],
+                  pipeline: buildLocalizedValueLookupPipeline(language, '', options),
                   as: 'value',
                 },
               },
@@ -405,7 +426,7 @@ export const getLocations = async (req: Request, res: Response) => {
  */
 export const getLocationsWithPosition = async (req: Request, res: Response) => {
   try {
-    const { language } = req.params
+    const language = helper.normalizeParam(req.params.language) as string
 
     if (language.length !== 2) {
       throw new Error('Invalid language code')
@@ -427,17 +448,7 @@ export const getLocationsWithPosition = async (req: Request, res: Response) => {
           $lookup: {
             from: 'LocationValue',
             let: { values: '$values' },
-            pipeline: [
-              {
-                $match: {
-                  $and: [
-                    { $expr: { $in: ['$_id', '$$values'] } },
-                    { $expr: { $eq: ['$language', language] } },
-                    { $expr: { $regexMatch: { input: '$value', regex: keyword, options } } },
-                  ],
-                },
-              },
-            ],
+            pipeline: buildLocalizedValueLookupPipeline(language, keyword, options),
             as: 'value',
           },
         },
@@ -465,7 +476,7 @@ export const getLocationsWithPosition = async (req: Request, res: Response) => {
  */
 export const getFrontendLocations = async (req: Request, res: Response) => {
   try {
-    const { language } = req.params
+    const language = helper.normalizeParam(req.params.language) as string
     const parent = req.query.parent as string | undefined
     const keyword = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
@@ -495,17 +506,7 @@ export const getFrontendLocations = async (req: Request, res: Response) => {
           $lookup: {
             from: 'LocationValue',
             let: { values: '$values' },
-            pipeline: [
-              {
-                $match: {
-                  $and: [
-                    { $expr: { $in: ['$_id', '$$values'] } },
-                    { $expr: { $eq: ['$language', language] } },
-                    { $expr: { $regexMatch: { input: '$value', regex: keyword, options } } },
-                  ],
-                },
-              },
-            ],
+            pipeline: buildLocalizedValueLookupPipeline(language, keyword, options),
             as: 'value',
           },
         },

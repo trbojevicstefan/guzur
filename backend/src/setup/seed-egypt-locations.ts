@@ -8,28 +8,72 @@ import Country from '../models/Country'
 
 const LANGUAGES = env.LANGUAGES
 
+type LocalizedName = {
+  en: string
+  ar: string
+}
+
+type PlannedLocation = {
+  name: LocalizedName
+  children?: LocalizedName[]
+}
+
+const EGYPT_NAME: LocalizedName = {
+  en: 'Egypt',
+  ar: 'مصر',
+}
+
 const locationPlan = [
   {
-    name: 'Greater Cairo',
-    children: ['Fifth Settlement', '6th of October'],
+    name: {
+      en: 'Greater Cairo',
+      ar: 'القاهرة الكبرى',
+    },
+    children: [
+      { en: 'Fifth Settlement', ar: 'التجمع الخامس' },
+      { en: '6th of October', ar: 'السادس من أكتوبر' },
+    ],
   },
-  { name: 'East Coast' },
-  { name: 'West Coast' },
-  { name: 'North Coast' },
-  { name: 'Red Sea' },
-]
+  {
+    name: {
+      en: 'East Coast',
+      ar: 'الساحل الشرقي',
+    },
+  },
+  {
+    name: {
+      en: 'West Coast',
+      ar: 'الساحل الغربي',
+    },
+  },
+  {
+    name: {
+      en: 'North Coast',
+      ar: 'الساحل الشمالي',
+    },
+  },
+  {
+    name: {
+      en: 'Red Sea',
+      ar: 'البحر الأحمر',
+    },
+  },
+] satisfies PlannedLocation[]
 
-const getOrCreateLocationValues = async (name: string) => {
+const resolveLocalizedName = (name: LocalizedName, language: string) => name[language as keyof LocalizedName] || name.en
+
+const getOrCreateLocationValues = async (name: LocalizedName) => {
   const values = await Promise.all(
     LANGUAGES.map(async (language) => {
+      const value = resolveLocalizedName(name, language)
       const existing = await LocationValue.findOne({
         language,
-        value: { $regex: new RegExp(`^${name}$`, 'i') },
+        value: { $regex: new RegExp(`^${value}$`, 'i') },
       })
       if (existing) {
         return existing
       }
-      const created = new LocationValue({ language, value: name })
+      const created = new LocationValue({ language, value })
       await created.save()
       return created
     }),
@@ -37,14 +81,50 @@ const getOrCreateLocationValues = async (name: string) => {
   return values
 }
 
-const getOrCreateCountry = async (name: string) => {
+const upsertLocalizedValues = async (
+  valueIds: string[],
+  name: LocalizedName,
+) => {
+  const values = await LocationValue.find({ _id: { $in: valueIds } })
+  const valuesByLanguage = new Map(values.map((value) => [value.language, value]))
+  const nextValueIds = [...valueIds]
+
+  for (const language of LANGUAGES) {
+    const localizedName = resolveLocalizedName(name, language)
+    const existing = valuesByLanguage.get(language)
+
+    if (existing) {
+      if (existing.value !== localizedName) {
+        existing.value = localizedName
+        await existing.save()
+      }
+      continue
+    }
+
+    const created = new LocationValue({
+      language,
+      value: localizedName,
+    })
+    await created.save()
+    nextValueIds.push(created._id.toString())
+  }
+
+  return nextValueIds
+}
+
+const getOrCreateCountry = async (name: LocalizedName) => {
   const englishValue = await LocationValue.findOne({
     language: 'en',
-    value: { $regex: new RegExp(`^${name}$`, 'i') },
+    value: { $regex: new RegExp(`^${name.en}$`, 'i') },
   })
   if (englishValue) {
     const existing = await Country.findOne({ values: englishValue._id })
     if (existing) {
+      existing.values = await upsertLocalizedValues(
+        existing.values.map((value) => value.toString()),
+        name,
+      ) as any
+      await existing.save()
       return existing
     }
   }
@@ -66,13 +146,17 @@ const getLocationByName = async (name: string) => {
   return Location.findOne({ values: value._id })
 }
 
-const getOrCreateLocation = async (name: string, countryId: string, parentId?: string) => {
-  const existing = await getLocationByName(name)
+const getOrCreateLocation = async (name: LocalizedName, countryId: string, parentId?: string) => {
+  const existing = await getLocationByName(name.en)
   if (existing) {
     if (parentId && !existing.parentLocation) {
       existing.parentLocation = parentId as any
-      await existing.save()
     }
+    existing.values = await upsertLocalizedValues(
+      existing.values.map((value) => value.toString()),
+      name,
+    ) as any
+    await existing.save()
     return existing
   }
 
@@ -93,13 +177,13 @@ try {
     process.exit(1)
   }
 
-  const country = await getOrCreateCountry('Egypt')
+  const country = await getOrCreateCountry(EGYPT_NAME)
 
   const rootLocations: Record<string, string> = {}
 
   for (const entry of locationPlan) {
     const parent = await getOrCreateLocation(entry.name, country._id.toString())
-    rootLocations[entry.name] = parent._id.toString()
+    rootLocations[entry.name.en] = parent._id.toString()
 
     if (entry.children?.length) {
       for (const child of entry.children) {

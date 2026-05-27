@@ -17,6 +17,7 @@ import L from 'leaflet'
 import * as movininTypes from ':movinin-types'
 import * as movininHelper from ':movinin-helper'
 import env from '@/config/env.config'
+import * as helper from '@/utils/helper'
 import { strings } from '@/lang/home'
 import { strings as commonStrings } from '@/lang/common'
 import * as CountryService from '@/services/CountryService'
@@ -242,11 +243,6 @@ const Home = () => {
   const handleDifferentStepSelect = useCallback((index: number) => {
     setActiveDifferentStep((prev) => (prev === index ? prev : index))
   }, [])
-  const heroPoints = [
-    strings.HERO_POINT_SALE,
-    strings.HERO_POINT_RENT,
-    strings.HERO_POINT_PROJECTS,
-  ]
   const customerCareCards = [
     {
       icon: <HeadsetMicOutlined className="customer-care-card-icon" />,
@@ -296,7 +292,7 @@ const Home = () => {
       const payload: movininTypes.GetPropertiesPayload = {
         agencies: [],
         types: movininHelper.getAllPropertyTypes(),
-        rentalTerms: movininHelper.getAllRentalTerms(),
+        listingTypes: helper.listingTypesFromSelection(movininTypes.ListingType.Sale),
         listingStatuses: [movininTypes.ListingStatus.Published],
       }
       const data = await PropertyService.getProperties(payload, 1, 20)
@@ -668,11 +664,6 @@ const Home = () => {
               <span className="home-title-line home-title-line-secondary">{strings.TITLE_LINE2}</span>
             </div>
             <p className="home-hero-subtitle">{strings.HERO_SUBTITLE}</p>
-            <div className="home-hero-points" aria-label={strings.HOME_INTENT_SECTION_LABEL}>
-              {heroPoints.map((point) => (
-                <span key={point} className="home-hero-point">{point}</span>
-              ))}
-            </div>
           </div>
           <div className="home-hero-actions">
             <Button variant="contained" className="btn-primary btn-home" onClick={() => navigate('/search')} data-testid="home-cta-explore">
@@ -681,7 +672,7 @@ const Home = () => {
             <Button
               variant="outlined"
               className="btn-secondary btn-home"
-              onClick={() => navigate(`/search?listingType=${movininTypes.ListingType.Sale}`)}
+              onClick={() => navigate('/search')}
               data-testid="home-cta-unit"
             >
               {strings.FIND_YOUR_UNIT}

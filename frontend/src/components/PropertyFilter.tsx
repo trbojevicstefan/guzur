@@ -7,7 +7,6 @@ import { strings as commonStrings } from '@/lang/common'
 import * as UserService from '@/services/UserService'
 import LocationSelectList from './LocationSelectList'
 import DatePicker from './DatePicker'
-import * as helper from '@/utils/helper'
 
 import '@/assets/css/property-filter.css'
 import Accordion from './Accordion'
@@ -20,9 +19,6 @@ interface PropertyFilterProps {
   priceMin?: number
   priceMax?: number
   bedroomsMin?: number
-  areaMin?: number
-  areaMax?: number
-  features?: movininTypes.PropertyFeature[]
   className?: string
   collapse?: boolean
   showDates?: boolean
@@ -47,9 +43,6 @@ const PropertyFilter = ({
   priceMin: filterPriceMin,
   priceMax: filterPriceMax,
   bedroomsMin: filterBedroomsMin,
-  areaMin: filterAreaMin,
-  areaMax: filterAreaMax,
-  features: filterFeatures,
   className,
   collapse,
   showDates,
@@ -70,9 +63,6 @@ const PropertyFilter = ({
   const [priceMin, setPriceMin] = useState(filterPriceMin ? String(filterPriceMin) : '')
   const [priceMax, setPriceMax] = useState(filterPriceMax ? String(filterPriceMax) : '')
   const [bedroomsMin, setBedroomsMin] = useState(filterBedroomsMin ? String(filterBedroomsMin) : '')
-  const [areaMin, setAreaMin] = useState(filterAreaMin ? String(filterAreaMin) : '')
-  const [areaMax, setAreaMax] = useState(filterAreaMax ? String(filterAreaMax) : '')
-  const [features, setFeatures] = useState<movininTypes.PropertyFeature[]>(filterFeatures || [])
 
   const shouldShowDates = showDates ?? requireDates
 
@@ -88,10 +78,7 @@ const PropertyFilter = ({
     setPriceMin(filterPriceMin ? String(filterPriceMin) : '')
     setPriceMax(filterPriceMax ? String(filterPriceMax) : '')
     setBedroomsMin(filterBedroomsMin ? String(filterBedroomsMin) : '')
-    setAreaMin(filterAreaMin ? String(filterAreaMin) : '')
-    setAreaMax(filterAreaMax ? String(filterAreaMax) : '')
-    setFeatures(filterFeatures || [])
-  }, [filterAreaMax, filterAreaMin, filterBedroomsMin, filterFeatures, filterPriceMax, filterPriceMin])
+  }, [filterBedroomsMin, filterPriceMax, filterPriceMin])
 
   useEffect(() => {
     setFrom(filterFrom)
@@ -108,14 +95,6 @@ const PropertyFilter = ({
   const handleLocationChange = (values: movininTypes.Option[]) => {
     const _location = (values.length > 0 && values[0]) || null
     setLocation(_location)
-  }
-
-  const toggleFeature = (feature: movininTypes.PropertyFeature) => {
-    setFeatures((currentFeatures) => (
-      currentFeatures.includes(feature)
-        ? currentFeatures.filter((value) => value !== feature)
-        : [...currentFeatures, feature]
-    ))
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -143,9 +122,9 @@ const PropertyFilter = ({
       priceMin: parseNumberInput(priceMin),
       priceMax: parseNumberInput(priceMax),
       bedroomsMin: parseNumberInput(bedroomsMin),
-      areaMin: parseNumberInput(areaMin),
-      areaMax: parseNumberInput(areaMax),
-      features,
+      areaMin: undefined,
+      areaMax: undefined,
+      features: [],
     }
     onSubmit(filter)
   }
@@ -161,7 +140,7 @@ const PropertyFilter = ({
           <TextField
             label={commonStrings.KEYWORD}
             value={q}
-            variant="standard"
+            variant="outlined"
             onChange={(event) => setQ(event.target.value)}
           />
         </FormControl>
@@ -171,12 +150,12 @@ const PropertyFilter = ({
             label={commonStrings.LOCATION}
             hidePopupIcon
             customOpen={env.isMobile}
-            init={!env.isMobile}
-            required={requireLocation}
-            variant="standard"
-            value={location as movininTypes.Location}
-            onChange={handleLocationChange}
-          />
+          init={!env.isMobile}
+          required={requireLocation}
+          variant="outlined"
+          value={location as movininTypes.Location}
+          onChange={handleLocationChange}
+        />
         </FormControl>
 
         <div className="property-filter-grid">
@@ -185,7 +164,7 @@ const PropertyFilter = ({
               type="number"
               label={commonStrings.MIN_PRICE}
               value={priceMin}
-              variant="standard"
+              variant="outlined"
               onChange={(event) => setPriceMin(event.target.value)}
             />
           </FormControl>
@@ -194,7 +173,7 @@ const PropertyFilter = ({
               type="number"
               label={commonStrings.MAX_PRICE}
               value={priceMax}
-              variant="standard"
+              variant="outlined"
               onChange={(event) => setPriceMax(event.target.value)}
             />
           </FormControl>
@@ -203,26 +182,8 @@ const PropertyFilter = ({
               type="number"
               label={commonStrings.MIN_BEDROOMS}
               value={bedroomsMin}
-              variant="standard"
+              variant="outlined"
               onChange={(event) => setBedroomsMin(event.target.value)}
-            />
-          </FormControl>
-          <FormControl fullWidth className="area-min">
-            <TextField
-              type="number"
-              label={commonStrings.MIN_AREA}
-              value={areaMin}
-              variant="standard"
-              onChange={(event) => setAreaMin(event.target.value)}
-            />
-          </FormControl>
-          <FormControl fullWidth className="area-max">
-            <TextField
-              type="number"
-              label={commonStrings.MAX_AREA}
-              value={areaMax}
-              variant="standard"
-              onChange={(event) => setAreaMax(event.target.value)}
             />
           </FormControl>
         </div>
@@ -231,12 +192,12 @@ const PropertyFilter = ({
           <>
             <FormControl fullWidth className="from">
               <DatePicker
-                label={commonStrings.FROM}
-                value={from}
-                minDate={_minDate}
-                variant="standard"
-                required={requireDates}
-                error={fromError}
+              label={commonStrings.FROM}
+              value={from}
+              minDate={_minDate}
+              variant="outlined"
+              required={requireDates}
+              error={fromError}
                 helperText={fromError ? commonStrings.REQUIRED : undefined}
                 onChange={(date) => {
                   if (date) {
@@ -262,12 +223,12 @@ const PropertyFilter = ({
             </FormControl>
             <FormControl fullWidth className="to">
               <DatePicker
-                label={commonStrings.TO}
-                value={to}
-                minDate={minDate || _minDate}
-                variant="standard"
-                required={requireDates}
-                error={toError}
+              label={commonStrings.TO}
+              value={to}
+              minDate={minDate || _minDate}
+              variant="outlined"
+              required={requireDates}
+              error={toError}
                 helperText={toError ? commonStrings.REQUIRED : undefined}
                 onChange={(date) => {
                   if (date) {
@@ -285,19 +246,6 @@ const PropertyFilter = ({
             </FormControl>
           </>
         )}
-
-        <div className="property-filter-features">
-          {helper.getPropertyFeatures().map((feature) => (
-            <button
-              key={feature}
-              type="button"
-              className={`property-filter-feature ${features.includes(feature) ? 'is-active' : ''}`}
-              onClick={() => toggleFeature(feature)}
-            >
-              {helper.getPropertyFeatureLabel(feature)}
-            </button>
-          ))}
-        </div>
 
         <FormControl fullWidth className="search">
           <Button type="submit" variant="contained" className="btn-search">

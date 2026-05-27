@@ -31,7 +31,7 @@ export interface PublicProjectBrowseState {
 export const DEFAULT_PROPERTY_SEARCH_STATE: PublicPropertySearchState = {
   q: '',
   locationId: '',
-  listingType: movininTypes.ListingType.Both,
+  listingType: movininTypes.ListingType.Sale,
   features: [],
   sort: movininTypes.PropertySort.Newest,
   propertyTypes: movininHelper.getAllPropertyTypes(),

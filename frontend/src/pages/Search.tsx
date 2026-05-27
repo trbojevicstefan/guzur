@@ -15,10 +15,8 @@ import Layout from '@/components/Layout'
 import NoMatch from './NoMatch'
 import PropertyFilter from '@/components/PropertyFilter'
 import AgencyFilter from '@/components/AgencyFilter'
-import RentalTermFilter from '@/components/RentalTermFilter'
 import PropertyList from '@/components/PropertyList'
 import PropertyTypeFilter from '@/components/PropertyTypeFilter'
-import ListingTypeFilter from '@/components/ListingTypeFilter'
 import Map from '@/components/Map'
 import ViewOnMapButton from '@/components/ViewOnMapButton'
 import MapDialog from '@/components/MapDialog'
@@ -37,11 +35,19 @@ import '@/assets/css/search.css'
 const Properties = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const searchState = parsePropertySearchParams(searchParams)
-  const requiresDates = helper.selectionIncludesRent(searchState.listingType)
+  const rawSearchState = parsePropertySearchParams(searchParams)
+  const searchState = sanitizePropertySearchState({
+    ...rawSearchState,
+    listingType: movininTypes.ListingType.Sale,
+    from: undefined,
+    to: undefined,
+    rentalTerms: [],
+    areaMin: undefined,
+    areaMax: undefined,
+    features: [],
+  })
   const listingTypes = helper.listingTypesFromSelection(searchState.listingType)
   const allPropertyTypes = movininHelper.getAllPropertyTypes()
-  const allRentalTerms = movininHelper.getAllRentalTerms()
 
   const [visible, setVisible] = useState(false)
   const [noMatch, setNoMatch] = useState(false)
@@ -54,27 +60,34 @@ const Properties = () => {
   const [allLocations, setAllLocations] = useState<movininTypes.Location[]>([])
   const [mapLocations, setMapLocations] = useState<movininTypes.Location[]>([])
 
-  const updateSearchState = (partial: Partial<typeof searchState>) => {
+  const updateSearchState = (partial: Partial<typeof searchState>, replace = false) => {
     const nextState = sanitizePropertySearchState({
       ...searchState,
       ...partial,
+      listingType: movininTypes.ListingType.Sale,
+      from: undefined,
+      to: undefined,
+      rentalTerms: [],
+      areaMin: undefined,
+      areaMax: undefined,
+      features: [],
     })
     const params = buildPropertySearchParams(nextState)
-    setSearchParams(params, { replace: false })
+    setSearchParams(params, { replace })
   }
 
   const handlePropertyFilterSubmit = (filter: movininTypes.PropertyFilter) => {
     updateSearchState({
       q: filter.q || '',
       locationId: filter.location?._id || '',
-      from: filter.from,
-      to: filter.to,
+      from: undefined,
+      to: undefined,
       priceMin: filter.priceMin,
       priceMax: filter.priceMax,
       bedroomsMin: filter.bedroomsMin,
-      areaMin: filter.areaMin,
-      areaMax: filter.areaMax,
-      features: filter.features || [],
+      areaMin: undefined,
+      areaMax: undefined,
+      features: [],
     })
   }
 
@@ -101,6 +114,33 @@ const Properties = () => {
 
     loadLocation()
   }, [searchState.locationId])
+
+  useEffect(() => {
+    const hasDeprecatedFilters = (
+      rawSearchState.listingType !== movininTypes.ListingType.Sale
+      || Boolean(rawSearchState.from)
+      || Boolean(rawSearchState.to)
+      || rawSearchState.rentalTerms.length > 0
+      || typeof rawSearchState.areaMin === 'number'
+      || typeof rawSearchState.areaMax === 'number'
+      || rawSearchState.features.length > 0
+    )
+
+    if (hasDeprecatedFilters) {
+      const params = buildPropertySearchParams(searchState)
+      setSearchParams(params, { replace: true })
+    }
+  }, [
+    rawSearchState.areaMax,
+    rawSearchState.areaMin,
+    rawSearchState.features.length,
+    rawSearchState.from,
+    rawSearchState.listingType,
+    rawSearchState.rentalTerms.length,
+    rawSearchState.to,
+    searchState,
+    setSearchParams,
+  ])
 
   useEffect(() => {
     if (allLocations.length > 0 && mapProperties.length > 0) {
@@ -152,7 +192,6 @@ const Properties = () => {
   const agencyIds = movininHelper.flattenAgencies(allAgencies)
   const selectedAgencyIds = searchState.agencies.length > 0 ? searchState.agencies : []
   const selectedPropertyTypes = searchState.propertyTypes.length < allPropertyTypes.length ? searchState.propertyTypes : []
-  const selectedRentalTerms = searchState.rentalTerms.length < allRentalTerms.length ? searchState.rentalTerms : []
 
   return (
     <Layout onLoad={onLoad} strict={false}>
@@ -217,30 +256,16 @@ const Properties = () => {
                 className="filter"
                 q={searchState.q}
                 location={location}
-                from={searchState.from}
-                to={searchState.to}
+                from={undefined}
+                to={undefined}
                 priceMin={searchState.priceMin}
                 priceMax={searchState.priceMax}
                 bedroomsMin={searchState.bedroomsMin}
-                areaMin={searchState.areaMin}
-                areaMax={searchState.areaMax}
-                features={searchState.features}
-                showDates={requiresDates}
+                showDates={false}
                 requireDates={false}
                 requireLocation={false}
                 collapse
                 onSubmit={handlePropertyFilterSubmit}
-              />
-              <ListingTypeFilter
-                className="filter"
-                value={searchState.listingType}
-                onChange={(value) => {
-                  updateSearchState({
-                    listingType: value,
-                    from: helper.selectionIncludesRent(value) ? searchState.from : undefined,
-                    to: helper.selectionIncludesRent(value) ? searchState.to : undefined,
-                  })
-                }}
               />
               {!env.HIDE_AGENCIES && allAgencies.length > 0 && (
                 <AgencyFilter
@@ -261,16 +286,6 @@ const Properties = () => {
                   updateSearchState({ propertyTypes: nextTypes.length > 0 ? nextTypes : allPropertyTypes })
                 }}
               />
-              {requiresDates && (
-                <RentalTermFilter
-                  className="filter"
-                  value={selectedRentalTerms}
-                  onChange={(values) => {
-                    const nextTerms = values.length === allRentalTerms.length ? [] : values
-                    updateSearchState({ rentalTerms: nextTerms.length > 0 ? nextTerms : allRentalTerms })
-                  }}
-                />
-              )}
               {!env.isMobile && (
                 <Map
                   position={[
@@ -303,18 +318,18 @@ const Properties = () => {
                     ? searchState.agencies
                     : (agencyIds.length > 0 ? agencyIds : undefined))}
                 types={searchState.propertyTypes}
-                rentalTerms={requiresDates ? searchState.rentalTerms : undefined}
+                rentalTerms={undefined}
                 listingTypes={listingTypes}
                 location={searchState.locationId || undefined}
                 loading={loading}
-                from={searchState.from}
-                to={searchState.to}
+                from={undefined}
+                to={undefined}
                 priceMin={searchState.priceMin}
                 priceMax={searchState.priceMax}
                 bedroomsMin={searchState.bedroomsMin}
-                areaMin={searchState.areaMin}
-                areaMax={searchState.areaMax}
-                features={searchState.features}
+                areaMin={undefined}
+                areaMax={undefined}
+                features={[]}
                 sort={searchState.sort}
                 hideAgency={env.HIDE_AGENCIES}
                 className="property-list-list"

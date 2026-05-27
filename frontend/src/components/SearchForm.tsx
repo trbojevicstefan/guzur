@@ -1,10 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FormControl, Button, TextField } from '@mui/material'
+import {
+  FormControl,
+  Button,
+  TextField,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
+  SelectChangeEvent,
+} from '@mui/material'
 import { DateTimeValidationError } from '@mui/x-date-pickers'
 import * as movininTypes from ':movinin-types'
 import env from '@/config/env.config'
 import { strings as commonStrings } from '@/lang/common'
+import { strings as propertyStrings } from '@/lang/property'
 import * as UserService from '@/services/UserService'
 import * as LocationService from '@/services/LocationService'
 import LocationSelectList from '@/components/LocationSelectList'
@@ -64,7 +76,7 @@ const SearchForm = ({
     ?? initialState?.listingType
     ?? (listingTypeOptions && listingTypeOptions.length > 0
       ? listingTypeOptions[0]
-      : movininTypes.ListingType.Both)
+      : movininTypes.ListingType.Sale)
 
   const [query, setQuery] = useState(initialState?.q || '')
   const [location, setLocation] = useState(locationProp || initialState?.locationId || '')
@@ -78,8 +90,12 @@ const SearchForm = ({
   const [priceMin, setPriceMin] = useState(initialState?.priceMin ? String(initialState.priceMin) : '')
   const [priceMax, setPriceMax] = useState(initialState?.priceMax ? String(initialState.priceMax) : '')
   const [bedroomsMin, setBedroomsMin] = useState(initialState?.bedroomsMin ? String(initialState.bedroomsMin) : '')
-  const [areaMin, setAreaMin] = useState(initialState?.areaMin ? String(initialState.areaMin) : '')
-  const [areaMax, setAreaMax] = useState(initialState?.areaMax ? String(initialState.areaMax) : '')
+  const allPropertyTypes = useMemo(() => helper.getAllPropertyTypes(), [])
+  const [propertyTypes, setPropertyTypes] = useState<movininTypes.PropertyType[]>(
+    initialState?.propertyTypes && initialState.propertyTypes.length > 0
+      ? initialState.propertyTypes
+      : allPropertyTypes,
+  )
   const [features, setFeatures] = useState<movininTypes.PropertyFeature[]>(initialState?.features || [])
   const availableFeatures = useMemo(
     () => (featureOptions && featureOptions.length > 0 ? featureOptions : helper.getPropertyFeatures()),
@@ -127,6 +143,16 @@ const SearchForm = ({
     })
   }, [availableFeatures, hideFeatures])
 
+  useEffect(() => {
+    setPropertyTypes((current) => {
+      const normalized = current.filter((type) => allPropertyTypes.includes(type))
+      if (normalized.length === 0) {
+        return allPropertyTypes
+      }
+      return normalized
+    })
+  }, [allPropertyTypes])
+
   const handleLocationChange = async (values: movininTypes.Option[]) => {
     const locationId = (values.length > 0 && values[0]._id) || ''
     setLocation(locationId)
@@ -144,6 +170,14 @@ const SearchForm = ({
         ? currentFeatures.filter((value) => value !== feature)
         : [...currentFeatures, feature]
     ))
+  }
+
+  const handlePropertyTypesChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value
+    const nextTypes = (typeof value === 'string' ? value.split(',') : value)
+      .filter((type): type is movininTypes.PropertyType => allPropertyTypes.includes(type as movininTypes.PropertyType))
+
+    setPropertyTypes(nextTypes.length > 0 ? nextTypes : allPropertyTypes)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -164,9 +198,10 @@ const SearchForm = ({
       priceMin: parseNumberInput(priceMin),
       priceMax: parseNumberInput(priceMax),
       bedroomsMin: parseNumberInput(bedroomsMin),
-      areaMin: parseNumberInput(areaMin),
-      areaMax: parseNumberInput(areaMax),
+      areaMin: undefined,
+      areaMax: undefined,
       features,
+      propertyTypes: propertyTypes.length > 0 ? propertyTypes : allPropertyTypes,
     })
 
     if (onSubmitState) {
@@ -199,6 +234,29 @@ const SearchForm = ({
           value={selectedLocation}
           onChange={handleLocationChange}
         />
+      </FormControl>
+      <FormControl className="property-types">
+        <InputLabel>{propertyStrings.PROPERTY_TYPE}</InputLabel>
+        <Select
+          multiple
+          value={propertyTypes as string[]}
+          onChange={handlePropertyTypesChange}
+          input={<OutlinedInput label={propertyStrings.PROPERTY_TYPE} />}
+          renderValue={(selected) => {
+            const values = selected as movininTypes.PropertyType[]
+            if (values.length === allPropertyTypes.length) {
+              return commonStrings.ALL
+            }
+            return values.map((type) => helper.getPropertyType(type)).join(', ')
+          }}
+        >
+          {allPropertyTypes.map((type) => (
+            <MenuItem key={type} value={type}>
+              <Checkbox checked={propertyTypes.includes(type)} />
+              <ListItemText primary={helper.getPropertyType(type)} />
+            </MenuItem>
+          ))}
+        </Select>
       </FormControl>
       {showListingType && (
         <FormControl className="listing-type">
@@ -244,24 +302,6 @@ const SearchForm = ({
           value={bedroomsMin}
           variant="outlined"
           onChange={(event) => setBedroomsMin(event.target.value)}
-        />
-      </FormControl>
-      <FormControl className="area-min">
-        <TextField
-          type="number"
-          label={commonStrings.MIN_AREA}
-          value={areaMin}
-          variant="outlined"
-          onChange={(event) => setAreaMin(event.target.value)}
-        />
-      </FormControl>
-      <FormControl className="area-max">
-        <TextField
-          type="number"
-          label={commonStrings.MAX_AREA}
-          value={areaMax}
-          variant="outlined"
-          onChange={(event) => setAreaMax(event.target.value)}
         />
       </FormControl>
       {requiresDates && (

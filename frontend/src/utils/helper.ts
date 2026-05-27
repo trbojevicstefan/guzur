@@ -232,6 +232,12 @@ export const listingTypesFromSelection = (listingType?: movininTypes.ListingType
   if (!listingType || listingType === movininTypes.ListingType.Both) {
     return movininHelper.getAllListingTypes()
   }
+  if (listingType === movininTypes.ListingType.Sale) {
+    return [movininTypes.ListingType.Sale, movininTypes.ListingType.Both]
+  }
+  if (listingType === movininTypes.ListingType.Rent) {
+    return [movininTypes.ListingType.Rent, movininTypes.ListingType.Both]
+  }
   return [listingType]
 }
 

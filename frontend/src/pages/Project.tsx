@@ -24,6 +24,8 @@ import * as helper from '@/utils/helper'
 import { strings as projectStrings } from '@/lang/project'
 import { strings as commonStrings } from '@/lang/common'
 
+import { useReveal } from '@/hooks/useMotion'
+
 import '@/assets/css/project.css'
 
 const Project = () => {
@@ -40,6 +42,7 @@ const Project = () => {
   const [rowCount, setRowCount] = useState(0)
   const [totalRecords, setTotalRecords] = useState(0)
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
   const currentUser = UserService.getCurrentUser()
 
   useEffect(() => {
@@ -234,8 +237,8 @@ const Project = () => {
       )}
       {!loading && development && introComplete && (
         <>
-          <div className="project-page">
-            <div className="project-hero">
+          <div className="project-page" ref={revealRef}>
+            <div className="project-hero" data-reveal>
               <div className="project-hero-media">
                 {heroImage.src ? (
                   <img
@@ -325,16 +328,16 @@ const Project = () => {
             </div>
 
             {development.description && (
-              <div className="project-section">
+              <div className="project-section" data-reveal>
                 <h2>{projectStrings.DESCRIPTION}</h2>
                 <div className="project-description">{development.description}</div>
               </div>
             )}
 
             {development.images && development.images.length > 0 && (
-              <div className="project-section">
+              <div className="project-section" data-reveal>
                 <h2>{projectStrings.GALLERY}</h2>
-                <div className="project-gallery">
+                <div className="project-gallery" data-reveal-group>
                   {development.images.map((img) => {
                     const imageSource = resolveImage(img)
                     return (
@@ -357,7 +360,7 @@ const Project = () => {
             )}
 
             {(development.masterPlan || (development.floorPlans && development.floorPlans.length > 0)) && (
-              <div className="project-section">
+              <div className="project-section" data-reveal>
                 <h2>{projectStrings.PLANS}</h2>
                 <div className="project-plans">
                   {development.masterPlan && (
@@ -398,7 +401,7 @@ const Project = () => {
             )}
 
             {development.latitude && development.longitude && (
-              <div className="project-section">
+              <div className="project-section" data-reveal>
                 <h2>{projectStrings.MAP}</h2>
                 <Map
                   position={[development.latitude, development.longitude]}
@@ -412,7 +415,7 @@ const Project = () => {
               </div>
             )}
 
-            <div className="project-section" id="project-units">
+            <div className="project-section" id="project-units" data-reveal>
               <h2>{projectStrings.UNITS}</h2>
               <div className="project-units-filters">
                 <FormControl fullWidth margin="dense">

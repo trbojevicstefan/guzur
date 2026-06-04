@@ -20,6 +20,7 @@ import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/concierge'
 import * as LeadService from '@/services/LeadService'
 import * as helper from '@/utils/helper'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/concierge.css'
 
@@ -102,6 +103,7 @@ const toBase64 = (bytes: Uint8Array) => {
 }
 
 const Concierge = () => {
+  const revealRef = useReveal<HTMLDivElement>()
   const transcriptRef = useRef<HTMLDivElement | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
@@ -607,10 +609,10 @@ const Concierge = () => {
 
   return (
     <Layout strict={false}>
-      <div className="concierge-page">
+      <div className="concierge-page" ref={revealRef}>
         <div className="concierge-shell-v2">
           {step === 'hero' && (
-            <section className="concierge-step concierge-hero-v2">
+            <section className="concierge-step concierge-hero-v2" data-reveal>
               <div className="concierge-hero-overlay" />
               <div className="concierge-hero-content">
                 <img src="/guzurlogo.png" alt={env.WEBSITE_NAME} className="concierge-logo-v2" />
@@ -623,7 +625,7 @@ const Concierge = () => {
                   <ArrowForward fontSize="small" />
                 </button>
 
-                <div className="concierge-hero-features">
+                <div className="concierge-hero-features" data-reveal-group>
                   <span><LocationOn fontSize="inherit" /> {strings.FEATURE_LOCATIONS}</span>
                   <span><Business fontSize="inherit" /> {strings.FEATURE_COLLECTION}</span>
                   <span><AutoAwesome fontSize="inherit" /> {strings.FEATURE_ASSISTANT}</span>
@@ -633,13 +635,13 @@ const Concierge = () => {
           )}
 
           {step === 'form' && (
-            <section className="concierge-step concierge-intake">
+            <section className="concierge-step concierge-intake" data-reveal>
               <button type="button" className="concierge-back-btn" onClick={() => setStep('hero')}>
                 <ArrowBack fontSize="small" />
                 {commonStrings.BACK}
               </button>
 
-              <div className="concierge-intake-header">
+              <div className="concierge-intake-header" data-reveal>
                 <h2>{strings.FORM_TITLE}</h2>
                 <p>{strings.FORM_SUBTITLE}</p>
               </div>
@@ -732,7 +734,7 @@ const Concierge = () => {
           )}
 
           {step === 'voice' && (
-            <section className="concierge-step concierge-voice">
+            <section className="concierge-step concierge-voice" data-reveal>
               <div className="concierge-voice-top">
                 <button
                   type="button"

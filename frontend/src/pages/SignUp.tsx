@@ -30,6 +30,7 @@ import Backdrop from '@/components/SimpleBackdrop'
 import DatePicker from '@/components/DatePicker'
 import SocialLogin from '@/components/SocialLogin'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/signup.css'
 
 const SignUp = () => {
@@ -58,6 +59,7 @@ const SignUp = () => {
   const [phone, setPhone] = useState('')
   const [birthDateValid, setBirthDateValid] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
+  const revealRef = useReveal<HTMLDivElement>()
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -285,7 +287,7 @@ const SignUp = () => {
     <Layout strict={false} onLoad={onLoad}>
       {visible && (
         <>
-          <div className="signup-portal">
+          <div className="signup-portal" ref={revealRef}>
             <section className="signup-hero">
               <div className="signup-hero-media" />
               <div className="signup-hero-gradient" />
@@ -314,7 +316,7 @@ const SignUp = () => {
             </section>
 
             <section className="signup-panel">
-              <div className="signup-panel-inner">
+              <div className="signup-panel-inner" data-reveal>
                 <div className="signup-panel-header">
                   <h2>{strings.SIGN_UP_HEADING}</h2>
                   <span className="signup-accent" />

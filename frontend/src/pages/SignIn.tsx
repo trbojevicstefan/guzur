@@ -18,6 +18,7 @@ import Error from '@/components/Error'
 import Layout from '@/components/Layout'
 import SocialLogin from '@/components/SocialLogin'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/signin.css'
 
 const SignIn = () => {
@@ -31,6 +32,7 @@ const SignIn = () => {
   const [blacklisted, setBlacklisted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [stayConnected, setStayConnected] = useState(false)
+  const revealRef = useReveal<HTMLDivElement>()
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
@@ -113,7 +115,7 @@ const SignIn = () => {
     <Layout strict={false} onLoad={onLoad}>
       {visible && (
         <>
-          <div className="signin-portal">
+          <div className="signin-portal" ref={revealRef}>
             <section className="signin-hero">
               <div className="signin-hero-media" />
               <div className="signin-hero-gradient" />
@@ -148,7 +150,7 @@ const SignIn = () => {
             </section>
 
             <section className="signin-panel">
-              <div className="signin-panel-card">
+              <div className="signin-panel-card" data-reveal>
                 <div className="signin-panel-header">
                   <h2>{strings.SIGN_IN_HEADING}</h2>
                   <span className="signin-accent" />

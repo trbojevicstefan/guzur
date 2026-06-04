@@ -42,3 +42,61 @@ section.property-list-grid.property-list .property {
     gap: 18px;
   }
 }
+
+/* ============================================================
+   Editorial luxury polish — property-list.css
+   Overrides card elevation, radius, border, and motion for
+   every article.property that lives inside .property-list.
+   Structural sizing (flex, grid, width) is left untouched.
+   ============================================================ */
+
+/* -- Card shell: unified border, radius, elevation, motion -- */
+section.property-list article.property {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition:
+    transform var(--dur-3) var(--ease-luxe),
+    box-shadow var(--dur-3) var(--ease-luxe);
+}
+
+/* -- Hover lift + deep shadow -- */
+section.property-list article.property:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* -- Image container: ensure overflow clip so scale stays tidy -- */
+section.property-list article.property .left-panel .property-media-btn {
+  overflow: hidden;
+}
+
+/* -- Image: slow luxury scale on card hover -- */
+section.property-list article.property .left-panel .property-img {
+  transition: transform 0.7s var(--ease-out-expo);
+}
+
+section.property-list article.property:hover .left-panel .property-img {
+  transform: scale(1.06);
+}
+
+/* -- Reduced-motion safety -- */
+@media (prefers-reduced-motion: reduce) {
+  section.property-list article.property {
+    transition: none;
+  }
+
+  section.property-list article.property:hover {
+    transform: none;
+  }
+
+  section.property-list article.property .left-panel .property-img {
+    transition: none;
+  }
+
+  section.property-list article.property:hover .left-panel .property-img {
+    transform: none;
+  }
+}

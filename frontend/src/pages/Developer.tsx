@@ -15,11 +15,14 @@ import { strings as developerStrings } from '@/lang/developer'
 import { strings as developmentStrings } from '@/lang/developments'
 import { strings as commonStrings } from '@/lang/common'
 
+import { useReveal } from '@/hooks/useMotion'
+
 import '@/assets/css/developer.css'
 
 const Developer = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
   const [developer, setDeveloper] = useState<movininTypes.User>()
   const [loading, setLoading] = useState(false)
   const [loadingProjects, setLoadingProjects] = useState(false)
@@ -90,15 +93,15 @@ const Developer = () => {
       {noMatch && <NoMatch hideHeader />}
       {!loading && developer && (
         <>
-          <div className="developer-page">
-            <div className="developer-header">
+          <div className="developer-page" ref={revealRef}>
+            <div className="developer-header" data-reveal>
               <h1>{developer.company || developer.fullName || developerStrings.HEADING}</h1>
               {developer.fullName && developer.company && (
                 <div>{developer.fullName}</div>
               )}
             </div>
 
-            <div className="developer-info">
+            <div className="developer-info" data-reveal>
               {developer.website && (
                 <div className="developer-info-item">
                   <strong>{developerStrings.WEBSITE}:</strong>{' '}
@@ -123,7 +126,7 @@ const Developer = () => {
               </div>
             )}
 
-            <div className="developer-projects">
+            <div className="developer-projects" data-reveal>
               <h2>{developerStrings.PROJECTS}</h2>
               {loadingProjects ? (
                 <div>{commonStrings.LOADING}</div>

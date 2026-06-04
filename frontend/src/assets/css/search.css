@@ -81,7 +81,7 @@
   align-items: center;
   gap: 8px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgb(0 0 0 / 8%);
   background: rgb(255 255 255 / 86%);
   padding: 10px 14px;
   min-height: 48px;
@@ -112,7 +112,7 @@
   justify-content: center;
   gap: 8px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgb(0 0 0 / 8%);
   color: var(--text-strong);
   text-transform: none;
   padding: 10px 16px;
@@ -236,7 +236,7 @@ div.properties .search-action {
   justify-content: center;
   gap: 8px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgb(0 0 0 / 8%);
   color: var(--text-strong);
   text-transform: none;
   padding: 10px 16px;
@@ -490,5 +490,74 @@ div.properties .search-requires-dates {
   div.properties .search-action {
     width: 100%;
     justify-content: flex-start;
+  }
+}
+
+/* ============================================================
+   Editorial luxury polish — search.css
+   Overrides heading typographic style and breadcrumb kicker
+   for the Search / Properties page only.
+   All font-size bumps are gated behind 960 px so mobile
+   layout is unchanged.
+   ============================================================ */
+
+/* -- Search heading: editorial serif, tight tracking -- */
+.properties-page .search-title h1,
+div.properties .search-title h1 {
+  font-family: var(--font-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink-900);
+}
+
+/* -- Accent-gold underline flourish (block, left-aligned) -- */
+.properties-page .search-title h1::after,
+div.properties .search-title h1::after {
+  content: '';
+  display: block;
+  width: 52px;
+  height: 2px;
+  margin-top: 6px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  border-radius: 1px;
+}
+
+/* -- Font-size bump gated to desktop only -- */
+@media (width >= 960px) {
+  .properties-page .search-title h1,
+  div.properties .search-title h1 {
+    font-size: clamp(1.55rem, 1.2rem + 1.4vw, 2.1rem);
+    line-height: var(--leading-snug);
+  }
+}
+
+/* -- Breadcrumb / eyebrow: editorial kicker feel -- */
+.properties-page .search-breadcrumbs,
+div.properties .search-breadcrumbs {
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--fs-xs);
+  color: var(--ink-400);
+  text-transform: uppercase;
+}
+
+/* Keep the separator itself unaffected by wide tracking */
+.properties-page .search-breadcrumbs .separator,
+div.properties .search-breadcrumbs .separator {
+  letter-spacing: 0;
+}
+
+/* -- Property-count span: subtle gold tone, wide tracked -- */
+.properties-page .search-title span,
+div.properties .search-title span {
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--fs-xs);
+  color: var(--gold);
+}
+
+/* -- Reduced-motion: no card-level transforms exist here,
+      but nullify any future transition additions -- */
+@media (prefers-reduced-motion: reduce) {
+  .properties-page .search-title h1::after,
+  div.properties .search-title h1::after {
+    transition: none;
   }
 }

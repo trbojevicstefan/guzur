@@ -10,11 +10,13 @@ import * as OrganizationService from '@/services/OrganizationService'
 import * as helper from '@/utils/helper'
 import env from '@/config/env.config'
 import * as movininHelper from ':movinin-helper'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/organization-profile.css'
 
 const Brokerage = () => {
   const { slug } = useParams()
+  const revealRef = useReveal<HTMLDivElement>()
   const [organization, setOrganization] = useState<movininTypes.Organization>()
   const [members, setMembers] = useState<movininTypes.OrgMembership[]>([])
   const [loading, setLoading] = useState(true)
@@ -50,20 +52,20 @@ const Brokerage = () => {
 
   return (
     <Layout strict={false}>
-      <div className="organization-profile">
+      <div className="organization-profile" ref={revealRef}>
         {loading ? (
           <div className="organization-loading">{commonStrings.LOADING}</div>
         ) : organization ? (
           <>
             {organization.cover && (
-              <div className="organization-cover">
+              <div className="organization-cover" data-reveal>
                 <img
                   src={organization.cover.startsWith('http') ? organization.cover : movininHelper.joinURL(env.CDN_USERS, organization.cover)}
                   alt={organization.name}
                 />
               </div>
             )}
-            <section className="organization-hero">
+            <section className="organization-hero" data-reveal>
               <div className="organization-hero-main">
                 {organization.logo && (
                   <span className="organization-hero-logo">
@@ -79,13 +81,13 @@ const Brokerage = () => {
               </div>
             </section>
 
-            <div className="organization-columns">
-              <section className="organization-section">
+            <div className="organization-columns" data-reveal>
+              <section className="organization-section" data-reveal>
                 <h2>{orgStrings.MEMBERS}</h2>
                 {members.length === 0 ? (
                   <p className="organization-empty">{orgStrings.NO_MEMBERS}</p>
                 ) : (
-                  <div className="organization-members">
+                  <div className="organization-members" data-reveal-group>
                     {members.map((member) => {
                       const user = member.user as movininTypes.User
                       return (
@@ -109,7 +111,7 @@ const Brokerage = () => {
                 )}
               </section>
 
-              <section className="organization-section">
+              <section className="organization-section" data-reveal>
                 <h2>{orgStrings.LISTINGS}</h2>
                 <PropertyList brokerageOrgs={brokerageOrgId} />
               </section>

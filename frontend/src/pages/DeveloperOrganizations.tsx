@@ -12,10 +12,13 @@ import * as OrganizationService from '@/services/OrganizationService'
 import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 
+import { useReveal } from '@/hooks/useMotion'
+
 import '@/assets/css/agencies.css'
 
 const DeveloperOrganizations = () => {
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
   const [keyword, setKeyword] = useState('')
   const [organizations, setOrganizations] = useState<movininTypes.Organization[]>([])
   const [loading, setLoading] = useState(false)
@@ -73,8 +76,8 @@ const DeveloperOrganizations = () => {
 
   return (
     <Layout strict={false}>
-      <div className="agencies">
-        <div className="agencies-hero">
+      <div className="agencies" ref={revealRef}>
+        <div className="agencies-hero" data-reveal>
           <div className="agencies-hero-text">
             <div className="agencies-breadcrumb">
               <span>{headerStrings.HOME}</span>
@@ -115,10 +118,12 @@ const DeveloperOrganizations = () => {
         ) : organizations.length === 0 ? (
           <div className="agencies-empty">{orgStrings.EMPTY}</div>
         ) : (
-          <OrganizationList
-            organizations={organizations}
-            onSelect={(org) => org.slug && navigate(`/developers/org/${org.slug}`)}
-          />
+          <div data-reveal>
+            <OrganizationList
+              organizations={organizations}
+              onSelect={(org) => org.slug && navigate(`/developers/org/${org.slug}`)}
+            />
+          </div>
         )}
         <div ref={observerRef} className="agencies-sentinel" />
       </div>

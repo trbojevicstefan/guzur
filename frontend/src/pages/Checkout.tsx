@@ -56,6 +56,7 @@ import { strings as mapStrings } from '@/lang/map'
 import CheckoutStatus from '@/components/CheckoutStatus'
 import Backdrop from '@/components/SimpleBackdrop'
 import Unauthorized from '@/components/Unauthorized'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/checkout.css'
 
@@ -108,6 +109,7 @@ const Checkout = () => {
   const [payPalInit, setPayPalInit] = useState(false)
   const [payPalProcessing, setPayPalProcessing] = useState(false)
 
+  const revealRef = useReveal<HTMLDivElement>()
   const _fr = language === 'fr'
   const _locale = _fr ? fr : enUS
   const _format = _fr ? 'eee d LLL yyyy kk:mm' : 'eee, d LLL yyyy, p'
@@ -408,9 +410,9 @@ const Checkout = () => {
     <Layout onLoad={onLoad} strict={false}>
       {!user?.blacklisted && visible && property && from && to && location && (
         <>
-          <div className="checkout">
+          <div className="checkout" ref={revealRef}>
             <Paper className="checkout-form" elevation={10}>
-              <h1 className="checkout-form-title">
+              <h1 className="checkout-form-title" data-reveal>
                 {' '}
                 {strings.BOOKING_HEADING}
                 {' '}
@@ -451,7 +453,7 @@ const Checkout = () => {
                     onCancellationChange={(value) => setCancellation(value)}
                   />
 
-                  <div className="checkout-details-container">
+                  <div className="checkout-details-container" data-reveal>
                     <div className="checkout-info">
                       <PropertyIcon />
                       <span>{strings.BOOKING_DETAILS}</span>
@@ -490,7 +492,7 @@ const Checkout = () => {
                     </div>
                   </div>
                   {!authenticated && (
-                    <div className="renter-details">
+                    <div className="renter-details" data-reveal>
                       <div className="checkout-info">
                         <RenterIcon />
                         <span>{strings.RENTER_DETAILS}</span>
@@ -573,7 +575,7 @@ const Checkout = () => {
                   )}
 
                   {property.agency.payLater && (
-                    <div className="payment-options-container">
+                    <div className="payment-options-container" data-reveal>
                       <div className="checkout-info">
                         <PaymentOptionsIcon />
                         <span>{strings.PAYMENT_OPTIONS}</span>
@@ -672,7 +674,7 @@ const Checkout = () => {
                         </div>
                       ) : null
                   )}
-                  <div className="checkout-buttons">
+                  <div className="checkout-buttons" data-reveal>
                     {(
                       (env.PAYMENT_GATEWAY === movininTypes.PaymentGateway.Stripe && !clientSecret)
                       || (env.PAYMENT_GATEWAY === movininTypes.PaymentGateway.PayPal && !payPalInit)

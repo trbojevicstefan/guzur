@@ -8,6 +8,7 @@ import * as BookingService from '@/services/BookingService'
 import * as UserService from '@/services/UserService'
 import Info from './Info'
 import CheckoutStatus from '@/components/CheckoutStatus'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/checkout-session.css'
 
@@ -17,6 +18,8 @@ const CheckoutSession = () => {
   const [loading, setLoading] = useState(true)
   const [noMatch, setNoMatch] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  const revealRef = useReveal<HTMLDivElement>()
 
   if (!sessionId) {
     setNoMatch(true)
@@ -47,7 +50,7 @@ const CheckoutSession = () => {
 
   return (
     <Layout>
-      <div className="checkout-session">
+      <div className="checkout-session" ref={revealRef}>
         {
           loading
             ? <Info message={strings.CHECKING} hideLink />

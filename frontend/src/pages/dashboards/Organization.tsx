@@ -31,6 +31,7 @@ import { useUserContext, UserContextType } from '@/context/UserContext'
 import * as helper from '@/utils/helper'
 import * as movininHelper from ':movinin-helper'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/organization-admin.css'
 
 const Organization = () => {
@@ -63,6 +64,7 @@ const Organization = () => {
   const [phone, setPhone] = useState('')
 
   const orgId = typeof user?.primaryOrg === 'string' ? user.primaryOrg : user?.primaryOrg?._id
+  const revealRef = useReveal<HTMLDivElement>()
 
   const loadOrg = async () => {
     if (!orgId) {
@@ -230,8 +232,8 @@ const Organization = () => {
 
   return (
     <Layout strict onLoad={onLoad}>
-      <div className="org-profile">
-        <div className="org-profile-header">
+      <div className="org-profile" ref={revealRef}>
+        <div className="org-profile-header" data-reveal>
           <span className="org-badge">
             <Business fontSize="inherit" />
             {orgStrings.ORGANIZATION_PROFILE}
@@ -243,7 +245,7 @@ const Organization = () => {
         {loading ? (
           <div className="org-loading">{commonStrings.LOADING}</div>
         ) : organization ? (
-          <div className="org-card">
+          <div className="org-card" data-reveal>
             <div className="org-cover">
               {coverPreview ? (
                 <img src={coverPreview} alt={orgStrings.COVER} />
@@ -364,7 +366,7 @@ const Organization = () => {
                   </div>
                 </div>
 
-                <div className="org-team">
+                <div className="org-team" data-reveal>
                   <div className="org-team-header">
                     <span>{orgStrings.INVITE_MEMBER}</span>
                   </div>
@@ -440,7 +442,7 @@ const Organization = () => {
                   </div>
                 </div>
 
-                <div className="org-partnerships">
+                <div className="org-partnerships" data-reveal>
                   <h4>{orgStrings.PARTNERSHIPS}</h4>
                   {partnershipLoading ? (
                     <div className="org-empty">{commonStrings.LOADING}</div>

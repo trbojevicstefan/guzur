@@ -11,11 +11,13 @@ import { strings as headerStrings } from '@/lang/header'
 import * as OrganizationService from '@/services/OrganizationService'
 import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/agencies.css'
 
 const Brokerages = () => {
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
   const [keyword, setKeyword] = useState('')
   const [organizations, setOrganizations] = useState<movininTypes.Organization[]>([])
   const [loading, setLoading] = useState(false)
@@ -84,8 +86,8 @@ const Brokerages = () => {
 
   return (
     <Layout strict={false}>
-      <div className="agencies">
-        <div className="agencies-hero">
+      <div className="agencies" ref={revealRef}>
+        <div className="agencies-hero" data-reveal>
           <div className="agencies-hero-text">
             <div className="agencies-breadcrumb">
               <span>{headerStrings.HOME}</span>
@@ -95,7 +97,7 @@ const Brokerages = () => {
             <h1>{orgStrings.BROKERAGES_TITLE || orgStrings.BROKERAGES}</h1>
             <p className="agencies-subtitle">{subtitle}</p>
           </div>
-          <div className="agencies-toolbar">
+          <div className="agencies-toolbar" data-reveal>
             <label className="agencies-search">
               <Search className="agencies-search-icon" />
               <input
@@ -118,7 +120,7 @@ const Brokerages = () => {
         </div>
 
         {filtersOpen && (
-          <div className="agencies-filters-panel">
+          <div className="agencies-filters-panel" data-reveal>
             <label className="agencies-filter-item">
               <input
                 type="checkbox"
@@ -142,10 +144,12 @@ const Brokerages = () => {
         ) : visibleOrganizations.length === 0 ? (
           <div className="agencies-empty">{orgStrings.EMPTY}</div>
         ) : (
-          <OrganizationList
-            organizations={visibleOrganizations}
-            onSelect={(org) => org.slug && navigate(`/brokers/${org.slug}`)}
-          />
+          <div data-reveal-group>
+            <OrganizationList
+              organizations={visibleOrganizations}
+              onSelect={(org) => org.slug && navigate(`/brokers/${org.slug}`)}
+            />
+          </div>
         )}
         <div ref={observerRef} className="agencies-sentinel" />
       </div>

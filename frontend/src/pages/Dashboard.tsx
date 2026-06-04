@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import * as movininTypes from ':movinin-types'
 import Layout from '@/components/Layout'
 import { strings as dashboardStrings } from '@/lang/dashboard'
+import { useReveal } from '@/hooks/useMotion'
 
 const Dashboard = () => {
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
 
   const onLoad = (user?: movininTypes.User) => {
     if (!user) {
@@ -41,7 +43,7 @@ const Dashboard = () => {
 
   return (
     <Layout strict={false} onLoad={onLoad}>
-      <div />
+      <div ref={revealRef} />
     </Layout>
   )
 }

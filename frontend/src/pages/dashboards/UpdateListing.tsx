@@ -32,6 +32,7 @@ import * as PropertyService from '@/services/PropertyService'
 import * as SeoService from '@/services/SeoService'
 import * as DevelopmentService from '@/services/DevelopmentService'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/listing-form.css'
 
 const UpdateListing = () => {
@@ -85,6 +86,7 @@ const UpdateListing = () => {
   const cleanupOnUnmountRef = useRef(true)
   const tempImageRef = useRef('')
   const tempSecondaryImagesRef = useRef<string[]>([])
+  const revealRef = useReveal<HTMLDivElement>()
 
   const onLoad = async (currentUser?: movininTypes.User) => {
     if (!currentUser) {
@@ -440,16 +442,16 @@ const UpdateListing = () => {
 
   return (
     <Layout strict onLoad={onLoad}>
-      <div className="listing-form">
+      <div className="listing-form" ref={revealRef}>
         <form onSubmit={handleSubmit} className="listing-form-card">
-          <h1>{listingStrings.UPDATE_HEADING || listingStrings.HEADING}</h1>
+          <h1 data-reveal>{listingStrings.UPDATE_HEADING || listingStrings.HEADING}</h1>
           {user && !user.approved && (
             <div className="listing-form-note">
               {listingStrings.PENDING_REVIEW_NOTICE}
             </div>
           )}
 
-          <section className="listing-section">
+          <section className="listing-section" data-reveal>
             <h2 className="listing-section-title">{listingStrings.SECTION_BASIC}</h2>
             <div className="listing-grid">
           <FormControl fullWidth margin="dense">
@@ -579,7 +581,7 @@ const UpdateListing = () => {
             </div>
           </section>
 
-          <section className="listing-section">
+          <section className="listing-section" data-reveal>
             <h2 className="listing-section-title">{listingStrings.SECTION_SPECS}</h2>
             <div className="listing-grid">
           <FormControl fullWidth margin="dense">
@@ -659,7 +661,7 @@ const UpdateListing = () => {
             </div>
           </section>
 
-          <section className="listing-section">
+          <section className="listing-section" data-reveal>
             <h2 className="listing-section-title">{listingStrings.SECTION_PRICING}</h2>
             <div className="listing-grid">
           <FormControl fullWidth margin="dense">
@@ -724,7 +726,7 @@ const UpdateListing = () => {
             </div>
           </section>
 
-          <section className="listing-section">
+          <section className="listing-section" data-reveal>
             <h2 className="listing-section-title">{listingStrings.SECTION_DESCRIPTION}</h2>
             <div className="listing-grid">
           <FormControl fullWidth margin="dense" className="listing-grid-full">
@@ -779,7 +781,7 @@ const UpdateListing = () => {
             </div>
           </section>
 
-          <section className="listing-section">
+          <section className="listing-section" data-reveal>
             <h2 className="listing-section-title">{listingStrings.SECTION_MEDIA}</h2>
             <div className="listing-grid">
               <FormControl fullWidth margin="dense" className="listing-grid-full">
@@ -849,7 +851,7 @@ const UpdateListing = () => {
             </div>
           </section>
 
-          <section className="listing-section">
+          <section className="listing-section" data-reveal>
             <h2 className="listing-section-title">{listingStrings.SECTION_SEO}</h2>
             <div className="listing-grid">
               <FormControl fullWidth margin="dense" className="listing-grid-full">

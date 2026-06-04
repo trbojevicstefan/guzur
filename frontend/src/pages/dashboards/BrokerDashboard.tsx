@@ -14,6 +14,7 @@ import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 import { buildUpdatePayload } from '@/utils/listingHelper'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/dashboard.css'
 
 const BrokerDashboard = () => {
@@ -24,6 +25,7 @@ const BrokerDashboard = () => {
   const [loading, setLoading] = useState(false)
   const [loadingListings, setLoadingListings] = useState(false)
   const [activeTab, setActiveTab] = useState<'organization' | 'listings'>('listings')
+  const revealRef = useReveal<HTMLDivElement>()
 
   const onLoad = (currentUser?: movininTypes.User) => {
     if (!currentUser) {
@@ -82,9 +84,9 @@ const BrokerDashboard = () => {
 
   return (
     <Layout strict={false} onLoad={onLoad}>
-      <div className="dashboard dashboard-portal">
+      <div className="dashboard dashboard-portal" ref={revealRef}>
         <main className="dashboard-main">
-          <div className="dashboard-action-bar">
+          <div className="dashboard-action-bar" data-reveal>
             <p>
               {dashboardStrings.WELCOME_BACK}{' '}
               <span>{user?.fullName || dashboardStrings.BROKER_LABEL}</span>. {dashboardStrings.OVERVIEW}
@@ -110,7 +112,7 @@ const BrokerDashboard = () => {
             </div>
           </div>
 
-          <div className="dashboard-stats">
+          <div className="dashboard-stats" data-reveal-group>
             <div className="dashboard-stat-card">
               <div className="dashboard-stat-icon">
                 <HomeWork />
@@ -138,7 +140,7 @@ const BrokerDashboard = () => {
           </div>
 
           {user && (
-            <section className="dashboard-section">
+            <section className="dashboard-section" data-reveal>
               <div className="dashboard-section-title">
                 <span>{dashboardStrings.PROFILE_DETAILS}</span>
               </div>
@@ -185,7 +187,7 @@ const BrokerDashboard = () => {
             </section>
           )}
 
-          <section className="dashboard-section">
+          <section className="dashboard-section" data-reveal>
             <div className="dashboard-listings-header">
               <h2>{dashboardStrings.MY_LISTINGS}</h2>
               <div className="dashboard-tabs">
@@ -263,7 +265,7 @@ const BrokerDashboard = () => {
             </div>
           </section>
 
-          <section className="dashboard-section dashboard-leads">
+          <section className="dashboard-section dashboard-leads" data-reveal>
             <h2>{dashboardStrings.LEADS}</h2>
             {loading ? (
               <div className="dashboard-loading">{commonStrings.LOADING}</div>

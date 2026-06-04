@@ -32,6 +32,7 @@ import DatePicker from '@/components/DatePicker'
 import Avatar from '@/components/Avatar'
 import * as helper from '@/utils/helper'
 import Footer from '@/components/Footer'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/settings.css'
 
@@ -182,14 +183,15 @@ const Settings = () => {
     }
   }
 
+  const revealRef = useReveal<HTMLDivElement>()
   const memberSince = user?.createdAt ? new Date(user.createdAt).getFullYear() : new Date().getFullYear()
 
   return (
     <Layout onLoad={onLoad} strict>
       {visible && user && (
         <>
-          <div className="settings-portal">
-            <div className="settings-header">
+          <div className="settings-portal" ref={revealRef}>
+            <div className="settings-header" data-reveal>
               {user.verified && (
                 <span className="settings-verified">
                   <CheckCircle fontSize="small" />
@@ -200,7 +202,7 @@ const Settings = () => {
               <p>{strings.PROFILE_SUBTITLE}</p>
             </div>
 
-            <div className="settings-card">
+            <div className="settings-card" data-reveal>
               <div className="settings-card-inner">
                 <div className="settings-avatar-row">
                   <div className="settings-avatar">
@@ -377,7 +379,7 @@ const Settings = () => {
               </div>
             </div>
 
-            <div className="settings-footer-note">
+            <div className="settings-footer-note" data-reveal>
               {strings.FOOTER_NOTE}
             </div>
           </div>

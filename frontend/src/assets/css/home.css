@@ -5,6 +5,7 @@ div.home {
   align-items: center;
   overflow: visible;
   background: var(--bg-base);
+
   --home-hero-radius: 0;
   --home-hero-width: 100%;
 }
@@ -107,7 +108,7 @@ div.home-title {
   padding: 0 12px;
   max-width: 860px;
   line-height: 1.01;
-  text-shadow: 0 10px 24px rgba(2, 8, 18, 0.46);
+  text-shadow: 0 10px 24px rgb(2 8 18 / 46%);
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
@@ -158,17 +159,17 @@ div.home .home-hero-actions .btn-home:hover {
 }
 
 div.home .home-hero-actions .btn-home.btn-primary {
-  background: linear-gradient(145deg, #f5f6f8 0%, #ffffff 100%) !important;
+  background: linear-gradient(145deg, #f5f6f8 0%, #fff 100%) !important;
   color: #0f172a !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 14px 30px rgba(8, 13, 21, 0.28);
+  border: 1px solid rgb(255 255 255 / 95%) !important;
+  box-shadow: 0 14px 30px rgb(8 13 21 / 28%);
 }
 
 div.home .home-hero-actions .btn-home.btn-secondary {
   color: #fff !important;
-  border: 1px solid rgba(255, 255, 255, 0.42) !important;
-  background: linear-gradient(160deg, rgba(15, 23, 42, 0.32) 0%, rgba(15, 23, 42, 0.2) 100%) !important;
-  box-shadow: 0 10px 24px rgba(8, 13, 21, 0.22);
+  border: 1px solid rgb(255 255 255 / 42%) !important;
+  background: linear-gradient(160deg, rgb(15 23 42 / 32%) 0%, rgb(15 23 42 / 20%) 100%) !important;
+  box-shadow: 0 10px 24px rgb(8 13 21 / 22%);
 }
 
 div.home .home-about {
@@ -239,7 +240,7 @@ div.home .home-hero-kicker {
   color: rgb(248 250 252 / 94%);
   background: transparent;
   border: none;
-  text-shadow: 0 6px 18px rgba(2, 8, 18, 0.5);
+  text-shadow: 0 6px 18px rgb(2 8 18 / 50%);
 }
 
 div.home .home-hero-subtitle {
@@ -248,7 +249,7 @@ div.home .home-hero-subtitle {
   color: rgb(236 241 248 / 96%);
   font-size: clamp(15px, 1.35vw, 18px);
   line-height: 1.64;
-  text-shadow: 0 8px 22px rgba(5, 12, 24, 0.62);
+  text-shadow: 0 8px 22px rgb(5 12 24 / 62%);
 }
 
 div.home .home-hero-points {
@@ -266,7 +267,7 @@ div.home .home-hero-point {
   min-height: 40px;
   padding: 0 17px;
   border-radius: 999px;
-  color: #ffffff;
+  color: #fff;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -372,14 +373,14 @@ div.home .home-listings-nav {
   width: 36px;
   height: 36px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgb(255 255 255 / 40%);
+  background: rgb(255 255 255 / 90%);
   color: var(--text-strong);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 20px rgb(0 0 0 / 12%);
   z-index: 2;
 }
 
@@ -419,7 +420,7 @@ div.home .home-listing-media {
   position: relative;
   border-radius: 22px;
   overflow: hidden;
-  background: linear-gradient(130deg, rgba(148, 163, 184, 0.2) 0%, rgba(148, 163, 184, 0.3) 100%);
+  background: linear-gradient(130deg, rgb(148 163 184 / 20%) 0%, rgb(148 163 184 / 30%) 100%);
 }
 
 div.home .home-listing-media img {
@@ -451,7 +452,7 @@ div.home .home-listing-placeholder {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
-  color: #ffffff;
+  color: #fff;
   font-family: var(--font-heading);
   font-size: 2rem;
   letter-spacing: 0.1em;
@@ -511,8 +512,8 @@ div.home .home-listing-amenity {
   justify-self: start;
   padding: 4px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(214, 198, 182, 0.45);
+  background: rgb(255 255 255 / 70%);
+  border: 1px solid rgb(214 198 182 / 45%);
 }
 
 div.home .home-listing-amenity svg {
@@ -556,9 +557,9 @@ div.home .home-line-sm {
 div.home .shimmer {
   background: linear-gradient(
     105deg,
-    rgba(203, 213, 225, 0.35) 30%,
-    rgba(255, 255, 255, 0.85) 45%,
-    rgba(203, 213, 225, 0.35) 60%
+    rgb(203 213 225 / 35%) 30%,
+    rgb(255 255 255 / 85%) 45%,
+    rgb(203 213 225 / 35%) 60%
   );
   background-size: 240% 100%;
   animation: homeShimmer 1.2s linear infinite;
@@ -599,11 +600,11 @@ div.home .home-projects-empty {
 div.home .home-project-card {
   min-width: 250px;
   max-width: 290px;
-  border: 1px solid rgba(214, 198, 182, 0.6);
+  border: 1px solid rgb(214 198 182 / 60%);
   border-radius: 20px;
   background:
-    linear-gradient(180deg, rgba(255, 250, 245, 0.9), rgba(248, 242, 236, 0.9));
-  box-shadow: 0 12px 30px rgba(118, 97, 77, 0.12);
+    linear-gradient(180deg, rgb(255 250 245 / 90%), rgb(248 242 236 / 90%));
+  box-shadow: 0 12px 30px rgb(118 97 77 / 12%);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -661,8 +662,8 @@ div.home .home-project-developer-logo {
   height: 34px;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(194, 157, 124, 0.4);
-  background: rgba(247, 224, 203, 0.6);
+  border: 1px solid rgb(194 157 124 / 40%);
+  background: rgb(247 224 203 / 60%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -720,8 +721,8 @@ div.home .home-project-detail-item strong {
 div.home .home-project-link {
   margin-top: 4px;
   width: fit-content;
-  border: 1px solid rgba(194, 157, 124, 0.45);
-  background: rgba(247, 224, 203, 0.76);
+  border: 1px solid rgb(194 157 124 / 45%);
+  background: rgb(247 224 203 / 76%);
   color: #5f4129;
   border-radius: 999px;
   padding: 6px 12px;
@@ -732,6 +733,7 @@ div.home .home-project-link {
 div.home div.top-locations {
   --home-different-accent: #d97d74;
   --home-different-secondary: #a8b69f;
+
   padding-top: 16px;
   padding-bottom: 24px;
 }
@@ -775,11 +777,11 @@ div.home .home-top-location-image {
   overflow: hidden;
   border: 2px solid color-mix(in srgb, var(--home-different-accent) 64%, white);
   background:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), transparent 45%),
+    radial-gradient(circle at 30% 30%, rgb(255 255 255 / 50%), transparent 45%),
     color-mix(in srgb, var(--home-different-secondary) 24%, white);
   box-shadow:
-    0 0 0 5px rgba(255, 255, 255, 0.88),
-    0 10px 24px rgba(15, 23, 42, 0.18),
+    0 0 0 5px rgb(255 255 255 / 88%),
+    0 10px 24px rgb(15 23 42 / 18%),
     0 0 26px color-mix(in srgb, var(--home-different-accent) 22%, transparent);
   transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
@@ -813,8 +815,8 @@ div.home .home-top-location-name {
 div.home .home-top-location-item:hover .home-top-location-image {
   transform: translateY(-3px) scale(1.03);
   box-shadow:
-    0 0 0 5px rgba(255, 255, 255, 0.88),
-    0 14px 28px rgba(15, 23, 42, 0.2),
+    0 0 0 5px rgb(255 255 255 / 88%),
+    0 14px 28px rgb(15 23 42 / 20%),
     0 0 34px color-mix(in srgb, var(--home-different-accent) 34%, transparent);
 }
 
@@ -828,7 +830,7 @@ div.home div.home-listings.home-intent-strip {
 
 div.home .home-intent-card {
   position: relative;
-  border: 1px solid rgba(214, 198, 182, 0.65);
+  border: 1px solid rgb(214 198 182 / 65%);
   border-radius: 16px;
   min-height: 124px;
   padding: 22px 20px 20px;
@@ -845,14 +847,14 @@ div.home .home-intent-card {
 
 div.home .home-intent-card-sell {
   background:
-    radial-gradient(circle at 88% 0%, rgba(236, 170, 136, 0.42) 0 72px, transparent 74px),
-    linear-gradient(180deg, rgba(248, 233, 221, 0.96), rgba(246, 228, 214, 0.93));
+    radial-gradient(circle at 88% 0%, rgb(236 170 136 / 42%) 0 72px, transparent 74px),
+    linear-gradient(180deg, rgb(248 233 221 / 96%), rgb(246 228 214 / 93%));
 }
 
 div.home .home-intent-card-buy {
   background:
-    radial-gradient(circle at 88% 0%, rgba(188, 205, 223, 0.4) 0 72px, transparent 74px),
-    linear-gradient(180deg, rgba(236, 241, 247, 0.96), rgba(227, 235, 244, 0.92));
+    radial-gradient(circle at 88% 0%, rgb(188 205 223 / 40%) 0 72px, transparent 74px),
+    linear-gradient(180deg, rgb(236 241 247 / 96%), rgb(227 235 244 / 92%));
 }
 
 div.home .home-intent-card-deco {
@@ -862,7 +864,7 @@ div.home .home-intent-card-deco {
   width: 118px;
   height: 118px;
   border-radius: 50%;
-  border: 16px solid rgba(255, 255, 255, 0.3);
+  border: 16px solid rgb(255 255 255 / 30%);
   pointer-events: none;
 }
 
@@ -876,7 +878,7 @@ div.home .home-intent-card-title {
 
 div.home .home-intent-card-text {
   font-size: 15px;
-  color: rgba(36, 48, 62, 0.85);
+  color: rgb(36 48 62 / 85%);
   line-height: 1.45;
   max-width: 86%;
 }
@@ -892,7 +894,7 @@ div.home .home-intent-card-link {
 
 div.home .home-intent-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(17, 24, 39, 0.1);
+  box-shadow: 0 14px 24px rgb(17 24 39 / 10%);
 }
 
 div.home div.services {
@@ -901,14 +903,15 @@ div.home div.services {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: radial-gradient(circle at 85% 10%, rgba(217, 125, 116, 0.16), transparent 44%),
-    radial-gradient(circle at 0% 85%, rgba(168, 182, 159, 0.12), transparent 40%),
+  background: radial-gradient(circle at 85% 10%, rgb(217 125 116 / 16%), transparent 44%),
+    radial-gradient(circle at 0% 85%, rgb(168 182 159 / 12%), transparent 40%),
     var(--bg-base);
 }
 
 div.home .home-different-section {
   --home-different-accent: #d97d74;
   --home-different-secondary: #a8b69f;
+
   position: relative;
   width: 100vw;
   max-width: none;
@@ -954,9 +957,9 @@ div.home .home-different-preview {
   position: relative;
   overflow: hidden;
   border-radius: 34px;
-  background: rgba(255, 255, 255, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 38px 90px rgba(15, 23, 42, 0.12);
+  background: rgb(255 255 255 / 86%);
+  border: 1px solid rgb(255 255 255 / 85%);
+  box-shadow: 0 38px 90px rgb(15 23 42 / 12%);
   backdrop-filter: blur(18px);
 }
 
@@ -964,7 +967,7 @@ div.home .home-different-preview-media {
   position: relative;
   min-height: clamp(360px, 54vh, 620px);
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.22));
+  background: linear-gradient(135deg, rgb(15 23 42 / 8%), rgb(15 23 42 / 22%));
 }
 
 div.home .home-different-preview-image {
@@ -987,7 +990,7 @@ div.home .home-different-preview-overlay {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.7) 100%),
+    linear-gradient(180deg, rgb(15 23 42 / 8%) 0%, rgb(15 23 42 / 70%) 100%),
     linear-gradient(135deg, color-mix(in srgb, var(--home-different-accent) 26%, transparent), transparent 58%);
   z-index: 1;
 }
@@ -1007,8 +1010,8 @@ div.home .home-different-preview-index {
   width: fit-content;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgb(255 255 255 / 14%);
+  border: 1px solid rgb(255 255 255 / 22%);
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -1038,9 +1041,9 @@ div.home .home-different-stat {
   padding: 16px;
   border-radius: 22px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.92)),
+    linear-gradient(180deg, rgb(255 255 255 / 95%), rgb(248 250 252 / 92%)),
     linear-gradient(135deg, color-mix(in srgb, var(--home-different-accent) 16%, white), white);
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  border: 1px solid rgb(148 163 184 / 16%);
   min-width: 0;
 }
 
@@ -1084,11 +1087,11 @@ div.home .home-different-step {
   align-items: start;
   padding: clamp(22px, 3vw, 30px);
   border-radius: 30px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid rgb(148 163 184 / 18%);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.68)),
+    linear-gradient(180deg, rgb(255 255 255 / 82%), rgb(255 255 255 / 68%)),
     linear-gradient(135deg, color-mix(in srgb, var(--home-different-secondary) 14%, white), white);
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 34px rgb(15 23 42 / 6%);
   text-align: left;
   color: inherit;
   cursor: pointer;
@@ -1100,10 +1103,10 @@ div.home .home-different-step:hover,
 div.home .home-different-step:focus-visible,
 div.home .home-different-step.is-active {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--home-different-accent) 36%, rgba(148, 163, 184, 0.22));
-  box-shadow: 0 20px 42px rgba(15, 23, 42, 0.1);
+  border-color: color-mix(in srgb, var(--home-different-accent) 36%, rgb(148 163 184 / 22%));
+  box-shadow: 0 20px 42px rgb(15 23 42 / 10%);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.84)),
+    linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(255 255 255 / 84%)),
     linear-gradient(135deg, color-mix(in srgb, var(--home-different-accent) 18%, white), white);
 }
 
@@ -1149,7 +1152,7 @@ div.home .home-different-step-indicator {
   margin-top: 8px;
   border-radius: 50%;
   border: 2px solid color-mix(in srgb, var(--home-different-accent) 44%, white);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgb(255 255 255 / 90%);
   transition: background-color 220ms ease, transform 220ms ease, border-color 220ms ease;
 }
 
@@ -1254,8 +1257,8 @@ div.home div.destinations .MuiTab-root {
 
 div.home div.destinations .MuiTab-root.Mui-selected {
   color: var(--text-strong);
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgb(255 255 255 / 70%);
+  border: 1px solid rgb(255 255 255 / 50%);
 }
 
 div.home div.home-map {
@@ -1264,8 +1267,8 @@ div.home div.home-map {
   margin: 0 0 40px;
   margin-inline: calc(50% - 50vw);
   background:
-    radial-gradient(circle at 84% 14%, rgba(217, 125, 116, 0.12), transparent 46%),
-    radial-gradient(circle at 10% 86%, rgba(168, 182, 159, 0.1), transparent 42%),
+    radial-gradient(circle at 84% 14%, rgb(217 125 116 / 12%), transparent 46%),
+    radial-gradient(circle at 10% 86%, rgb(168 182 159 / 10%), transparent 42%),
     var(--surface-glass);
   border-top: 1px solid var(--surface-border);
   border-bottom: 1px solid var(--surface-border);
@@ -1442,6 +1445,7 @@ div.home div.customer-care .customer-care-link {
   div.home div.home-content .video {
     --home-hero-radius: 0;
     --home-hero-width: 100%;
+
     width: var(--home-hero-width);
     height: 100%;
     top: 0;
@@ -1450,6 +1454,7 @@ div.home div.customer-care .customer-care-link {
   div.home div.home-content::before {
     --home-hero-radius: 0;
     --home-hero-width: 100%;
+
     width: var(--home-hero-width);
     height: 100%;
     top: 0;
@@ -1554,7 +1559,7 @@ div.home div.customer-care .customer-care-link {
 
   div.home div.search div.home-search {
     padding: 14px;
-    margin: -110px 20px 0 20px;
+    margin: -110px 20px 0;
     width: calc(100% - 20px);
     max-width: 520px;
   }
@@ -1699,5 +1704,133 @@ div.home div.customer-care .customer-care-link {
 
   div.home div.customer-care .customer-care-panel {
     padding-right: 42px;
+  }
+}
+
+/* ============================================================
+   Editorial Luxury polish — decorative + motion only.
+   Layered on top; responsive rules above are intentionally preserved.
+   ============================================================ */
+
+/* Section titles: a fine accent flourish under each heading. */
+div.home .home-section-title {
+  position: relative;
+  color: var(--ink-900);
+  padding-bottom: 16px;
+}
+
+div.home .home-section-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 52px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+}
+
+@media only screen and (width >= 960px) {
+  div.home .home-section-title {
+    font-size: clamp(28px, 2.4vw, 40px);
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Listing cards: cohesive hover lift + soft elevation. */
+div.home div.home-listing-card {
+  transition: transform var(--dur-3) var(--ease-luxe);
+  will-change: transform;
+}
+
+div.home div.home-listing-card:hover {
+  transform: translateY(-6px);
+}
+
+div.home div.home-listing-card .home-listing-image {
+  transition: box-shadow var(--dur-3) var(--ease-luxe);
+}
+
+div.home div.home-listing-card:hover .home-listing-image {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Project cards: premium elevation on hover. */
+div.home .home-project-card {
+  transition: transform var(--dur-3) var(--ease-luxe), box-shadow var(--dur-3) var(--ease-luxe);
+  will-change: transform;
+}
+
+div.home .home-project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+div.home .home-project-image img {
+  transition: transform 0.7s var(--ease-out-expo);
+}
+
+div.home .home-project-card:hover .home-project-image img {
+  transform: scale(1.06);
+}
+
+/* Top-location tiles. */
+div.home .home-top-location-item {
+  transition: transform var(--dur-2) var(--ease-luxe);
+}
+
+div.home .home-top-location-item:hover {
+  transform: translateY(-4px);
+}
+
+div.home .home-top-location-image {
+  transition: box-shadow var(--dur-2) var(--ease-luxe);
+}
+
+div.home .home-top-location-item:hover .home-top-location-image {
+  box-shadow: var(--shadow-md);
+}
+
+/* Hero CTAs: premium pill with a light sweep on hover. */
+div.home .home-hero-actions .btn-home {
+  position: relative;
+  overflow: hidden;
+}
+
+div.home .home-hero-actions .btn-home::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgb(255 255 255 / 30%) 50%, transparent 70%);
+  transform: translateX(-130%);
+  transition: transform 0.7s var(--ease-out-expo);
+  pointer-events: none;
+}
+
+div.home .home-hero-actions .btn-home:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+div.home .home-hero-actions .btn-home:hover::after {
+  transform: translateX(130%);
+}
+
+/* Respect reduced motion for all polish interactions. */
+@media (prefers-reduced-motion: reduce) {
+  div.home div.home-listing-card,
+  div.home .home-project-card,
+  div.home .home-top-location-item,
+  div.home .home-project-image img,
+  div.home .home-hero-actions .btn-home,
+  div.home .home-hero-actions .btn-home::after {
+    transition: none;
+  }
+
+  div.home div.home-listing-card:hover,
+  div.home .home-project-card:hover,
+  div.home .home-top-location-item:hover,
+  div.home .home-hero-actions .btn-home:hover {
+    transform: none;
   }
 }

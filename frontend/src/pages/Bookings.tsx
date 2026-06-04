@@ -9,6 +9,7 @@ import AgencyFilter from '@/components/AgencyFilter'
 import StatusFilter from '@/components/StatusFilter'
 import BookingFilter from '@/components/BookingFilter'
 import * as AgencyService from '@/services/AgencyService'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/bookings.css'
 
@@ -19,6 +20,7 @@ const Bookings = () => {
   const [statuses, setStatuses] = useState(helper.getBookingStatuses().map((status) => status.value))
   const [filter, setFilter] = useState<movininTypes.Filter | null>()
   const [loadingAgencies, setLoadingAgencies] = useState(true)
+  const revealRef = useReveal<HTMLDivElement>()
 
   const handleAgencyFilterChange = (_agencies: string[]) => {
     setAgencies(_agencies)
@@ -46,15 +48,15 @@ const Bookings = () => {
   return (
     <Layout onLoad={onLoad} strict>
       {user && (
-        <div className="bookings">
-          <div className="col-1">
+        <div className="bookings" ref={revealRef}>
+          <div className="col-1" data-reveal>
             <div>
               <AgencyFilter agencies={allAgencies} onChange={handleAgencyFilterChange} className="cl-agency-filter" />
               <StatusFilter onChange={handleStatusFilterChange} className="cl-status-filter" />
               <BookingFilter onSubmit={handleBookingFilterSubmit} language={(user && user.language) || env.DEFAULT_LANGUAGE} className="cl-booking-filter" collapse={!env.isMobile} />
             </div>
           </div>
-          <div className="col-2">
+          <div className="col-2" data-reveal>
             <BookingList
               user={user}
               language={user.language}

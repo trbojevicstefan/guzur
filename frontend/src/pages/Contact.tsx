@@ -18,6 +18,7 @@ import { strings } from '@/lang/contact-form'
 import * as UserService from '@/services/UserService'
 import { useRecaptchaContext, RecaptchaContextType } from '@/context/RecaptchaContext'
 import * as helper from '@/utils/helper'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/contact.css'
 
@@ -25,6 +26,7 @@ const Contact = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { reCaptchaLoaded, generateReCaptchaToken } = useRecaptchaContext() as RecaptchaContextType
+  const revealRef = useReveal<HTMLDivElement>()
 
   const [user, setUser] = useState<movininTypes.User>()
   const [email, setEmail] = useState('')
@@ -139,16 +141,16 @@ const Contact = () => {
 
   return (
     <Layout onLoad={onLoad} strict={false}>
-      <div className="contact-portal">
-        <section className="contact-hero">
+      <div className="contact-portal" ref={revealRef}>
+        <section className="contact-hero" data-reveal>
           <div className="contact-hero-media" />
           <div className="contact-hero-gradient" />
           <div className="contact-hero-content">
-            <div className="contact-hero-logo">
+            <div className="contact-hero-logo" data-reveal>
               <img src="/guzurlogo.png" alt="Guzur" />
             </div>
 
-            <div className="contact-hero-body">
+            <div className="contact-hero-body" data-reveal>
               <div className="contact-hero-badge">
                 <AutoAwesome fontSize="inherit" />
                 <span>{strings.CONCIERGE_BADGE}</span>
@@ -159,7 +161,7 @@ const Contact = () => {
               </h1>
               <p>{strings.CONTACT_BODY}</p>
 
-              <div className="contact-hero-info">
+              <div className="contact-hero-info" data-reveal-group>
                 <div className="contact-hero-info-item">
                   <div className="contact-hero-info-icon">
                     <Schedule fontSize="small" />
@@ -181,16 +183,16 @@ const Contact = () => {
               </div>
             </div>
 
-            <div className="contact-hero-footer">
+            <div className="contact-hero-footer" data-reveal>
               <span>{strings.CONTACT_FOOTER}</span>
               <span className="contact-hero-dot" />
             </div>
           </div>
         </section>
 
-        <section className="contact-panel">
+        <section className="contact-panel" data-reveal>
           <div className="contact-panel-inner">
-            <div className="contact-panel-header">
+            <div className="contact-panel-header" data-reveal>
               <h2>{strings.CONTACT_HEADER}</h2>
               <span className="contact-accent" />
               <p>{strings.CONTACT_SUBTITLE}</p>

@@ -26,6 +26,7 @@ import LocationSelectList from '@/components/LocationSelectList'
 import PropertySelectList from '@/components/PropertySelectList'
 import StatusList from '@/components/StatusList'
 import DatePicker from '@/components/DatePicker'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/booking.css'
 
@@ -102,12 +103,13 @@ const Booking = () => {
   }
 
   const days = movininHelper.days(from, to)
+  const revealRef = useReveal<HTMLDivElement>()
 
   return (
     <Layout onLoad={onLoad} strict>
       {visible && booking && (
-        <div className="booking">
-          <div className="col-1">
+        <div className="booking" ref={revealRef}>
+          <div className="col-1" data-reveal>
             <form>
               {!isAgency && !env.HIDE_AGENCIES && (
                 <FormControl fullWidth margin="dense">
@@ -183,7 +185,7 @@ const Booking = () => {
               </FormControl>
             </form>
           </div>
-          <div className="col-2">
+          <div className="col-2" data-reveal>
             <div className="col-2-header">
               <div className="price">
                 <span className="price-days">{helper.getDays(days)}</span>

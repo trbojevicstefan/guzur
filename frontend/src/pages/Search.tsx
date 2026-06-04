@@ -29,11 +29,13 @@ import {
   parsePropertySearchParams,
   sanitizePropertySearchState,
 } from '@/utils/publicSearch'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/search.css'
 
 const Properties = () => {
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
   const [searchParams, setSearchParams] = useSearchParams()
   const rawSearchState = parsePropertySearchParams(searchParams)
   const searchState = sanitizePropertySearchState({
@@ -196,8 +198,8 @@ const Properties = () => {
   return (
     <Layout onLoad={onLoad} strict={false}>
       {visible && (
-        <div className="properties-page">
-          <div className="search-header">
+        <div className="properties-page" ref={revealRef}>
+          <div className="search-header" data-reveal>
             <div className="search-breadcrumbs">
               <span>{strings.HOME}</span>
               <span className="separator">&gt;</span>
@@ -250,7 +252,7 @@ const Properties = () => {
             </div>
           </div>
 
-          <div className="properties">
+          <div className="properties" data-reveal>
             <div className="col-1">
               <PropertyFilter
                 className="filter"
@@ -309,7 +311,7 @@ const Properties = () => {
               )}
             </div>
 
-            <div className="col-2">
+            <div className="col-2" data-reveal-group>
               <PropertyList
                 q={searchState.q}
                 agencies={env.HIDE_AGENCIES

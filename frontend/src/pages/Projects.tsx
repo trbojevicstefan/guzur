@@ -28,10 +28,13 @@ import {
   parseProjectBrowseParams,
 } from '@/utils/publicSearch'
 
+import { useReveal } from '@/hooks/useMotion'
+
 import '@/assets/css/developments.css'
 
 const Projects = () => {
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
   const isCompactViewport = useMediaQuery('(max-width:900px)')
   const [searchParams, setSearchParams] = useSearchParams()
   const browseState = parseProjectBrowseParams(searchParams)
@@ -199,8 +202,8 @@ const Projects = () => {
 
   return (
     <Layout strict={false}>
-      <div className="projects-page">
-        <div className="projects-header">
+      <div className="projects-page" ref={revealRef}>
+        <div className="projects-header" data-reveal>
           <div className="projects-title">
             <span className="projects-badge">
               <TrendingUp fontSize="inherit" />
@@ -230,7 +233,9 @@ const Projects = () => {
           </div>
         </div>
 
-        <div className="projects-filters">
+        <hr className="u-divider" />
+
+        <div className="projects-filters" data-reveal>
           <div className="projects-search">
             <Search fontSize="small" />
             <input
@@ -293,7 +298,7 @@ const Projects = () => {
         ) : developments.length === 0 ? (
           <div className="projects-loading">{developmentStrings.EMPTY}</div>
         ) : browseState.layout === 'grid' || isCompactViewport ? (
-          <div className="projects-grid">
+          <div className="projects-grid" data-reveal-group>
             {developments.map((project) => {
               const projectImage = getDevelopmentImage(project)
               return (
@@ -344,7 +349,7 @@ const Projects = () => {
             })}
           </div>
         ) : (
-          <div className="projects-table">
+          <div className="projects-table" data-reveal>
             <table>
               <thead>
                 <tr>
@@ -408,7 +413,7 @@ const Projects = () => {
           </div>
         )}
 
-        <div className="projects-pagination">
+        <div className="projects-pagination" data-reveal>
           <span className="projects-pagination-summary">{`${pageStart}-${pageEnd} ${commonStrings.OF} ${totalRecords} ${developmentStrings.TOTAL}`}</span>
           <div className="projects-pagination-controls">
             <button

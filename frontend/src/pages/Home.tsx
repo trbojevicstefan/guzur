@@ -30,6 +30,7 @@ import SearchForm from '@/components/SearchForm'
 import Map from '@/components/Map'
 import { strings as mapStrings } from '@/lang/map'
 import Footer from '@/components/Footer'
+import { useReveal, useParallax } from '@/hooks/useMotion'
 
 import '@/assets/css/home.css'
 
@@ -38,6 +39,8 @@ const DIFFERENT_STEP_COLORS = ['#d97d74', '#a8b69f', '#d4bc8d', '#9eb8cd', '#b8a
 const Home = () => {
   const navigate = useNavigate()
   const language = UserService.getLanguage()
+  const revealRef = useReveal<HTMLDivElement>()
+  const heroParallaxRef = useParallax<HTMLDivElement>(0.14, { start: 'top top' })
 
   const [countries, setCountries] = useState<movininTypes.CountryInfo[]>([])
   const [openLocationSearchFormDialog, setOpenLocationSearchFormDialog] = useState(false)
@@ -456,7 +459,7 @@ const Home = () => {
   }
 
   const renderListingsRow = (rows: movininTypes.Property[], ref: React.RefObject<HTMLDivElement | null>) => (
-    <div className="home-listings-row-wrapper">
+    <div className="home-listings-row-wrapper" data-reveal>
       <button
         type="button"
         className="home-listings-nav prev"
@@ -569,7 +572,7 @@ const Home = () => {
   }
 
   const renderProjectsRow = (rows: movininTypes.Development[], ref: React.RefObject<HTMLDivElement | null>) => (
-    <div className="home-listings-row-wrapper">
+    <div className="home-listings-row-wrapper" data-reveal>
       <button
         type="button"
         className="home-listings-nav prev"
@@ -596,7 +599,7 @@ const Home = () => {
 
   return (
     <Layout onLoad={onLoad} strict={false}>
-      <div className="home">
+      <div className="home" ref={revealRef}>
 
         <div className="home-content">
 
@@ -657,7 +660,7 @@ const Home = () => {
             )}
           </div>
 
-          <div className="home-cover">
+          <div className="home-cover" ref={heroParallaxRef}>
             <span className="home-hero-kicker">{strings.HERO_KICKER}</span>
             <div className="home-title">
               <span className="home-title-line">{strings.TITLE_LINE1}</span>
@@ -693,7 +696,7 @@ const Home = () => {
         </div>
 
         <div className="home-listings featured-listings">
-          <h1 className="home-section-title home-section-title-featured">{strings.FEATURED_TITLE}</h1>
+          <h1 className="home-section-title home-section-title-featured" data-reveal>{strings.FEATURED_TITLE}</h1>
           {listingsLoading ? (
             renderListingsSkeletonRow(6)
           ) : (
@@ -702,7 +705,7 @@ const Home = () => {
         </div>
 
         <div className="home-about">
-          <div className="home-about-copy">
+          <div className="home-about-copy" data-reveal>
             <span className="home-about-kicker">{strings.ABOUT_TITLE}</span>
             <h2>{strings.ABOUT_TITLE}</h2>
             <p>{strings.ABOUT_TEXT}</p>
@@ -713,7 +716,7 @@ const Home = () => {
         </div>
 
         <div className="home-listings all-listings home-projects">
-          <h1 className="home-section-title home-section-title-left">{strings.PROJECTS_TITLE}</h1>
+          <h1 className="home-section-title home-section-title-left" data-reveal>{strings.PROJECTS_TITLE}</h1>
           {listingsLoading ? (
             renderListingsSkeletonRow(8)
           ) : (
@@ -722,11 +725,11 @@ const Home = () => {
         </div>
 
         <div className="home-listings top-locations">
-          <h1 className="home-section-title home-section-title-left">{strings.TOP_LOCATIONS_TITLE}</h1>
-          <div className="home-top-locations-meta">
+          <h1 className="home-section-title home-section-title-left" data-reveal>{strings.TOP_LOCATIONS_TITLE}</h1>
+          <div className="home-top-locations-meta" data-reveal>
             {`${movininHelper.formatNumber(topLocations.length, language)} Results Available`}
           </div>
-          <div className="home-top-locations-grid">
+          <div className="home-top-locations-grid" data-reveal-group>
             {topLocations.slice(0, 6).map((_location) => {
               const locationImageUrl = getLocationImageUrl(_location)
               return (
@@ -753,7 +756,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="home-listings home-intent-strip" aria-label={strings.HOME_INTENT_SECTION_LABEL}>
+        <div className="home-listings home-intent-strip" aria-label={strings.HOME_INTENT_SECTION_LABEL} data-reveal-group>
           <button
             type="button"
             className="home-intent-card home-intent-card-sell"
@@ -787,7 +790,7 @@ const Home = () => {
             <div className="home-different-orb home-different-orb-two" />
 
             <div className="home-different-shell">
-              <div className="home-different-heading">
+              <div className="home-different-heading" data-reveal>
                 <h1>{strings.SERVICES_TITLE}</h1>
               </div>
 
@@ -900,7 +903,7 @@ const Home = () => {
                 <span className="customer-care-response">{strings.SUPPORT_RESPONSE_TIME}</span>
               </div>
 
-              <div className="customer-care-grid">
+              <div className="customer-care-grid" data-reveal-group>
                 {customerCareCards.map((card) => (
                   <div key={card.title} className="customer-care-card">
                     {card.icon}

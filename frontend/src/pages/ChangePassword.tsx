@@ -12,12 +12,14 @@ import * as UserService from '@/services/UserService'
 import Footer from '@/components/Footer'
 import * as helper from '@/utils/helper'
 import PasswordInput from '@/components/PasswordInput'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/change-password.css'
 
 const ChangePassword = () => {
   const navigate = useNavigate()
 
+  const revealRef = useReveal<HTMLDivElement>()
   const [user, setUser] = useState<movininTypes.User>()
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -139,8 +141,8 @@ const ChangePassword = () => {
     <Layout onLoad={onLoad} strict>
       {visible && (
         <>
-          <div className="password-reset">
-            <Paper className="password-reset-form password-reset-form-wrapper" elevation={10}>
+          <div className="password-reset" ref={revealRef}>
+            <Paper className="password-reset-form password-reset-form-wrapper" elevation={10} data-reveal>
               <h1 className="password-reset-form-title">
                 {' '}
                 {strings.CHANGE_PASSWORD_HEADING}

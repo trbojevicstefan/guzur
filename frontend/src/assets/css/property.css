@@ -74,7 +74,7 @@
   border-radius: 28px;
   overflow: hidden;
   min-height: 320px;
-  box-shadow: 0 26px 60px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 26px 60px rgb(15 23 42 / 15%);
 }
 
 .property-hero-main img {
@@ -90,7 +90,7 @@
   justify-content: center;
   height: 100%;
   width: 100%;
-  color: #ffffff;
+  color: #fff;
   font-family: var(--font-heading);
   font-size: clamp(2rem, 4vw, 3rem);
   letter-spacing: 0.12em;
@@ -100,14 +100,14 @@
 .property-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.7) 100%);
+  background: linear-gradient(180deg, rgb(15 23 42 / 5%) 0%, rgb(15 23 42 / 70%) 100%);
 }
 
 .property-hero-title {
   position: absolute;
   left: 22px;
   bottom: 22px;
-  color: #ffffff;
+  color: #fff;
   z-index: 1;
 }
 
@@ -115,7 +115,7 @@
   margin: 6px 0 0;
   font-family: var(--font-heading);
   font-size: clamp(1.8rem, 3.2vw, 2.8rem);
-  text-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+  text-shadow: 0 20px 40px rgb(15 23 42 / 35%);
 }
 
 .property-hero-tag {
@@ -124,7 +124,7 @@
   gap: 6px;
   padding: 5px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgb(255 255 255 / 20%);
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.2em;
@@ -138,7 +138,7 @@
   height: 100%;
   min-height: 320px;
   background: #0f172a;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 18px 40px rgb(15 23 42 / 12%);
 }
 
 .property-hero-gallery img {
@@ -157,19 +157,19 @@
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #ffffff;
+  color: #fff;
 }
 
 .property-hero-gallery-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgb(15 23 42 / 55%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #ffffff;
+  color: #fff;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -180,7 +180,7 @@
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgb(255 255 255 / 20%);
   display: grid;
   place-items: center;
   font-size: 20px;
@@ -190,11 +190,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #eef2f7;
   border-radius: 22px;
   padding: 16px;
-  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 36px rgb(15 23 42 / 8%);
   margin-bottom: 20px;
 }
 
@@ -226,11 +226,11 @@
 }
 
 .property-section {
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #eef2f7;
   border-radius: 24px;
   padding: 20px 22px;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 40px rgb(15 23 42 / 8%);
   margin-bottom: 20px;
 }
 
@@ -254,14 +254,14 @@
 }
 
 .property-info-card {
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #eef2f7;
   border-radius: 18px;
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 12px 26px rgb(15 23 42 / 6%);
 }
 
 .property-info-card span {
@@ -305,7 +305,7 @@
 
 .property-link {
   border: 1px solid #e2e8f0;
-  background: #ffffff;
+  background: #fff;
   color: #64748b;
   padding: 8px 14px;
   border-radius: 999px;
@@ -334,17 +334,17 @@
 
 .property-seller-card {
   background: #0f172a;
-  color: #ffffff;
+  color: #fff;
   border-radius: 24px;
   padding: 20px;
-  box-shadow: 0 22px 40px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 22px 40px rgb(15 23 42 / 25%);
 }
 
 .property-seller-label {
   font-size: 10px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(255 255 255 / 60%);
 }
 
 .property-seller-row {
@@ -359,8 +359,8 @@
   height: 48px;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(255 255 255 / 20%);
+  background: rgb(255 255 255 / 10%);
 }
 
 .property-seller-avatar img {
@@ -376,7 +376,7 @@
 
 .property-seller-type {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(255 255 255 / 60%);
 }
 
 .property-contact {
@@ -386,7 +386,7 @@
   border-radius: 999px;
   padding: 10px 16px;
   background: #e11d48;
-  color: #ffffff;
+  color: #fff;
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -396,11 +396,11 @@
 .property-profile {
   width: 100%;
   margin-top: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgb(255 255 255 / 30%);
   border-radius: 999px;
   padding: 9px 16px;
   background: transparent;
-  color: #ffffff;
+  color: #fff;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.16em;
@@ -414,11 +414,11 @@
 
 .property-booking-card,
 .property-lead-card {
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #eef2f7;
   border-radius: 22px;
   padding: 18px;
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 32px rgb(15 23 42 / 8%);
 }
 
 .property-booking-card h3 {
@@ -451,13 +451,13 @@
   margin-top: 12px;
 }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .property-showcase-grid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .property-hero {
     grid-template-columns: 1fr;
   }
@@ -471,12 +471,133 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .property-stats {
     grid-template-columns: 1fr;
   }
 
   .property-info-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   Editorial Luxury Polish — Property Showcase
+   Appended block; overrides via equal or higher specificity.
+   All size/spacing increases are gated behind 960px breakpoint.
+   DO NOT edit above this line.
+   ============================================================ */
+
+/* 1. Hero title — sits on dark image overlay; preserve white color.
+      Apply heading font + tight tracking for refinement only. */
+.property-hero-title h1 {
+  font-family: var(--font-heading);
+  letter-spacing: var(--tracking-tight);
+
+  /* color intentionally NOT overridden — inherits #ffffff from .property-hero-title */
+}
+
+/* 2. On-light section heading — Overview h2 gets the gold accent flourish.
+      Scoped to .property-overview so it does not bleed to the map section. */
+.property-section.property-overview {
+  position: relative;
+}
+
+.property-section.property-overview h2 {
+  font-family: var(--font-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink-900);
+  display: inline-block; /* shrink-wrap so ::after width anchors to text */
+  position: relative;
+  padding-bottom: 14px;
+}
+
+.property-section.property-overview h2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 52px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  border-radius: 1px;
+}
+
+/* 3. Cards — unified elevation, radius, border, motion.
+      Light cards only (.property-info-card, .property-booking-card,
+      .property-lead-card, .property-map-card).
+      .property-seller-card is dark (#0f172a bg) — handled separately.
+      .property-agency-card has no own bg; leave layout untouched. */
+@media (width >= 960px) {
+  .property-info-card,
+  .property-booking-card,
+  .property-lead-card,
+  .property-map-card {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform var(--dur-3) var(--ease-luxe),
+      box-shadow var(--dur-3) var(--ease-luxe);
+  }
+
+  /* Subtle lift on small info tiles only — not booking/lead/map */
+  .property-info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Seller card retains dark bg; refine radius + shadow only */
+  .property-seller-card {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    transition:
+      box-shadow var(--dur-3) var(--ease-luxe);
+  }
+}
+
+/* 4. Eyebrow / kicker labels — .property-info-card span labels
+      sit above the value as genuine eyebrows. */
+.property-info-card span {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Stat row eyebrow labels — same treatment */
+.property-stat span {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* 5. Hairline editorial divider — inserted via JSX .u-divider between
+      stats bar and overview section. No extra CSS needed here because
+      .u-divider is already defined in theme.css.
+      A margin tweak gates the breathing room to desktop only. */
+@media (width >= 960px) {
+  .property-editorial-divider {
+    margin: 10px 0 8px;
+  }
+}
+
+/* 6. Reduced motion — neutralise all hover transforms added above */
+@media (prefers-reduced-motion: reduce) {
+  .property-info-card,
+  .property-booking-card,
+  .property-lead-card,
+  .property-map-card,
+  .property-seller-card {
+    transition: none !important;
+  }
+
+  .property-info-card:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
   }
 }

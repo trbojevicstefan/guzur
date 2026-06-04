@@ -15,12 +15,14 @@ import Layout from '@/components/Layout'
 import Backdrop from '@/components/SimpleBackdrop'
 import * as helper from '@/utils/helper'
 import { useUserContext, UserContextType } from '@/context/UserContext'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/onboarding.css'
 
 const Onboarding = () => {
   const navigate = useNavigate()
   const { setUser, setUserLoaded } = useUserContext() as UserContextType
+  const revealRef = useReveal<HTMLDivElement>()
   const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState(false)
   const [user, setLocalUser] = useState<movininTypes.User | null>(null)
@@ -98,10 +100,10 @@ const Onboarding = () => {
   return (
     <Layout strict={false} onLoad={onLoad}>
       {visible && (
-        <div className="onboarding">
-          <Paper className="onboarding-form" elevation={10}>
-            <h1 className="onboarding-title">{strings.HEADING}</h1>
-            <p className="onboarding-subtitle">{strings.SUBHEADING}</p>
+        <div className="onboarding" ref={revealRef}>
+          <Paper className="onboarding-form" elevation={10} data-reveal>
+            <h1 className="onboarding-title" data-reveal>{strings.HEADING}</h1>
+            <p className="onboarding-subtitle" data-reveal>{strings.SUBHEADING}</p>
             <form onSubmit={handleSubmit}>
               <FormControl fullWidth margin="dense">
                 <InputLabel>{strings.COMPANY}</InputLabel>
@@ -125,7 +127,7 @@ const Onboarding = () => {
                 <InputLabel>{strings.WEBSITE}</InputLabel>
                 <OutlinedInput type="text" label={strings.WEBSITE} value={website} onChange={(e) => setWebsite(e.target.value)} autoComplete="off" />
               </FormControl>
-              <div className="buttons">
+              <div className="buttons" data-reveal>
                 <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom">
                   {strings.SAVE}
                 </Button>

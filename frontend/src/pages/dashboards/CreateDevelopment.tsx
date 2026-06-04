@@ -31,6 +31,7 @@ import * as SeoService from '@/services/SeoService'
 import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/listing-form.css'
 import '@/assets/css/create-development.css'
 
@@ -87,6 +88,7 @@ const CreateDevelopment = () => {
   const floorPlansInputRef = useRef<HTMLInputElement>(null)
   const cleanupOnUnmountRef = useRef(true)
   const tempUploadsRef = useRef<string[]>([])
+  const revealRef = useReveal<HTMLDivElement>()
 
   const toDateInputValue = (value?: Date | string) => {
     if (!value) {
@@ -649,11 +651,11 @@ const CreateDevelopment = () => {
 
   return (
     <Layout onLoad={onLoad} strict>
-      <div className="listing-form development-form">
+      <div className="listing-form development-form" ref={revealRef}>
         <form onSubmit={onSubmit} className="listing-form-card development-form-card">
-          <h1>{strings.TITLE}</h1>
+          <h1 data-reveal>{strings.TITLE}</h1>
 
-          <div className="development-stepper">
+          <div className="development-stepper" data-reveal>
             {stepLabels.map((label, index) => (
               <button
                 key={label}
@@ -668,7 +670,7 @@ const CreateDevelopment = () => {
           </div>
 
           {activeStepKey === 'basic' && (
-            <section className="listing-section">
+            <section className="listing-section" data-reveal>
               <h2 className="listing-section-title">{strings.BASIC_DETAILS}</h2>
               <div className="listing-grid">
                 <FormControl fullWidth margin="dense">
@@ -748,7 +750,7 @@ const CreateDevelopment = () => {
           )}
 
           {activeStepKey === 'media' && (
-            <section className="listing-section">
+            <section className="listing-section" data-reveal>
               <h2 className="listing-section-title">{strings.MEDIA_DETAILS}</h2>
               <div className="listing-grid">
                 <FormControl fullWidth margin="dense" className="listing-grid-full">
@@ -920,7 +922,7 @@ const CreateDevelopment = () => {
           )}
 
           {activeStepKey === 'seo' && (
-            <section className="listing-section">
+            <section className="listing-section" data-reveal>
               <h2 className="listing-section-title">{strings.SEO_DETAILS}</h2>
               <div className="listing-grid">
                 <FormControl fullWidth margin="dense" className="listing-grid-full">
@@ -976,7 +978,7 @@ const CreateDevelopment = () => {
           )}
 
           {activeStepKey === 'units' && (
-            <section className="listing-section">
+            <section className="listing-section" data-reveal>
               <h2 className="listing-section-title">{strings.UNIT_BULK_DETAILS}</h2>
               <div className="listing-grid">
                 <FormControl fullWidth margin="dense" className="listing-grid-full">
@@ -1090,7 +1092,7 @@ const CreateDevelopment = () => {
           )}
 
           {activeStepKey === 'review' && (
-            <section className="listing-section">
+            <section className="listing-section" data-reveal>
               <h2 className="listing-section-title">{strings.REVIEW_DETAILS}</h2>
               <div className="development-review-grid">
                 <div>

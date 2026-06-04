@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { useReveal } from '@/hooks/useMotion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import {
@@ -41,6 +42,7 @@ const getThreadKey = (thread: movininTypes.MessageThread) => {
 
 const Messages = () => {
   const [searchParams] = useSearchParams()
+  const revealRef = useReveal<HTMLDivElement>()
   const [property, setProperty] = useState<movininTypes.Property>()
   const [currentThread, setCurrentThread] = useState<movininTypes.MessageThread>()
   const [messages, setMessages] = useState<movininTypes.Message[]>([])
@@ -465,8 +467,8 @@ const Messages = () => {
 
   return (
     <Layout strict={false}>
-      <div className="messages-page pulse-shell">
-        <aside className="pulse-sidebar">
+      <div className="messages-page pulse-shell" ref={revealRef}>
+        <aside className="pulse-sidebar" data-reveal>
           <div className="pulse-sidebar-header">
             <div className="pulse-brand">
               <span className="pulse-brand-mark">G</span>
@@ -622,7 +624,7 @@ const Messages = () => {
           </div>
         </aside>
 
-        <section className="pulse-chat">
+        <section className="pulse-chat" data-reveal>
           <div className="pulse-chat-header">
             <div className="pulse-chat-person">
               <span className="pulse-chat-avatar">

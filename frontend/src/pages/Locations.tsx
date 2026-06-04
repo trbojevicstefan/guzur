@@ -10,10 +10,12 @@ import { strings as mapStrings } from '@/lang/map'
 import { strings as developmentStrings } from '@/lang/developments'
 import SearchForm from '@/components/SearchForm'
 import Footer from '@/components/Footer'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/locations.css'
 
 const Locations = () => {
+  const revealRef = useReveal<HTMLDivElement>()
   const [locations, setLocations] = useState<movininTypes.Location[]>([])
   const [location, setLocation] = useState('')
   const [openSearchFormDialog, setOpenSearchFormDialog] = useState(false)
@@ -25,8 +27,8 @@ const Locations = () => {
 
   return (
     <Layout onLoad={onLoad} strict={false}>
-      <div className="locations">
-        <div className="locations-intro">
+      <div className="locations" ref={revealRef}>
+        <div className="locations-intro" data-reveal>
           <span className="locations-intro-kicker">{developmentStrings.BROWSE_BY_LOCATION}</span>
           <h1>{developmentStrings.LOCATION}</h1>
           <p>{developmentStrings.SUBHEADING}</p>

@@ -14,6 +14,7 @@ import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 import { buildUpdatePayload } from '@/utils/listingHelper'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/dashboard.css'
 
 const OwnerDashboard = () => {
@@ -23,6 +24,7 @@ const OwnerDashboard = () => {
   const [listings, setListings] = useState<movininTypes.Property[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingListings, setLoadingListings] = useState(false)
+  const revealRef = useReveal<HTMLDivElement>()
 
   const onLoad = (currentUser?: movininTypes.User) => {
     if (!currentUser) {
@@ -81,10 +83,10 @@ const OwnerDashboard = () => {
 
   return (
     <Layout strict={false} onLoad={onLoad}>
-      <div className="dashboard">
-        <h1>{dashboardStrings.DASHBOARD}</h1>
+      <div className="dashboard" ref={revealRef}>
+        <h1 data-reveal>{dashboardStrings.DASHBOARD}</h1>
         {user && (
-          <section className="dashboard-section">
+          <section className="dashboard-section" data-reveal>
             <h2>{dashboardStrings.PROFILE}</h2>
             <div className="dashboard-profile">
               <div><strong>{commonStrings.FULL_NAME}:</strong> {user.fullName}</div>
@@ -99,7 +101,7 @@ const OwnerDashboard = () => {
           </section>
         )}
 
-        <section className="dashboard-section">
+        <section className="dashboard-section" data-reveal>
           <h2>{dashboardStrings.MY_LISTINGS}</h2>
           <div className="dashboard-actions">
             <Button
@@ -156,7 +158,7 @@ const OwnerDashboard = () => {
           )}
         </section>
 
-        <section className="dashboard-section">
+        <section className="dashboard-section" data-reveal>
           <h2>{dashboardStrings.LEADS}</h2>
           {loading ? <div className="dashboard-loading">{commonStrings.LOADING}</div> : <LeadTable leads={leads} />}
         </section>

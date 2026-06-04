@@ -21,6 +21,7 @@ import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 import { buildUpdatePayload } from '@/utils/listingHelper'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/dashboard.css'
 
 const MyListings = () => {
@@ -36,6 +37,7 @@ const MyListings = () => {
   const [totalRecords, setTotalRecords] = useState(0)
   const [developments, setDevelopments] = useState<movininTypes.Development[]>([])
   const [developmentId, setDevelopmentId] = useState('')
+  const revealRef = useReveal<HTMLDivElement>()
 
   useEffect(() => {
     const params = new URLSearchParams(locationRoute.search)
@@ -137,8 +139,8 @@ const MyListings = () => {
 
   return (
     <Layout strict onLoad={onLoad}>
-      <div className="dashboard">
-        <div className="dashboard-header">
+      <div className="dashboard" ref={revealRef}>
+        <div className="dashboard-header" data-reveal>
           <h1>{heading}</h1>
           <Button
             variant="contained"
@@ -149,7 +151,7 @@ const MyListings = () => {
           </Button>
         </div>
 
-        <section className="dashboard-section">
+        <section className="dashboard-section" data-reveal>
           <FormControl fullWidth margin="dense">
             <InputLabel>{commonStrings.SEARCH}</InputLabel>
             <Input
@@ -198,7 +200,7 @@ const MyListings = () => {
           </FormControl>
         </section>
 
-        <section className="dashboard-section">
+        <section className="dashboard-section" data-reveal>
           {loading ? <div className="dashboard-loading">{commonStrings.LOADING}</div> : (
           <ListingTable
             listings={listings}

@@ -17,6 +17,7 @@ import NoMatch from './NoMatch'
 import * as helper from '@/utils/helper'
 import Footer from '@/components/Footer'
 import PasswordInput from '@/components/PasswordInput'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/activate.css'
 
@@ -24,6 +25,8 @@ const Activate = () => {
   const navigate = useNavigate()
 
   const { setUser, setUserLoaded } = useUserContext() as UserContextType
+  const resendRevealRef = useReveal<HTMLDivElement>()
+  const activateRevealRef = useReveal<HTMLDivElement>()
   const [userId, setUserId] = useState('')
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')
@@ -163,8 +166,8 @@ const Activate = () => {
   return (
     <Layout onLoad={onLoad} strict={false}>
       {resend && (
-        <div className="resend">
-          <Paper className="resend-form" elevation={10}>
+        <div className="resend" ref={resendRevealRef}>
+          <Paper className="resend-form" elevation={10} data-reveal>
             <h1>{strings.ACTIVATE_HEADING}</h1>
             <div className="resend-form-content">
               <span>{strings.TOKEN_EXPIRED}</span>
@@ -179,8 +182,8 @@ const Activate = () => {
         </div>
       )}
       {visible && (
-        <div className="activate">
-          <Paper className="activate-form" elevation={10}>
+        <div className="activate" ref={activateRevealRef}>
+          <Paper className="activate-form" elevation={10} data-reveal>
             <h1>{reset ? rpStrings.RESET_PASSWORD_HEADING : strings.ACTIVATE_HEADING}</h1>
             <form onSubmit={handleSubmit}>
 

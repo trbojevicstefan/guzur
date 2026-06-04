@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useReveal } from '@/hooks/useMotion'
 import { MenuItem, Select, CircularProgress } from '@mui/material'
 import {
   Add,
@@ -43,6 +44,7 @@ interface RfqPrefillState {
 }
 
 const Rfq = () => {
+  const revealRef = useReveal<HTMLDivElement>()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -216,9 +218,9 @@ const Rfq = () => {
 
   return (
     <Layout strict={false}>
-      <div className="rfq">
+      <div className="rfq" ref={revealRef}>
         <div className="rfq-shell">
-          <section className="rfq-aside">
+          <section className="rfq-aside" data-reveal>
             <div className="rfq-aside-bg" />
             <div className="rfq-aside-content">
               <div className="rfq-brand">
@@ -249,7 +251,7 @@ const Rfq = () => {
             </div>
           </section>
 
-          <section className="rfq-form">
+          <section className="rfq-form" data-reveal>
             <div className="rfq-form-inner">
               <div className="rfq-form-header">
                 <div>

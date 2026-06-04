@@ -34,11 +34,13 @@ import DetailLoadingReveal, {
   DetailLoadingRevealStat,
 } from '@/components/DetailLoadingReveal'
 import { strings as messagesStrings } from '@/lang/messages'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/property.css'
 
 const Property = () => {
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
   const location = useLocation()
   const { id } = useParams()
 
@@ -466,8 +468,8 @@ const Property = () => {
         !loading && property && introComplete
         && (
           <>
-            <div className="property-showcase">
-              <div className="property-showcase-bar">
+            <div className="property-showcase" ref={revealRef}>
+              <div className="property-showcase-bar" data-reveal>
                 <button
                   type="button"
                   className="property-back"
@@ -522,7 +524,7 @@ const Property = () => {
                     )}
                   </div>
 
-                  <div className="property-stats">
+                  <div className="property-stats" data-reveal>
                     <div className="property-stat highlight">
                       <span>{strings.PRICE}</span>
                       <strong>{displayPrice || '-'}</strong>
@@ -541,12 +543,15 @@ const Property = () => {
                     </div>
                   </div>
 
-                  <div className="property-section property-overview">
+                  {/* Editorial hairline divider between stats and overview — luxury rhythm */}
+                  <hr className="u-divider property-editorial-divider" aria-hidden="true" />
+
+                  <div className="property-section property-overview" data-reveal>
                     <h2>{strings.OVERVIEW}</h2>
                     <div className="property-description" dangerouslySetInnerHTML={{ __html: descriptionHtml || '' }} />
                   </div>
 
-                  <div className="property-info-grid">
+                  <div className="property-info-grid" data-reveal-group>
                     <div className="property-info-card">
                       <span>{strings.PROPERTY_TYPE}</span>
                       <strong>{helper.getPropertyType(property.type)}</strong>
@@ -565,7 +570,7 @@ const Property = () => {
                     </div>
                   </div>
 
-                  <div className="property-amenities">
+                  <div className="property-amenities" data-reveal>
                     <PropertyInfo
                       property={property}
                       language={language}

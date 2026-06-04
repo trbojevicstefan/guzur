@@ -30,6 +30,7 @@ import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import Footer from '@/components/Footer'
 
+import { useReveal } from '@/hooks/useMotion'
 import '@/assets/css/role-signup.css'
 
 const roleMap: Record<string, movininTypes.UserType> = {
@@ -63,6 +64,7 @@ const RoleSignUp = () => {
   const [showPassword, setShowPassword] = useState(false)
 
   const resolvedRole = role ? roleMap[role.toLowerCase()] : undefined
+  const revealRef = useReveal<HTMLDivElement>()
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
@@ -243,7 +245,7 @@ const RoleSignUp = () => {
       <Layout strict={false} onLoad={onLoad}>
         {visible && (
           <>
-            <div className="role-portal">
+            <div className="role-portal" ref={revealRef}>
               <section className="role-hero">
                 <div className="role-hero-media" />
                 <div className="role-hero-gradient" />
@@ -276,13 +278,13 @@ const RoleSignUp = () => {
                     {strings.BACK_TO_REGISTER}
                   </button>
 
-                  <div className="role-panel-header">
+                  <div className="role-panel-header" data-reveal>
                     <h2>{strings.HEADING}</h2>
                     <span className="role-accent" />
                     <p>{strings.CHOOSE_ROLE}</p>
                   </div>
 
-                  <div className="role-cards">
+                  <div className="role-cards" data-reveal-group>
                     <button className="role-card" onClick={() => navigate('/sign-up/role/broker')}>
                       <div className="role-card-glow" />
                       <div className="role-card-icon">
@@ -344,7 +346,7 @@ const RoleSignUp = () => {
     <Layout strict={false} onLoad={onLoad}>
       {visible && (
         <>
-          <div className="role-form-portal">
+          <div className="role-form-portal" ref={revealRef}>
             <section className="role-hero">
               <div className="role-hero-media" />
               <div className="role-hero-gradient" />
@@ -377,13 +379,13 @@ const RoleSignUp = () => {
                   {strings.BACK_TO_ROLES}
                 </button>
 
-                <div className="role-panel-header">
+                <div className="role-panel-header" data-reveal>
                   <h2>{strings.SIGN_UP_AS}</h2>
                   <span className="role-accent" />
                   <p>{strings.SIGN_UP_SUBTITLE}</p>
                 </div>
 
-                <form className="role-form" onSubmit={handleSubmit}>
+                <form className="role-form" onSubmit={handleSubmit} data-reveal>
                   <div className="role-field">
                     <label className="required">{commonStrings.FULL_NAME}</label>
                     <div className="role-input">

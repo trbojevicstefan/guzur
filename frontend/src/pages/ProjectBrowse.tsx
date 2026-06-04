@@ -14,10 +14,13 @@ import { strings as browseStrings } from '@/lang/project-browse'
 import * as LocationService from '@/services/LocationService'
 import * as helper from '@/utils/helper'
 
+import { useReveal } from '@/hooks/useMotion'
+
 import '@/assets/css/project-browse.css'
 
 const ProjectBrowse = () => {
   const navigate = useNavigate()
+  const revealRef = useReveal<HTMLDivElement>()
   const [loading, setLoading] = useState(false)
   const [locations, setLocations] = useState<movininTypes.Location[]>([])
   const [path, setPath] = useState<movininTypes.Location[]>([])
@@ -62,8 +65,8 @@ const ProjectBrowse = () => {
 
   return (
     <Layout strict={false}>
-      <div className="project-browse">
-        <div className="project-browse-header">
+      <div className="project-browse" ref={revealRef}>
+        <div className="project-browse-header" data-reveal>
           <h1>{browseStrings.HEADING}</h1>
           {path.length > 0 && (
             <Button
@@ -77,7 +80,7 @@ const ProjectBrowse = () => {
             </Button>
           )}
         </div>
-        <div className="project-browse-path">
+        <div className="project-browse-path" data-reveal>
           <Button
             variant="text"
             onClick={() => {
@@ -101,7 +104,7 @@ const ProjectBrowse = () => {
           ))}
         </div>
 
-        <FormControl fullWidth className="project-browse-search">
+        <FormControl fullWidth className="project-browse-search" data-reveal>
           <InputLabel>{browseStrings.SEARCH}</InputLabel>
           <Input
             value={keyword}
@@ -109,7 +112,7 @@ const ProjectBrowse = () => {
           />
         </FormControl>
 
-        <div className="project-browse-grid">
+        <div className="project-browse-grid" data-reveal-group>
           {locations.length === 0 && !loading && (
             <div className="project-browse-empty">{browseStrings.NO_LOCATIONS}</div>
           )}

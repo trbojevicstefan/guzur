@@ -16,6 +16,7 @@ import Error from './Error'
 import NoMatch from './NoMatch'
 import Footer from '@/components/Footer'
 import PasswordInput from '@/components/PasswordInput'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/reset-password.css'
 
@@ -23,6 +24,7 @@ const ResetPassword = () => {
   const navigate = useNavigate()
 
   const { setUser, setUserLoaded } = useUserContext() as UserContextType
+  const revealRef = useReveal<HTMLDivElement>()
   const [userId, setUserId] = useState('')
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')
@@ -141,8 +143,8 @@ const ResetPassword = () => {
     <Layout onLoad={onLoad} strict={false}>
       {visible && (
         <>
-          <div className="reset-password">
-            <Paper className="reset-password-form" elevation={10}>
+          <div className="reset-password" ref={revealRef}>
+            <Paper className="reset-password-form" elevation={10} data-reveal>
               <h1>{rpStrings.RESET_PASSWORD_HEADING}</h1>
               <form onSubmit={handleSubmit}>
                 

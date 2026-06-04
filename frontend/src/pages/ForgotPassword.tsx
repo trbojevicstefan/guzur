@@ -18,12 +18,14 @@ import { strings } from '@/lang/reset-password'
 import SocialLogin from '@/components/SocialLogin'
 import NoMatch from './NoMatch'
 import Footer from '@/components/Footer'
+import { useReveal } from '@/hooks/useMotion'
 
 import '@/assets/css/forgot-password.css'
 
 const ForgotPassword = () => {
   const navigate = useNavigate()
 
+  const revealRef = useReveal<HTMLDivElement>()
   const [email, setEmail] = useState('')
   const [visible, setVisible] = useState(false)
   const [error, setError] = useState(false)
@@ -120,8 +122,8 @@ const ForgotPassword = () => {
     <Layout onLoad={onLoad} strict={false}>
       {visible && (
         <>
-          <div className="forgot-password">
-            <Paper className="forgot-password-form" elevation={10}>
+          <div className="forgot-password" ref={revealRef}>
+            <Paper className="forgot-password-form" elevation={10} data-reveal>
               <h1 className="forgot-password-title">
                 {' '}
                 {strings.RESET_PASSWORD_HEADING}
